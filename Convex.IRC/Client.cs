@@ -145,11 +145,11 @@ namespace Convex.IRC {
             RegisterMethods();
 
             await Server.Initialise();
-            await Server.SendConnectionInfo(ClientConfiguration.Nickname, ClientConfiguration.Realname);
-
             await OnInitialised(this, new ClassInitialisedEventArgs(this));
 
-            return IsInitialised = Server.IsInitialised && Wrapper.Initialised; //&& MainDatabase.IsInitialised;
+            await Server.SendConnectionInfo(ClientConfiguration.Nickname, ClientConfiguration.Realname);
+            
+            return IsInitialised = Server.Initialised && Wrapper.Initialised;
         }
 
         /// <summary>

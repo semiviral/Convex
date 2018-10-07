@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Users\semiv\OneDrive\Documents\GitHub\Convex.Example\Convex.Example\bin\Debug\netcoreapp2.0\Plugins\</OutputPath>
+    <OutputPath>C:\Users\semiv\OneDrive\Documents\GitHub\Convex\Convex.Example\bin\Debug\netcoreapp2.0\Plugins\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,15 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <Reference Include="Convex.Event">
-		  <HintPath>..\..\Convex.Event\Convex.Event\bin\Debug\netcoreapp2.0\Convex.Event.dll</HintPath>
-	  </Reference>
-    <Reference Include="Convex.IRC">
-      <HintPath>..\..\Convex.IRC\Convex.IRC\bin\Debug\netcoreapp2.0\Convex.IRC.dll</HintPath>
-    </Reference>
-    <Reference Include="Convex.Plugin">
-      <HintPath>..\..\Convex.Plugin\Convex.Plugin\bin\Debug\netcoreapp2.0\Convex.Plugin.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\Convex.Event\Convex.Event.csproj" />
+    <ProjectReference Include="..\Convex.IRC\Convex.IRC.csproj" />
+    <ProjectReference Include="..\Convex.Plugin\Convex.Plugin.csproj" />
   </ItemGroup>
 
 </Project>

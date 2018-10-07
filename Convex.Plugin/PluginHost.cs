@@ -16,6 +16,11 @@ using Convex.Plugin.Registrar;
 
 namespace Convex.Plugin {
     public class PluginHost<T> where T : EventArgs {
+        public PluginHost(string pluginsDirectory, Func<T, Task> onInvokedMethod) {
+            PluginsDirectory = pluginsDirectory;
+            OnInvoked = onInvokedMethod;
+        }
+
         #region MEMBERS
 
         private const string _PluginMask = "Convex.*.dll";
@@ -30,11 +35,6 @@ namespace Convex.Plugin {
         public string PluginsDirectory { get; }
 
         #endregion
-
-        public PluginHost(string pluginsDirectory, Func<T, Task> onInvokedMethod) {
-            PluginsDirectory = pluginsDirectory;
-            OnInvoked = onInvokedMethod;
-        }
 
         #region EVENTS
 
@@ -98,23 +98,34 @@ namespace Convex.Plugin {
             if (!Directory.Exists(PluginsDirectory))
                 Directory.CreateDirectory(PluginsDirectory);
 
+            IPlugin currentPluginIterated = null;
+
             try {
                 // array of all filepaths that are found to match the PLUGIN_MASK
-                IEnumerable<IPlugin> pluginInstances = Directory.GetFiles(PluginsDirectory, _PluginMask, SearchOption.AllDirectories).SelectMany(GetPluginInstances);
-
+                IEnumerable<IPlugin> pluginInstances = Directory
+                    .GetFiles(PluginsDirectory, _PluginMask, SearchOption.AllDirectories)
+                    .SelectMany(GetPluginInstances);
 
                 foreach (IPlugin plugin in pluginInstances) {
+                    currentPluginIterated = plugin;
+
                     plugin.Callback += OnPluginCallback;
                     AddPlugin(plugin, false);
                 }
             } catch (ReflectionTypeLoadException ex) {
                 foreach (Exception loaderException in ex.LoaderExceptions)
-                    await OnLog(this, new InformationLoggedEventArgs($"LoaderException occured loading a plugin: {loaderException}"));
+                    await OnLog(this,
+                        new InformationLoggedEventArgs($"LoaderException occured loading a plugin: {loaderException}"));
+            } catch (FileLoadException ex) {
+                // assembly with same name
+                if (ex.HResult.Equals(-2146232799))
+                    await OnLog(this, new InformationLoggedEventArgs($"({currentPluginIterated.Name}, {currentPluginIterated.Version}) not loaded, assembly with same AssemblyName already loaded."));
             } catch (Exception ex) {
-                await OnLog(this, new InformationLoggedEventArgs($"Error occured loading a plugin: {ex}"));
+                await OnLog(this, new InformationLoggedEventArgs($"Error occurred loading a plugin ({currentPluginIterated.Name}): {ex.HResult} {ex}"));
             }
 
-            await OnLog(this, new InformationLoggedEventArgs($"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => plugin.Instance.Name))}"));
+            if (Plugins.Count > 0)
+                await OnLog(this, new InformationLoggedEventArgs($"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => new Tuple<string, Version>(plugin.Instance.Name, plugin.Instance.Version)))}"));
         }
 
         /// <summary>
@@ -123,7 +134,7 @@ namespace Convex.Plugin {
         /// <param name="assemblyName">full name of assembly</param>
         /// <returns></returns>
         private static IEnumerable<IPlugin> GetPluginInstances(string assemblyName) {
-            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin)Activator.CreateInstance(type));
+            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin) Activator.CreateInstance(type));
         }
 
         /// <summary>

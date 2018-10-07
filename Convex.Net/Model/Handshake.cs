@@ -69,7 +69,7 @@ namespace Convex.Net.Model.Services {
 
             //InitialiseKeys();
 
-            //IsInitialised = true;
+            //Initialised = true;
 
             // todo separate PublicKey and PrivateKey into field/Property relationship
             // todo set up BigIntegers in propertyies that update when field is changed

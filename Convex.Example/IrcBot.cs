@@ -31,7 +31,7 @@ namespace Convex.Example {
         /// </summary>
         public IrcBot() {
             _bot = new Client("irc.foonetic.net", 6667);
-            _bot.Initialised += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, "Client initialized."));
+            _bot.Initialised += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, "Client initialised."));
             _bot.Logged += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, args.Information));
             _bot.Server.Connection.Flushed += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
             _bot.Server.ChannelMessaged += LogChannelMessage;

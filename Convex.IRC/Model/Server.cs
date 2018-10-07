@@ -20,7 +20,7 @@ namespace Convex.IRC.Model {
         public Connection Connection { get; }
 
         public bool Identified { get; set; }
-        public bool IsInitialised { get; private set; }
+        public bool Initialised { get; private set; }
         public bool Executing => Connection.Executing;
 
         public ObservableCollection<Channel> Channels { get; }
@@ -41,7 +41,7 @@ namespace Convex.IRC.Model {
             Connection?.Dispose();
 
             Identified = false;
-            IsInitialised = false;
+            Initialised = false;
         }
 
         #endregion
@@ -117,7 +117,7 @@ namespace Convex.IRC.Model {
 
             await Connection.Initialise();
 
-            IsInitialised = Connection.IsInitialised;
+            Initialised = Connection.IsInitialised;
         }
 
         /// <summary>
