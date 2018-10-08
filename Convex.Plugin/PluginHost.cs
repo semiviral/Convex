@@ -116,12 +116,8 @@ namespace Convex.Plugin {
                 foreach (Exception loaderException in ex.LoaderExceptions)
                     await OnLog(this,
                         new InformationLoggedEventArgs($"LoaderException occured loading a plugin: {loaderException}"));
-            } catch (FileLoadException ex) {
-                // assembly with same name
-                if (ex.HResult.Equals(-2146232799))
-                    await OnLog(this, new InformationLoggedEventArgs($"({currentPluginIterated.Name}, {currentPluginIterated.Version}) not loaded, assembly with same AssemblyName already loaded."));
             } catch (Exception ex) {
-                await OnLog(this, new InformationLoggedEventArgs($"Error occurred loading a plugin ({currentPluginIterated.Name}): {ex.HResult} {ex}"));
+                await OnLog(this, new InformationLoggedEventArgs($"Error occurred loading a plugin ({currentPluginIterated.Name}, {currentPluginIterated.Version}): {ex}"));
             }
 
             if (Plugins.Count > 0)

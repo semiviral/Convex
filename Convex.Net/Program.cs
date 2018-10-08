@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Convex.Net {
+namespace Convex.Clients {
     public class Program {
         public static void Main(string[] args) {
             BuildWebHost(args).Run();

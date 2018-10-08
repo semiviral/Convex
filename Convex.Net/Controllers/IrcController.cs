@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using Convex.IRC.Model;
-using Convex.Net.Model;
-using Convex.Net.Model.Services;
+using Convex.Clients.Models;
+using Convex.Clients.Models.Services;
+using Convex.IRC.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Rest.TransientFaultHandling;
 
-namespace Convex.Net.Controllers {
+namespace Convex.Clients.Controllers {
     [Route("api/[controller]")]
     public class IrcController : Controller {
         #region MEMBERS

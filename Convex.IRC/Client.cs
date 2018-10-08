@@ -22,7 +22,6 @@ namespace Convex.IRC {
         #region MEMBERS
 
         private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
-        //private Database MainDatabase { get; }
 
         public bool IsInitialised { get; private set; }
 

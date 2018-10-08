@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Immutable;
-using Convex.Net.Model;
-using Convex.Net.Model.Services;
+﻿using Convex.Clients.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Convex.Net.Controllers {
+namespace Convex.Clients.Controllers {
     [Route("api/[controller]")]
     public class ClientController {
         #region MEMBERS

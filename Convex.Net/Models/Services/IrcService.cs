@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Convex.IRC;
 using Convex.IRC.ComponentModel.Event;
-using Convex.IRC.Model;
+using Convex.IRC.Models;
 
-namespace Convex.Net.Model.Services {
+namespace Convex.Clients.Models.Services {
     public class IrcService {
         #region MEMBERS
 

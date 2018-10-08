@@ -1,11 +1,10 @@
-﻿using Convex.Net.Model;
-using Convex.Net.Model.Services;
+﻿using Convex.Clients.Models.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Convex.Net {
+namespace Convex.Clients {
     public class Startup {
         #region MEMBERS
 
