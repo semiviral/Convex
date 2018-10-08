@@ -28,8 +28,8 @@ namespace Convex.Example {
             }
         }
 
-        private static void Main() {
-            InitialiseAndExecute().Wait();
+        private static async void Main() {
+            await InitialiseAndExecute();
 
             Console.Write("Program terminated. Press any key to continue.");
             Console.ReadKey();
