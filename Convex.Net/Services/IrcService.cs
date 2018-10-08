@@ -8,7 +8,7 @@ using Convex.IRC;
 using Convex.IRC.ComponentModel.Event;
 using Convex.IRC.Models;
 
-namespace Convex.Clients.Models.Services {
+namespace Convex.Clients.Services {
     public class IrcService {
         #region MEMBERS
 

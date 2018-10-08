@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Convex.Clients.Models;
 
-namespace Convex.Clients.Models.Services {
+namespace Convex.Clients.Services {
     public class ClientService {
         #region MEMBERS
 

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using Convex.Clients.Models;
-using Convex.Clients.Models.Services;
+using Convex.Clients.Services;
 using Convex.IRC.Models;
 using Microsoft.AspNetCore.Mvc;
 

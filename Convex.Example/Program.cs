@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 #endregion
 
 namespace Convex.Example {
-    internal static class Program {
+    public class Program {
         #region MEMBERS
 
         private static IrcBot Bot { get; set; }
@@ -28,7 +28,7 @@ namespace Convex.Example {
             }
         }
 
-        private static async void Main() {
+        public static async Task Main() {
             await InitialiseAndExecute();
 
             Console.Write("Program terminated. Press any key to continue.");

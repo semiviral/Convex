@@ -1,4 +1,4 @@
-﻿using Convex.Clients.Models.Services;
+﻿using Convex.Clients.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Convex.Clients.Controllers {
