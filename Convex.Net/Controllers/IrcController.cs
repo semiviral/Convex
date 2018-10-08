@@ -11,14 +11,14 @@ namespace Convex.Clients.Controllers {
     public class IrcController : Controller {
         #region MEMBERS
 
-        private ClientService InterClientService { get; }
+        private ClientService ClientService { get; }
         private IrcService IrcClientReference { get; }
 
         #endregion
 
         public IrcController(ClientService clientService, IrcService service) {
             IrcClientReference = service;
-            InterClientService = clientService;
+            ClientService = clientService;
         }
 
         //GET api/irc
@@ -27,14 +27,14 @@ namespace Convex.Clients.Controllers {
             if (!Guid.TryParse(guid, out Guid clientGuid))
                 throw new HttpRequestException("Guid must be in proper format.");
 
-            if (!InterClientService.IsClientVerified(clientGuid))
+            if (!ClientService.IsClientVerified(clientGuid))
                 throw new HttpRequestException("Client must be verified.");
 
-            DateTime localTime = new DateTime(1970, 01, 01, 00, 00, 00, 00, DateTimeKind.Utc);
-            localTime = localTime.AddSeconds(unixTimestamp).ToLocalTime();
+            DateTime referenceTime = new DateTime(1970, 01, 01, 00, 00, 00, 00, DateTimeKind.Utc);
+            referenceTime = referenceTime.AddSeconds(unixTimestamp).ToLocalTime();
 
             // DateTime.MinValue == 1/1/0001 12:00:00 AM (YYYYMMDDhhmmss 1970,01,01,00,00,00,00)
-            return IrcClientReference.GetMessagesByDateTimeOrDefault(localTime, DateTimeOrdinal.After).ToList();
+            return IrcClientReference.GetMessagesByDateTimeOrDefault(referenceTime, DateTimeOrdinal.After).ToList();
         }
     }
 }
