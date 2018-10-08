@@ -8,7 +8,7 @@ using Convex.Event;
 
 #endregion
 
-namespace Convex.IRC.Model.Net {
+namespace Convex.IRC.Models.Net {
     public sealed class Connection {
         #region MEMBERS
 

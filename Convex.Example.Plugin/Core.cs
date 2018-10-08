@@ -12,7 +12,7 @@ using Convex.Example.Plugin.Calculator;
 using Convex.IRC.ComponentModel;
 using Convex.IRC.ComponentModel.Event;
 using Convex.IRC.ComponentModel.Reference;
-using Convex.IRC.Model;
+using Convex.IRC.Models;
 using Convex.Plugin;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;

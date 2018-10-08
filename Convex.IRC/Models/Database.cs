@@ -15,7 +15,7 @@ using Microsoft.Data.Sqlite;
 
 #endregion
 
-namespace Convex.IRC.Model {
+namespace Convex.IRC.Models {
     public class Database {
         #region MEMBERS
 

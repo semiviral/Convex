@@ -5,7 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Views\" />
+    <Content Remove="Views\index.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -16,6 +19,10 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Views\index.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,7 +5,7 @@ using Convex.IRC.ComponentModel.Reference;
 
 #endregion
 
-namespace Convex.IRC.Model {
+namespace Convex.IRC.Models {
     public class Channel {
         #region MEMBERS
 

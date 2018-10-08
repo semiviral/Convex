@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.ComponentModel.Event;
 using Convex.IRC.ComponentModel.Reference;
-using Convex.IRC.Model.Net;
+using Convex.IRC.Models.Net;
 
 #endregion
 
-namespace Convex.IRC.Model {
+namespace Convex.IRC.Models {
     public class Server : IDisposable {
         #region MEMBERS
 

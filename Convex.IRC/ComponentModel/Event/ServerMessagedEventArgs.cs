@@ -1,7 +1,7 @@
 ﻿#region usings
 
 using System;
-using Convex.IRC.Model;
+using Convex.IRC.Models;
 
 #endregion
 
