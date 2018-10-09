@@ -8,22 +8,16 @@ using Convex.IRC;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Convex.IRC.Dependency;
+using Microsoft.Extensions.Hosting;
 
 namespace Convex.Clients.Models {
-    public class IrcClient : IIrcClient {
+    public class IrcClient : IIrcClient, IHostedService {
         public IrcClient(string address, int port, Configuration configuration = null) {
             Address = address;
             Port = port;
 
             Messages = new List<ServerMessage>();
-
             Client = new Client();
-            Client.Server.ChannelMessaged += OnClientChannelMessaged;
-            Client.Logged += (sender, args) => { Debug.WriteLine(args.Information);
-                return Task.CompletedTask;
-            };
-            Client.Initialise(Address, Port);
-            ThreadPool.QueueUserWorkItem(async delegate { await Client.BeginListenAsync(); });
         }
 
         #region EVENT
@@ -55,26 +49,24 @@ namespace Convex.Clients.Models {
             return Messages;
         }
 
-        public IEnumerable<ServerMessage> GetMessagesByDateTimeOrDefault(DateTime referenceTime, DateTimeOrdinal dateTimeOrdinal) {
-            IEnumerable<ServerMessage> temporaryList = null;
+        #endregion
 
-            switch (dateTimeOrdinal) {
-                case DateTimeOrdinal.Before:
-                    temporaryList = Messages.Where(message => message.Timestamp < referenceTime);
-                    break;
-                case DateTimeOrdinal.After:
-                    temporaryList = Messages.Where(message => message.Timestamp > referenceTime);
-                    break;
-            }
-
-            return temporaryList;
+        private void Initialise() {
+            Client.Server.ChannelMessaged += OnClientChannelMessaged;
+            Client.Logged += (sender, args) => {
+                Debug.WriteLine(args.Information);
+                return Task.CompletedTask;
+            };
+            Client.Initialise(Address, Port);
+            ThreadPool.QueueUserWorkItem(async delegate { await Client.BeginListenAsync(); });
         }
 
-        #endregion
-    }
+        public async Task StartAsync(CancellationToken cancellationToken) {
+            await Client.BeginListenAsync();
+        }
 
-    public enum DateTimeOrdinal {
-        Before,
-        After
+        public Task StopAsync(CancellationToken cancellationToken) {
+            throw new NotImplementedException();
+        }
     }
 }
