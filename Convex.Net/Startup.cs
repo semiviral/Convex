@@ -1,5 +1,4 @@
-﻿using Convex.Clients.Services;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -10,8 +9,6 @@ namespace Convex.Clients {
         #region MEMBERS
 
         public IConfiguration Configuration { get; }
-        public IrcService IrcService { get; private set; }
-        private ClientService ClientService { get; set; }
 
         #endregion
 
@@ -22,17 +19,22 @@ namespace Convex.Clients {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvc();
-
-            //services.Add(new ServiceDescriptor(typeof(ClientService), ClientService = new ClientService()));
-            //services.Add(new ServiceDescriptor(typeof(IrcService), IrcService = new IrcService("irc.foonetic.net", 6667)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
+            
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Root}/{action=Index}/{id?}");
+            });
         }
     }
 }

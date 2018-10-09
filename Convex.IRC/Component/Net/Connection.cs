@@ -12,8 +12,8 @@ namespace Convex.IRC.Component.Net {
     public sealed class Connection {
         #region MEMBERS
 
-        public string Address { get; }
-        public int Port { get; }
+        public string Address { get; private set; }
+        public int Port { get; private set; }
         public bool IsConnected { get; private set; }
         public bool IsInitialised { get; private set; }
         public int MaximumConnectionRetries { get; }
@@ -27,9 +27,7 @@ namespace Convex.IRC.Component.Net {
 
         #endregion
 
-        public Connection(string address, int port, int maximumConnectionRetries = 3) {
-            Address = address;
-            Port = port;
+        public Connection(int maximumConnectionRetries = 3) {
             MaximumConnectionRetries = maximumConnectionRetries;
         }
 
@@ -45,7 +43,10 @@ namespace Convex.IRC.Component.Net {
 
         #region INIT
 
-        public async Task Initialise() {
+        public async Task Initialise(string address, int port) {
+            Address = address;
+            Port = port;
+
             Connected += (sender, args) => {
                 IsConnected = true;
                 return Task.CompletedTask;

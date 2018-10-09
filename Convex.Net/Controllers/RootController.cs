@@ -5,14 +5,13 @@ namespace Convex.Clients__Server_.Controllers {
     public class RootController : Controller {
         private IIrcClient Client { get; }
 
-        public RootController(IIrcClient client) {
-            Client = client;
+        public RootController() {
+            Client = new IrcClient("irc.foonetic.net", 6667);
         }
 
         public IActionResult Index() {
             ViewData["Address"] = Client.Address;
             ViewData["IrcMessages"] = Client.GetAllMessages();
-            ViewData
 
             return View();
         }

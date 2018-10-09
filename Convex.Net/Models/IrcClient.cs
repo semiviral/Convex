@@ -12,7 +12,7 @@ using Convex.IRC.Dependency;
 
 namespace Convex.Clients.Models {
     public class IrcClient : IIrcClient {
-        public IrcClient(string address, int port) {
+        public IrcClient(string address, int port, Configuration configuration = null) {
             Address = address;
             Port = port;
 
@@ -21,6 +21,7 @@ namespace Convex.Clients.Models {
             Client = new Client();
             Client.Server.ChannelMessaged += OnClientChannelMessaged;
             ThreadPool.QueueUserWorkItem(async delegate { await RunIrcService(); });
+            Client.Initialise(Address, Port, configuration);
         }
 
         #region EVENT
