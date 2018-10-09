@@ -24,11 +24,13 @@ namespace Convex.IRC {
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     recieiving.
         /// </summary>
-        public Client() {
+        public Client(Configuration configuration = null) {
             Server = new Server();
 
             TerminateSignaled += Terminate;
             Server.ChannelMessaged += ChannelMessaged;
+
+            InitialiseConfiguration(configuration);
 
             Wrapper = new PluginWrapper<ServerMessagedEventArgs>($@"{AppContext.BaseDirectory}\Plugins", OnInvokedMethod);
             Wrapper.Logged += OnLog;
@@ -78,7 +80,7 @@ namespace Convex.IRC {
         public Dictionary<string, Tuple<string, string>> LoadedCommands => Wrapper.Host.DescriptionRegistry;
         public string Address => Server.Connection.Address;
         public int Port => Server.Connection.Port;
-        public List<string> IgnoreList => GetClientConfiguration().IgnoreList;
+        public List<string> IgnoreList => GetClientConfiguration().IgnoreList ?? new List<string>();
 
         private bool _disposed;
 
@@ -123,8 +125,19 @@ namespace Convex.IRC {
 
         #region INIT
 
-        public async Task<bool> Initialise(string address, int port, Configuration configuration = null) {
-            InitialiseConfiguration(configuration);
+        private void InitialiseConfiguration(Configuration configuration) {
+            if (!Directory.Exists(Configuration.DefaultResourceDirectory))
+                Directory.CreateDirectory(Configuration.DefaultResourceDirectory);
+
+            if (configuration == null) {
+                Configuration.CheckCreateConfig(Configuration.DefaultConfigurationFilePath);
+                clientConfiguration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
+            } else {
+                clientConfiguration = configuration;
+            }
+        }
+
+        public async Task<bool> Initialise(string address, int port) {
             await InitialisePluginWrapper();
 
             Connection temp = new Connection();
@@ -136,18 +149,6 @@ namespace Convex.IRC {
             await Server.SendConnectionInfo(GetClientConfiguration().Nickname, GetClientConfiguration().Realname);
 
             return IsInitialised = Server.Initialised && Wrapper.Initialised;
-        }
-
-        private void InitialiseConfiguration(Configuration configuration) {
-            if (!Directory.Exists(Configuration.DefaultResourceDirectory))
-                Directory.CreateDirectory(Configuration.DefaultResourceDirectory);
-
-            if (configuration == null) {
-                Configuration.CheckCreateConfig(Configuration.DefaultConfigurationFilePath);
-                clientConfiguration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
-            } else {
-                clientConfiguration = configuration;
-            }
         }
 
         private async Task InitialisePluginWrapper() {
