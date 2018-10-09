@@ -20,35 +20,34 @@ namespace Convex.Plugin {
         public PluginWrapper(string pluginsDirectory, Func<T, Task> onInvokedMethod) {
             Host = new PluginHost<T>(pluginsDirectory, onInvokedMethod);
         }
-
-
+        
         #region METHODS
 
-        private async Task Callback(object sender, PluginActionEventArgs e) {
+        private async Task Callback(object sender, PluginActionEventArgs args) {
             if (Host.ShuttingDown)
                 return;
 
-            switch (e.ActionType) {
+            switch (args.ActionType) {
                 case PluginActionType.SignalTerminate:
                     await OnTerminated(sender, new OperationTerminatedEventArgs(sender, "Terminate signaled."));
                     break;
                 case PluginActionType.RegisterMethod:
-                    if (!(e.Result is IAsyncRegistrar<T>))
+                    if (!(args.Result is IAsyncRegistrar<T>))
                         break;
 
-                    Host.RegisterMethod((IAsyncRegistrar<T>)e.Result);
+                    Host.RegisterMethod((IAsyncRegistrar<T>)args.Result);
                     break;
                 case PluginActionType.SendMessage:
-                    if (!(e.Result is IrcCommandRecievedEventArgs))
+                    if (!(args.Result is IrcCommandRecievedEventArgs))
                         break;
 
-                    await OnCommandReceived(sender, (IrcCommandRecievedEventArgs)e.Result);
+                    await OnCommandReceived(sender, (IrcCommandRecievedEventArgs)args.Result);
                     break;
                 case PluginActionType.Log:
-                    if (!(e.Result is string))
+                    if (!(args.Result is string))
                         break;
 
-                    await OnLog(sender, new InformationLoggedEventArgs((string)e.Result));
+                    await OnLog(sender, new InformationLoggedEventArgs((string)args.Result));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -56,8 +55,7 @@ namespace Convex.Plugin {
         }
 
         #endregion
-
-
+        
         #region INIT
 
         public async Task Initialise() {
@@ -73,8 +71,7 @@ namespace Convex.Plugin {
         }
 
         #endregion
-
-
+        
         #region EVENTS
 
         public event AsyncEventHandler<InformationLoggedEventArgs> Logged;

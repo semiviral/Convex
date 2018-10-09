@@ -10,13 +10,12 @@ using Convex.Plugin.Registrar;
 namespace Convex.IRC.Dependency {
     public interface IClient {
         string Address { get; }
-        int Port { get; }
         List<string> IgnoreList { get; }
         bool IsInitialised { get; }
         Dictionary<string, Tuple<string, string>> LoadedCommands { get; }
+        int Port { get; }
         Server Server { get; }
         Version Version { get; }
-        Configuration GetClientConfiguration();
 
         event AsyncEventHandler<ErrorEventArgs> Error;
         event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
@@ -25,11 +24,12 @@ namespace Convex.IRC.Dependency {
         event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
 
         Task BeginListenAsync();
+        bool CommandExists(string command);
         void Dispose();
         string GetApiKey(string type);
-        bool CommandExists(string command);
+        Configuration GetClientConfiguration();
         Tuple<string, string> GetCommand(string command);
-        Task<bool> Initialise(string address, int port, Configuration configuration = null);
+        Task<bool> Initialise(string address, int port);
         void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar);
     }
 }

@@ -32,6 +32,8 @@ namespace Convex.Example.Plugin {
         private readonly InlineCalculator _calculator = new InlineCalculator();
         private readonly Regex _youtubeRegex = new Regex(@"(?i)http(?:s?)://(?:www\.)?youtu(?:be\.com/watch\?v=|\.be/)(?<ID>[\w\-]+)(&(amp;)?[\w\?=‌​]*)?", RegexOptions.Compiled);
 
+        private bool MotdReplyEndSequenceEnacted;
+
         #endregion
 
         #region INTERFACE IMPLEMENTATION
@@ -135,7 +137,7 @@ namespace Convex.Example.Plugin {
         }
 
         private async Task MotdReplyEnd(ServerMessagedEventArgs args) {
-            if (args.Caller.Server.Identified)
+            if (MotdReplyEndSequenceEnacted)
                 return;
 
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandRecievedEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {args.Caller.GetClientConfiguration().Password}"), Name));
@@ -143,7 +145,7 @@ namespace Convex.Example.Plugin {
 
             args.Caller.Server.Channels.Add(new Channel("#testgrounds"));
 
-            args.Caller.Server.Identified = true;
+            MotdReplyEndSequenceEnacted = true;
         }
 
         private async Task Quit(ServerMessagedEventArgs args) {
@@ -184,7 +186,7 @@ namespace Convex.Example.Plugin {
             Status = PluginStatus.Processing;
 
             string message = string.Empty;
-            
+
             if (args.Message.SplitArgs.Count < 3)
                 message = "Insufficient parameters. Type 'eve help join' to view command's help index.";
             else if (args.Message.SplitArgs.Count < 2 || !args.Message.SplitArgs[2].StartsWith("#"))
@@ -253,8 +255,8 @@ namespace Convex.Example.Plugin {
             string getResponse = await $"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={_youtubeRegex.Match(args.Message.Args).Groups["ID"]}&key={args.Caller.GetApiKey("YouTube")}".HttpGet();
 
             JToken video = JObject.Parse(getResponse)["items"][0]["snippet"];
-            string channel = (string)video["channelTitle"];
-            string title = (string)video["title"];
+            string channel = (string) video["channelTitle"];
+            string title = (string) video["title"];
             string description = video["description"].ToString().Split('\n')[0];
             string[] descArray = description.Split(' ');
 
@@ -292,27 +294,27 @@ namespace Convex.Example.Plugin {
 
             JObject entry = JObject.Parse(await $"http://api.pearson.com/v2/dictionaries/laad3/entries?headword={args.Message.SplitArgs[2]}{partOfSpeech}&limit=1".HttpGet());
 
-            if ((int)entry.SelectToken("count") < 1) {
+            if ((int) entry.SelectToken("count") < 1) {
                 command.Arguments = "Query returned no results.";
                 await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, command, Name));
                 return;
             }
 
-            Dictionary<string, string> _out = new Dictionary<string, string> {{"word", (string)entry["results"][0]["headword"]}, {"pos", (string)entry["results"][0]["part_of_speech"]}};
+            Dictionary<string, string> _out = new Dictionary<string, string> {{"word", (string) entry["results"][0]["headword"]}, {"pos", (string) entry["results"][0]["part_of_speech"]}};
 
             // todo optimise if block
             // this 'if' block seems messy and unoptimised.
             // I'll likely change it in the future.
             if (entry["results"][0]["senses"][0]["subsenses"] != null) {
-                _out.Add("definition", (string)entry["results"][0]["senses"][0]["subsenses"][0]["definition"]);
+                _out.Add("definition", (string) entry["results"][0]["senses"][0]["subsenses"][0]["definition"]);
 
                 if (entry["results"][0]["senses"][0]["subsenses"][0]["examples"] != null)
-                    _out.Add("example", (string)entry["results"][0]["senses"][0]["subsenses"][0]["examples"][0]["text"]);
+                    _out.Add("example", (string) entry["results"][0]["senses"][0]["subsenses"][0]["examples"][0]["text"]);
             } else {
-                _out.Add("definition", (string)entry["results"][0]["senses"][0]["definition"]);
+                _out.Add("definition", (string) entry["results"][0]["senses"][0]["definition"]);
 
                 if (entry["results"][0]["senses"][0]["examples"] != null)
-                    _out.Add("example", (string)entry["results"][0]["senses"][0]["examples"][0]["text"]);
+                    _out.Add("example", (string) entry["results"][0]["senses"][0]["examples"][0]["text"]);
             }
 
             string returnMessage = $"{_out["word"]} [{_out["pos"]}] — {_out["definition"]}";
@@ -347,13 +349,13 @@ namespace Convex.Example.Plugin {
 
             JToken pages = JObject.Parse(response)["query"]["pages"].Values().First();
 
-            if (string.IsNullOrEmpty((string)pages["extract"])) {
+            if (string.IsNullOrEmpty((string) pages["extract"])) {
                 command.Arguments = "Query failed to return results. Perhaps try a different term?";
                 await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, command, Name));
                 return;
             }
 
-            string fullReplyStr = $"\x02{(string)pages["title"]}\x0F — {Regex.Replace((string)pages["extract"], @"\n\n?|\n", " ")}";
+            string fullReplyStr = $"\x02{(string) pages["title"]}\x0F — {Regex.Replace((string) pages["extract"], @"\n\n?|\n", " ")}";
 
             command.Command = args.Message.Nickname;
 
