@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,8 +19,11 @@ namespace Convex.Clients.Models {
 
             Client = new Client();
             Client.Server.ChannelMessaged += OnClientChannelMessaged;
-            ThreadPool.QueueUserWorkItem(async delegate { await RunIrcService(); });
-            Client.Initialise(Address, Port, configuration);
+            Client.Logged += (sender, args) => { Debug.WriteLine(args.Information);
+                return Task.CompletedTask;
+            };
+            Client.Initialise(Address, Port);
+            ThreadPool.QueueUserWorkItem(async delegate { await Client.BeginListenAsync(); });
         }
 
         #region EVENT
@@ -35,7 +37,7 @@ namespace Convex.Clients.Models {
         }
 
         #endregion
-        
+
         #region MEMBERS
 
         public IClient Client { get; }
@@ -48,11 +50,6 @@ namespace Convex.Clients.Models {
         #endregion
 
         #region METHODS
-
-        private async Task RunIrcService() {
-            await Client.Initialise(Address, Port);
-            await Client.BeginListenAsync();
-        }
 
         public IEnumerable<ServerMessage> GetAllMessages() {
             return Messages.AsReadOnly();

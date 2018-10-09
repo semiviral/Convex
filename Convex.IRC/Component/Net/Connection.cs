@@ -27,10 +27,6 @@ namespace Convex.IRC.Component.Net {
 
         #endregion
 
-        public Connection(int maximumConnectionRetries = 3) {
-            MaximumConnectionRetries = maximumConnectionRetries;
-        }
-
         public void Dispose() {
             _client?.Dispose();
             _networkStream?.Dispose();
@@ -63,16 +59,14 @@ namespace Convex.IRC.Component.Net {
         }
 
         private async Task AttemptConnect() {
-            for (int i = 0; i < MaximumConnectionRetries; i++)
                 try {
                     await ConnectAsync();
 
-                    await OnConnected(this, new ConnectedEventArgs(this, "Successfully connected to established address."));
-                    break;
+                    await OnConnected(this, new ConnectedEventArgs(this, "Successfully connected to provided address."));
                 } catch (Exception) {
-                    Console.WriteLine(i < MaximumConnectionRetries ? "Communication error, attempting to connect again..." : "Communication could not be established with address.\n");
+                    await OnDisconnected(this, new DisconnectedEventArgs(this, "Could not connect to provided address."));
 
-                    await OnDisconnected(this, new DisconnectedEventArgs(this, "Could not connect to established address."));
+                    throw;
                 }
         }
 

@@ -30,6 +30,12 @@ namespace Convex.IRC.Component {
 
         #endregion
 
+        public Server() {
+            Connection = new Connection();
+            Channels = new ObservableCollection<Channel>();
+            Channels.CollectionChanged += async (sender, args) => await ChannelCollectionChanged(sender, args);
+        }
+
         #region INTERFACE IMPLEMENTATION
 
         public void Dispose() {
@@ -107,14 +113,8 @@ namespace Convex.IRC.Component {
 
         #region INIT
 
-        public async Task Initialise(Connection connection) {
-            Channels = new ObservableCollection<Channel>();
-
+        public void Initialise(Connection connection) {
             Connection = connection;
-
-            Channels.CollectionChanged += async (sender, args) => await ChannelCollectionChanged(sender, args);
-
-            await Connection.Initialise();
 
             Initialised = Connection.IsInitialised;
         }
