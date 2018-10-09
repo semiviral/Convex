@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Convex.IRC.Component;
 using Convex.IRC.Dependency;
 
-namespace Convex.Clients.Models
+namespace Convex.Client.Services
 {
     public interface IClientHostedService
     {

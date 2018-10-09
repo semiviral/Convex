@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example.Plugin", "Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.IRC", "Convex.IRC\Convex.IRC.csproj", "{D3BA1D67-FFB8-40DF-812C-011FB53A0802}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Clients (Server)", "Convex.Net\Convex.Clients (Server).csproj", "{D30556ED-BEA4-4DAE-99F6-F262C97CD4EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Client", "Convex.Net\Convex.Client.csproj", "{D30556ED-BEA4-4DAE-99F6-F262C97CD4EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Plugin", "Convex.Plugin\Convex.Plugin.csproj", "{26E6E4F0-B510-46E7-A739-96BCB192BC00}"
 EndProject

@@ -1,7 +1,7 @@
-﻿using Convex.Clients.Models;
+﻿using Convex.Client.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Convex.Clients.Controllers {
+namespace Convex.Client.Controllers {
     public class RootController : Controller {
         private IClientHostedService Client { get; }
 

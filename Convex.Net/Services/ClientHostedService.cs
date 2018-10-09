@@ -2,13 +2,12 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Convex.IRC;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Convex.IRC.Dependency;
 using Microsoft.Extensions.Hosting;
 
-namespace Convex.Clients.Models {
+namespace Convex.Client.Services {
     public class ClientHostedService : IHostedService, IClientHostedService
     {
         public ClientHostedService(string address, int port, Configuration configuration = null) {
@@ -16,7 +15,7 @@ namespace Convex.Clients.Models {
             Port = port;
 
             Messages = new List<ServerMessage>();
-            Client = new Client();
+            Client = new IRC.Client();
         }
 
         #region EVENT

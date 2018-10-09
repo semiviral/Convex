@@ -3,7 +3,7 @@ using System.IO;
 using System.Numerics;
 using System.Security.Cryptography;
 
-namespace Convex.Clients.Models {
+namespace Convex.Client.Models.Security {
     public class Handshake {
         #region MEMBERS
 
