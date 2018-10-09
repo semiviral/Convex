@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
@@ -125,6 +126,8 @@ namespace Convex.IRC.Component {
         public async Task SendConnectionInfo(string nickname, string realname) {
             await Connection.SendDataAsync(this, new IrcCommandRecievedEventArgs(Commands.USER, $"{nickname} 0 * {realname}"));
             await Connection.SendDataAsync(this, new IrcCommandRecievedEventArgs(Commands.NICK, nickname));
+
+            Identified = true;
         }
 
         #endregion

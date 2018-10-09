@@ -22,8 +22,8 @@ namespace Convex.Clients.Models {
             Client.Logged += (sender, args) => { Debug.WriteLine(args.Information);
                 return Task.CompletedTask;
             };
-            ThreadPool.QueueUserWorkItem(async delegate { await Client.BeginListenAsync(); });
             Client.Initialise(Address, Port);
+            ThreadPool.QueueUserWorkItem(async delegate { await Client.BeginListenAsync(); });
         }
 
         #region EVENT
