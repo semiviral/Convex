@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Convex.Clients__Server_.Controllers {
     public class RootController : Controller {
-        private IIrcClient Client { get; }
+        private IClientHostedService Client { get; }
 
-        public RootController() {
-            Client = new IrcClient("irc.foonetic.net", 6667);
+        public RootController(IClientHostedService clientHostedService) {
+            Client = clientHostedService;
         }
 
         public IActionResult Index() {
