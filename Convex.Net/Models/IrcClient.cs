@@ -22,8 +22,8 @@ namespace Convex.Clients.Models {
             Client.Logged += (sender, args) => { Debug.WriteLine(args.Information);
                 return Task.CompletedTask;
             };
-            Client.Initialise(Address, Port);
             ThreadPool.QueueUserWorkItem(async delegate { await Client.BeginListenAsync(); });
+            Client.Initialise(Address, Port);
         }
 
         #region EVENT
@@ -52,7 +52,7 @@ namespace Convex.Clients.Models {
         #region METHODS
 
         public IEnumerable<ServerMessage> GetAllMessages() {
-            return Messages.AsReadOnly();
+            return Messages;
         }
 
         public IEnumerable<ServerMessage> GetMessagesByDateTimeOrDefault(DateTime referenceTime, DateTimeOrdinal dateTimeOrdinal) {

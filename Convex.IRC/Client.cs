@@ -61,7 +61,7 @@ namespace Convex.IRC {
 
         #region MEMBERS
 
-        private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; set; }
+        private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
 
         public bool IsInitialised { get; private set; }
 
@@ -87,8 +87,9 @@ namespace Convex.IRC {
         #region RUNTIME
 
         public async Task BeginListenAsync() {
-            while (Server.Connection.IsConnected)
+            do {
                 await Server.ListenAsync(this);
+            } while (Server.Connection.IsConnected);
         }
 
         private async Task ChannelMessaged(object source, ServerMessagedEventArgs args) {
@@ -141,13 +142,10 @@ namespace Convex.IRC {
             if (!Directory.Exists(Configuration.DefaultResourceDirectory))
                 Directory.CreateDirectory(Configuration.DefaultResourceDirectory);
 
-            if (configuration == null)
-            {
+            if (configuration == null) {
                 Configuration.CheckCreateConfig(Configuration.DefaultConfigurationFilePath);
                 clientConfiguration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
-            }
-            else
-            {
+            } else {
                 clientConfiguration = configuration;
             }
         }
