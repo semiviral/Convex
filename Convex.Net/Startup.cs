@@ -22,8 +22,9 @@ namespace Convex.Clients {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvc();
-            services.Add(new ServiceDescriptor(typeof(ClientService), ClientService = new ClientService()));
-            services.Add(new ServiceDescriptor(typeof(IrcService), IrcService = new IrcService("irc.foonetic.net", 6667)));
+
+            //services.Add(new ServiceDescriptor(typeof(ClientService), ClientService = new ClientService()));
+            //services.Add(new ServiceDescriptor(typeof(IrcService), IrcService = new IrcService("irc.foonetic.net", 6667)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

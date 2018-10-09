@@ -9,7 +9,7 @@ using Convex.Event;
 
 #endregion
 
-namespace Convex.IRC.Models {
+namespace Convex.IRC.Component {
     public sealed class User : INotifyPropertyChanged {
         #region MEMBERS
 

@@ -1,4 +1,4 @@
-﻿namespace Convex.IRC.ComponentModel.Reference {
+﻿namespace Convex.IRC.Component.Reference {
     public static class Modes {
         #region MEMBERS
 

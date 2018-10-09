@@ -9,10 +9,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Example.Plugin.Calculator;
-using Convex.IRC.ComponentModel;
-using Convex.IRC.ComponentModel.Event;
-using Convex.IRC.ComponentModel.Reference;
-using Convex.IRC.Models;
+using Convex.IRC.Component;
+using Convex.IRC.Component.Event;
+using Convex.IRC.Component.Reference;
 using Convex.Plugin;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
@@ -100,7 +99,7 @@ namespace Convex.Example.Plugin {
             if (e.Caller.IgnoreList.Contains(e.Message.Realname))
                 return;
 
-            if (!e.Message.SplitArgs[0].Replace(",", string.Empty).Equals(e.Caller.ClientConfiguration.Nickname.ToLower()))
+            if (!e.Message.SplitArgs[0].Replace(",", string.Empty).Equals(e.Caller.GetClientConfiguration().Nickname.ToLower()))
                 return;
 
             if (e.Message.SplitArgs.Count < 2) {
@@ -139,8 +138,8 @@ namespace Convex.Example.Plugin {
             if (args.Caller.Server.Identified)
                 return;
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandRecievedEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {args.Caller.ClientConfiguration.Password}"), Name));
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandRecievedEventArgs(Commands.MODE, $"{args.Caller.ClientConfiguration.Nickname} +B"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandRecievedEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {args.Caller.GetClientConfiguration().Password}"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandRecievedEventArgs(Commands.MODE, $"{args.Caller.GetClientConfiguration().Nickname} +B"), Name));
 
             args.Caller.Server.Channels.Add(new Channel("#testgrounds"));
 

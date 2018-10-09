@@ -7,10 +7,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.ComponentModel.Event;
-using Convex.IRC.ComponentModel.Reference;
-using Convex.IRC.Models;
-using Convex.IRC.Models.Net;
+using Convex.IRC.Component;
+using Convex.IRC.Component.Event;
+using Convex.IRC.Component.Net;
+using Convex.IRC.Component.Reference;
+using Convex.IRC.Dependency;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
 using Newtonsoft.Json;
@@ -18,46 +19,16 @@ using Newtonsoft.Json;
 #endregion
 
 namespace Convex.IRC {
-    public sealed class Client : IDisposable {
-        #region MEMBERS
-
-        private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
-
-        public bool IsInitialised { get; private set; }
-
-        public Server Server { get; }
-        public Configuration ClientConfiguration { get; }
-        public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
-
-        public Dictionary<string, Tuple<string, string>> LoadedCommands => Wrapper.Host.DescriptionRegistry;
-        public List<string> IgnoreList => ClientConfiguration.IgnoreList;
-
-        private bool _disposed;
-
-        #endregion
-
+    public sealed class Client : IDisposable, IClient {
         /// <summary>
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     recieiving.
         /// </summary>
-        public Client(string address, int port, Configuration config = null) {
+        public Client() {
+            Server = new Server();
+
             TerminateSignaled += Terminate;
-
-            if (!Directory.Exists(Configuration.DefaultResourceDirectory))
-                Directory.CreateDirectory(Configuration.DefaultResourceDirectory);
-
-            if (config == null) {
-                Configuration.CheckCreateConfig(Configuration.DefaultConfigurationFilePath);
-                ClientConfiguration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
-            } else {
-                ClientConfiguration = config;
-            }
-
-            //MainDatabase = new Database(ClientConfiguration.DatabaseFilePath);
-            //MainDatabase.Log += OnLog;
-
-            Connection connection = new Connection(address, port);
-            Server = new Server(connection);
+            Server.ChannelMessaged += ChannelMessaged;
 
             Wrapper = new PluginWrapper<ServerMessagedEventArgs>($@"{AppContext.BaseDirectory}\Plugins", OnInvokedMethod);
             Wrapper.Logged += OnLog;
@@ -83,10 +54,35 @@ namespace Convex.IRC {
 
             await Wrapper.Host.StopPlugins();
             Server?.Dispose();
-            ClientConfiguration?.Dispose();
+            GetClientConfiguration()?.Dispose();
 
             _disposed = true;
         }
+
+        #region MEMBERS
+
+        private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; set; }
+
+        public bool IsInitialised { get; private set; }
+
+        public Server Server { get; }
+
+        private Configuration clientConfiguration;
+
+        public Configuration GetClientConfiguration() {
+            return clientConfiguration;
+        }
+
+        public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
+
+        public Dictionary<string, Tuple<string, string>> LoadedCommands => Wrapper.Host.DescriptionRegistry;
+        public string Address => Server.Connection.Address;
+        public int Port => Server.Connection.Port;
+        public List<string> IgnoreList => GetClientConfiguration().IgnoreList;
+
+        private bool _disposed;
+
+        #endregion
 
         #region RUNTIME
 
@@ -109,10 +105,10 @@ namespace Convex.IRC {
                 return;
             }
 
-            if (args.Message.Nickname.Equals(ClientConfiguration.Nickname) || ClientConfiguration.IgnoreList.Contains(args.Message.Realname))
+            if (args.Message.Nickname.Equals(GetClientConfiguration().Nickname) || GetClientConfiguration().IgnoreList.Contains(args.Message.Realname))
                 return;
 
-            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(ClientConfiguration.Nickname.ToLower()))
+            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(GetClientConfiguration().Nickname.ToLower()))
                 args.Message.InputCommand = args.Message.SplitArgs[1].ToLower();
 
             try {
@@ -126,29 +122,37 @@ namespace Convex.IRC {
 
         #region INIT
 
-        public async Task<bool> Initialise() {
-            // this subscription done in Initialise() so that event subscriptions
-            // to ChannelMessaged from parent classes can be processed before
-            // any others.
-            //
-            // note: this event behaviour is unspecified and may change, so do not
-            // rely heavily on it. If it changes in the future I will find another
-            // solution.
-            //
-            Server.ChannelMessaged += ChannelMessaged;
+        public async Task<bool> Initialise(string address, int port, Configuration configuration = null) {
+            InitialiseConfiguration(configuration);
+            await InitialisePluginWrapper();
+            await Server.Initialise(new Connection(address, port));
 
-            //await MainDatabase.Initialise();
+            await OnInitialised(this, new ClassInitialisedEventArgs(this));
 
+            await Server.SendConnectionInfo(GetClientConfiguration().Nickname, GetClientConfiguration().Realname);
+
+            return IsInitialised = Server.Initialised && Wrapper.Initialised;
+        }
+
+        private void InitialiseConfiguration(Configuration configuration) {
+            if (!Directory.Exists(Configuration.DefaultResourceDirectory))
+                Directory.CreateDirectory(Configuration.DefaultResourceDirectory);
+
+            if (configuration == null)
+            {
+                Configuration.CheckCreateConfig(Configuration.DefaultConfigurationFilePath);
+                clientConfiguration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
+            }
+            else
+            {
+                clientConfiguration = configuration;
+            }
+        }
+
+        private async Task InitialisePluginWrapper() {
             await Wrapper.Initialise();
 
             RegisterMethods();
-
-            await Server.Initialise();
-            await OnInitialised(this, new ClassInitialisedEventArgs(this));
-
-            await Server.SendConnectionInfo(ClientConfiguration.Nickname, ClientConfiguration.Realname);
-            
-            return IsInitialised = Server.Initialised && Wrapper.Initialised;
         }
 
         /// <summary>
@@ -262,7 +266,7 @@ namespace Convex.IRC {
 
 
         public string GetApiKey(string type) {
-            return ClientConfiguration.ApiKeys[type];
+            return GetClientConfiguration().ApiKeys[type];
         }
 
         private async Task OnInvokedMethod(ServerMessagedEventArgs args) {

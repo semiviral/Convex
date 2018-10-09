@@ -1,11 +1,11 @@
 ﻿#region usings
 
 using System.Collections.Generic;
-using Convex.IRC.ComponentModel.Reference;
+using Convex.IRC.Component.Reference;
 
 #endregion
 
-namespace Convex.IRC.Models {
+namespace Convex.IRC.Component {
     public class Channel {
         #region MEMBERS
 

@@ -1,33 +1,24 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Convex.IRC;
-using Convex.IRC.ComponentModel.Event;
-using Convex.IRC.Models;
+using Convex.IRC.Component;
+using Convex.IRC.Component.Event;
+using Convex.IRC.Dependency;
 
-namespace Convex.Clients.Services {
-    public class IrcService {
-        #region MEMBERS
-
-        public Client Client { get; }
-
-        public string Address { get; }
-        public int Port { get; }
-
-        private List<ServerMessage> Messages { get; }
-
-        #endregion
-
-        public IrcService(string address, int port) {
+namespace Convex.Clients.Models {
+    public class IrcClient : IIrcClient {
+        public IrcClient(string address, int port) {
             Address = address;
             Port = port;
 
             Messages = new List<ServerMessage>();
 
-            Client = new Client(Address, Port);
+            Client = new Client();
             Client.Server.ChannelMessaged += OnClientChannelMessaged;
             ThreadPool.QueueUserWorkItem(async delegate { await RunIrcService(); });
         }
@@ -43,20 +34,27 @@ namespace Convex.Clients.Services {
         }
 
         #endregion
+        
+        #region MEMBERS
 
-        #region INIT
+        public IClient Client { get; }
 
-        public async Task Initialise() {
-            await Client.Initialise();
-        }
+        public string Address { get; }
+        public int Port { get; }
+
+        private List<ServerMessage> Messages { get; }
 
         #endregion
 
         #region METHODS
 
         private async Task RunIrcService() {
-            await Client.Initialise();
+            await Client.Initialise(Address, Port);
             await Client.BeginListenAsync();
+        }
+
+        public IEnumerable<ServerMessage> GetAllMessages() {
+            return Messages.AsReadOnly();
         }
 
         public IEnumerable<ServerMessage> GetMessagesByDateTimeOrDefault(DateTime referenceTime, DateTimeOrdinal dateTimeOrdinal) {
@@ -68,8 +66,6 @@ namespace Convex.Clients.Services {
                     break;
                 case DateTimeOrdinal.After:
                     temporaryList = Messages.Where(message => message.Timestamp > referenceTime);
-                    break;
-                default:
                     break;
             }
 

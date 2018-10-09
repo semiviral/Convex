@@ -10,12 +10,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.ComponentModel;
 using Microsoft.Data.Sqlite;
 
 #endregion
 
-namespace Convex.IRC.Models {
+namespace Convex.IRC.Component {
     public class Database {
         #region MEMBERS
 

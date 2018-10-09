@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 #endregion
 
-namespace Convex.IRC.Models {
+namespace Convex.IRC.Component {
     public class Configuration : IDisposable {
         #region MEMBERS
 

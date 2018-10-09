@@ -7,12 +7,12 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.ComponentModel.Event;
+using Convex.IRC.Component.Event;
 using Microsoft.Data.Sqlite;
 
 #endregion
 
-namespace Convex.IRC.ComponentModel {
+namespace Convex.IRC.Component {
     public static class Extensions {
         /// <summary>
         ///     Obtain HTTP response from a GET request

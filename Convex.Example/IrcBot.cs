@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Example.Event;
 using Convex.IRC;
-using Convex.IRC.ComponentModel.Event;
-using Convex.IRC.ComponentModel.Reference;
+using Convex.IRC.Component.Event;
+using Convex.IRC.Component.Reference;
+using Convex.IRC.Dependency;
 using Convex.Plugin.Registrar;
 using Serilog;
 using Serilog.Events;
@@ -21,7 +22,7 @@ namespace Convex.Example {
 
         public bool IsInitialised { get; private set; }
         public bool Executing => _bot.Server.Executing;
-        private readonly Client _bot;
+        private readonly IClient _bot;
         private readonly string[] _defaultChannels = {"#testgrounds"};
 
         #endregion
@@ -30,19 +31,19 @@ namespace Convex.Example {
         ///     Initialises class
         /// </summary>
         public IrcBot() {
-            _bot = new Client("irc.foonetic.net", 6667);
+            _bot = new Client();
             _bot.Initialised += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, "Client initialised."));
             _bot.Logged += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, args.Information));
             _bot.Server.Connection.Flushed += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
             _bot.Server.ChannelMessaged += LogChannelMessage;
 
-            Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(_bot.ClientConfiguration.LogFilePath).WriteTo.LiterateConsole().CreateLogger();
+            Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(_bot.GetClientConfiguration().LogFilePath).WriteTo.LiterateConsole().CreateLogger();
         }
 
         #region INIT
 
         public async Task Initialise() {
-            await _bot.Initialise();
+            await _bot.Initialise("irc.foonetic.net", 6667);
             RegisterMethods();
 
             IsInitialised = true;

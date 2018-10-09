@@ -7,33 +7,28 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.ComponentModel.Event;
-using Convex.IRC.ComponentModel.Reference;
-using Convex.IRC.Models.Net;
+using Convex.IRC.Component.Event;
+using Convex.IRC.Component.Net;
+using Convex.IRC.Component.Reference;
+using Convex.IRC.Dependency;
 
 #endregion
 
-namespace Convex.IRC.Models {
+namespace Convex.IRC.Component {
     public class Server : IDisposable {
         #region MEMBERS
 
-        public Connection Connection { get; }
+        public Connection Connection { get; private set; }
 
         public bool Identified { get; set; }
         public bool Initialised { get; private set; }
         public bool Executing => Connection.Executing;
 
-        public ObservableCollection<Channel> Channels { get; }
+        public ObservableCollection<Channel> Channels { get; private set; }
 
         public List<string> AllUsers => Channels.SelectMany(e => e.Inhabitants).ToList();
 
         #endregion
-
-        public Server(Connection connection) {
-            Channels = new ObservableCollection<Channel>();
-
-            Connection = connection;
-        }
 
         #region INTERFACE IMPLEMENTATION
 
@@ -56,7 +51,7 @@ namespace Convex.IRC.Models {
         /// <remarks>
         ///     Use this method to begin listening cycle.
         /// </remarks>
-        internal async Task ListenAsync(Client caller) {
+        internal async Task ListenAsync(IClient caller) {
             string rawData = await Connection.ListenAsync();
 
             if (string.IsNullOrEmpty(rawData) || await CheckPing(rawData))
@@ -112,7 +107,11 @@ namespace Convex.IRC.Models {
 
         #region INIT
 
-        public async Task Initialise() {
+        public async Task Initialise(Connection connection) {
+            Channels = new ObservableCollection<Channel>();
+
+            Connection = connection;
+
             Channels.CollectionChanged += async (sender, args) => await ChannelCollectionChanged(sender, args);
 
             await Connection.Initialise();

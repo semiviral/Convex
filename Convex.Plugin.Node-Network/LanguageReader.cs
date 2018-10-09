@@ -2,8 +2,8 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.ComponentModel.Event;
-using Convex.IRC.ComponentModel.Reference;
+using Convex.IRC.Component.Event;
+using Convex.IRC.Component.Reference;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
 using NodeNetwork;

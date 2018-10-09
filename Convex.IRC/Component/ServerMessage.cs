@@ -4,12 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Convex.IRC.ComponentModel;
-using Convex.IRC.ComponentModel.Reference;
+using Convex.IRC.Component.Reference;
 
 #endregion
 
-namespace Convex.IRC.Models {
+namespace Convex.IRC.Component {
     public class ServerMessage {
         #region MEMBERS
 
