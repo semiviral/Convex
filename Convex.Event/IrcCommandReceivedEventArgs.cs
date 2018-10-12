@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Convex.Event {
-    public class IrcCommandRecievedEventArgs : EventArgs {
+    public class IrcCommandReceivedEventArgs : EventArgs {
         #region MEMBERS
 
         public string Command { get; set; }
@@ -9,7 +9,7 @@ namespace Convex.Event {
 
         #endregion
 
-        public IrcCommandRecievedEventArgs(string command, string arguments) {
+        public IrcCommandReceivedEventArgs(string command, string arguments) {
             Command = command;
             Arguments = arguments;
         }

@@ -139,10 +139,8 @@ namespace Convex.IRC {
 
         public async Task<bool> Initialise(string address, int port) {
             await InitialisePluginWrapper();
-
-            IConnection connection = new Connection();
-            await connection.Initialise(address, port);
-            Server.Initialise(connection);
+            
+            Server.Initialise(address, port);
 
             await OnInitialised(this, new ClassInitialisedEventArgs(this));
 
