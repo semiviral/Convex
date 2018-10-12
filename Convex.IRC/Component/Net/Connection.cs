@@ -72,7 +72,7 @@ namespace Convex.IRC.Component.Net {
 
         #region METHODS
 
-        public async Task SendDataAsync(object sender, IrcCommandRecievedEventArgs args) {
+        public async Task SendDataAsync(object sender, IrcCommandReceivedEventArgs args) {
             await WriteAsync(args.ToString());
         }
 

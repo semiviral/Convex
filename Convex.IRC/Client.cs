@@ -35,7 +35,7 @@ namespace Convex.IRC {
             Wrapper = new PluginWrapper<ServerMessagedEventArgs>($@"{AppContext.BaseDirectory}\Plugins", OnInvokedMethod);
             Wrapper.Logged += OnLog;
             Wrapper.TerminateSignaled += OnTerminateSignaled;
-            Wrapper.CommandRecieved += Server.Connection.SendDataAsync;
+            Wrapper.CommandReceived += Server.Connection.SendDataAsync;
         }
 
         #region INTERFACE IMPLEMENTATION

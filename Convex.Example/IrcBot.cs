@@ -115,7 +115,7 @@ namespace Convex.Example {
             if (e.Message.SplitArgs.Count < 2 || !e.Message.SplitArgs[1].Equals("info"))
                 return;
 
-            await _bot.Server.Connection.SendDataAsync(this, new IrcCommandRecievedEventArgs(Commands.PRIVMSG, $"{e.Message.Origin} {BotInfo}"));
+            await _bot.Server.Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.PRIVMSG, $"{e.Message.Origin} {BotInfo}"));
         }
 
         #endregion

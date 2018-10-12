@@ -58,7 +58,7 @@ namespace Convex.Plugin {
         }
 
         public async Task StopPlugins() {
-            await OnLog(this, new InformationLoggedEventArgs("STOP PLUGINS RECIEVED — shutting down."));
+            await OnLog(this, new InformationLoggedEventArgs("STOP PLUGINS RECEIVED — shutting down."));
             ShuttingDown = true;
 
             foreach (PluginInstance pluginInstance in Plugins)
