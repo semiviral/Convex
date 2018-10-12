@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
-using Convex.IRC.Component.Net;
 using Convex.IRC.Component.Reference;
 using Convex.IRC.Dependency;
 using Convex.Plugin;
@@ -138,11 +137,7 @@ namespace Convex.IRC {
         }
 
         public async Task<bool> Initialise(string address, int port) {
-            await InitialisePluginWrapper();
-            
-            Server.Initialise(address, port);
-
-            await OnInitialised(this, new ClassInitialisedEventArgs(this));
+            await Task.WhenAll(InitialisePluginWrapper(), Task.Run(() => Server.Initialise(address, port)), OnInitialised(this, new ClassInitialisedEventArgs(this)));
 
             await Server.SendConnectionInfo(GetClientConfiguration().Nickname, GetClientConfiguration().Realname);
 
