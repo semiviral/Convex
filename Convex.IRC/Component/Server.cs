@@ -19,20 +19,19 @@ namespace Convex.IRC.Component {
     public class Server : IDisposable {
         #region MEMBERS
 
-        public Connection Connection { get; private set; }
+        public IConnection Connection { get; private set; }
 
         public bool Identified { get; set; }
         public bool Initialised { get; private set; }
         public bool Executing => Connection.Executing;
 
-        public ObservableCollection<Channel> Channels { get; private set; }
+        public ObservableCollection<Channel> Channels { get; }
 
         public List<string> AllUsers => Channels.SelectMany(e => e.Inhabitants).ToList();
 
         #endregion
 
         public Server() {
-            Connection = new Connection();
             Channels = new ObservableCollection<Channel>();
             Channels.CollectionChanged += async (sender, args) => await ChannelCollectionChanged(sender, args);
         }
@@ -114,7 +113,7 @@ namespace Convex.IRC.Component {
 
         #region INIT
 
-        public void Initialise(Connection connection) {
+        public void Initialise(IConnection connection) {
             Connection = connection;
 
             Initialised = Connection.IsInitialised;

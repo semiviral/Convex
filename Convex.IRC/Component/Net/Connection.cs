@@ -9,24 +9,7 @@ using Convex.Event;
 #endregion
 
 namespace Convex.IRC.Component.Net {
-    public sealed class Connection {
-        #region MEMBERS
-
-        public string Address { get; private set; }
-        public int Port { get; private set; }
-        public bool IsConnected { get; private set; }
-        public bool IsInitialised { get; private set; }
-        public int MaximumConnectionRetries { get; }
-
-        internal bool Executing { get; private set; }
-
-        private TcpClient _client;
-        private NetworkStream _networkStream;
-        private StreamReader _reader;
-        private StreamWriter _writer;
-
-        #endregion
-
+    public sealed class Connection : IConnection {
         public void Dispose() {
             _client?.Dispose();
             _networkStream?.Dispose();
@@ -36,6 +19,21 @@ namespace Convex.IRC.Component.Net {
             IsInitialised = false;
             IsConnected = false;
         }
+
+        #region MEMBERS
+
+        public string Address { get; private set; }
+        public int Port { get; private set; }
+        public bool IsConnected { get; private set; }
+        public bool IsInitialised { get; private set; }
+        public bool Executing { get; set; }
+
+        private TcpClient _client;
+        private NetworkStream _networkStream;
+        private StreamReader _reader;
+        private StreamWriter _writer;
+
+        #endregion
 
         #region INIT
 
@@ -59,15 +57,15 @@ namespace Convex.IRC.Component.Net {
         }
 
         private async Task AttemptConnect() {
-                try {
-                    await Connect();
+            try {
+                await Connect();
 
-                    await OnConnected(this, new ConnectedEventArgs(this, "Successfully connected to provided address."));
-                } catch (Exception) {
-                    await OnDisconnected(this, new DisconnectedEventArgs(this, "Could not connect to provided address."));
+                await OnConnected(this, new ConnectedEventArgs(this, "Successfully connected to provided address."));
+            } catch (Exception) {
+                await OnDisconnected(this, new DisconnectedEventArgs(this, "Could not connect to provided address."));
 
-                    throw;
-                }
+                throw;
+            }
         }
 
         #endregion
@@ -84,7 +82,7 @@ namespace Convex.IRC.Component.Net {
         /// <remarks>
         ///     Do not use this method to start listening cycle.
         /// </remarks>
-        internal async Task<string> ListenAsync() {
+        public async Task<string> ListenAsync() {
             string data = string.Empty;
             Executing = true;
 
@@ -130,7 +128,6 @@ namespace Convex.IRC.Component.Net {
         }
 
         #endregion
-
 
         #region EVENTS
 
