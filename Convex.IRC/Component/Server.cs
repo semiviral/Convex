@@ -114,8 +114,8 @@ namespace Convex.IRC.Component {
 
         #region INIT
 
-        public void Initialise(string address, int port) {
-            Connection.Initialise(address, port);
+        public async Task Initialise(string address, int port) {
+            await Connection.Initialise(address, port);
 
             Initialised = Connection.IsInitialised;
         }
