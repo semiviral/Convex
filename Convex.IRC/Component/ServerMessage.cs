@@ -97,5 +97,9 @@ namespace Convex.IRC.Component {
             Realname = realname.StartsWith("~") ? realname.Substring(1) : realname;
             Hostname = sMatch.Groups["Hostname"].Value;
         }
+
+        public override string ToString() {
+            return RawMessage;
+        }
     }
 }

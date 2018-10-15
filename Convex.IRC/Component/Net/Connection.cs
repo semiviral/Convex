@@ -58,7 +58,7 @@ namespace Convex.IRC.Component.Net {
 
         private async Task AttemptConnect() {
             try {
-                await Connect();
+                await ConnectAsync();
 
                 await OnConnected(this, new ConnectedEventArgs(this, "Successfully connected to provided address."));
             } catch (Exception) {
@@ -101,7 +101,7 @@ namespace Convex.IRC.Component.Net {
             return data;
         }
 
-        private async Task Connect() {
+        private async Task ConnectAsync() {
             _client = new TcpClient();
             await _client.ConnectAsync(Address, Port);
 

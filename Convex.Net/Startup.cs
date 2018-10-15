@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,7 +30,7 @@ namespace Convex.Client {
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddSingleton<IHostedService, IrcHostedService>();
+            services.AddSingleton<IIrcHostedService, IrcHostedService>();
             services.AddSignalR();
         }
 
@@ -41,8 +42,7 @@ namespace Convex.Client {
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-
-            app.UseHttpsRedirection();
+            
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseSignalR(routes => { routes.MapHub<IrcHub>("/IrcHub"); });
