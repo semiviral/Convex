@@ -30,4 +30,5 @@ function outputMessage(message) {
     var li = document.createElement("li");
     li.textContent = encodedMsg;
     document.getElementById("messagesList").appendChild(li);
+    document.getElementById("messagesList").scrollTop = document.getElementById("messagesList").scrollHeight;
 }
