@@ -2,15 +2,16 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Convex.Event;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Convex.IRC.Dependency;
 using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {
-    public class ClientHostedService : IHostedService, IClientHostedService
+    public class IrcHostedService : IHostedService
     {
-        public ClientHostedService(string address, int port, Configuration configuration = null) {
+        public IrcHostedService(string address, int port, Configuration configuration = null) {
             Address = address;
             Port = port;
 
@@ -20,7 +21,7 @@ namespace Convex.Client.Services {
 
         #region EVENT
 
-        private Task OnClientChannelMessaged(object sender, ServerMessagedEventArgs args) {
+        private Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
             Messages.Add(args.Message);
 
             Debug.WriteLine(args.Message.RawMessage);
@@ -32,16 +33,16 @@ namespace Convex.Client.Services {
 
         #region METHODS
 
-        public IEnumerable<ServerMessage> GetAllMessages() {
-            return Messages;
+        private async Task DoWork() {
+            await Client.BeginListenAsync();
         }
 
         #endregion
 
         #region INIT
 
-        private void Initialise() {
-            Client.Server.ChannelMessaged += OnClientChannelMessaged;
+        public void Initialise() {
+            Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
             Client.Logged += (sender, args) => {
                 Debug.WriteLine(args.Information);
                 return Task.CompletedTask;
@@ -52,7 +53,7 @@ namespace Convex.Client.Services {
         #endregion
 
         #region MEMBERS
-
+            
         public IClient Client { get; }
 
         public string Address { get; }
@@ -66,7 +67,7 @@ namespace Convex.Client.Services {
 
         public async Task StartAsync(CancellationToken cancellationToken) {
             Initialise();
-            await Client.BeginListenAsync();
+            await DoWork();
         }
 
         public Task StopAsync(CancellationToken cancellationToken) {

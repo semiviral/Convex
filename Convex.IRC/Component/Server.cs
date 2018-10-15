@@ -71,13 +71,13 @@ namespace Convex.IRC.Component {
 
         #region EVENTS
 
-        public event AsyncEventHandler<ServerMessagedEventArgs> ChannelMessaged;
+        public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
 
         private async Task OnChannelMessaged(object sender, ServerMessagedEventArgs args) {
-            if (ChannelMessaged == null)
+            if (ServerMessaged == null)
                 return;
 
-            await ChannelMessaged.Invoke(sender, args);
+            await ServerMessaged.Invoke(sender, args);
         }
 
         private async Task ChannelCollectionChanged(object sender, NotifyCollectionChangedEventArgs args) {

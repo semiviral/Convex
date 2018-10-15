@@ -21,13 +21,13 @@ namespace Convex.IRC {
     public sealed class Client : IDisposable, IClient {
         /// <summary>
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
-        ///     recieiving.
+        ///     receiving.
         /// </summary>
         public Client(Configuration configuration = null) {
             Server = new Server();
 
             TerminateSignaled += Terminate;
-            Server.ChannelMessaged += ChannelMessaged;
+            Server.ServerMessaged += ServerMessaged;
 
             InitialiseConfiguration(configuration);
 
@@ -93,7 +93,7 @@ namespace Convex.IRC {
             } while (Server.Connection.IsConnected);
         }
 
-        private async Task ChannelMessaged(object source, ServerMessagedEventArgs args) {
+        private async Task ServerMessaged(object source, ServerMessagedEventArgs args) {
             if (string.IsNullOrEmpty(args.Message.Command))
                 return;
 

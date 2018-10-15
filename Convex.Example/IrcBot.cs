@@ -35,7 +35,7 @@ namespace Convex.Example {
             _bot.Initialised += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, "Client initialised."));
             _bot.Logged += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, args.Information));
             _bot.Server.Connection.Flushed += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
-            _bot.Server.ChannelMessaged += LogChannelMessage;
+            _bot.Server.ServerMessaged += LogServerMessage;
 
             Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(_bot.GetClientConfiguration().LogFilePath).WriteTo.LiterateConsole().CreateLogger();
         }
@@ -89,7 +89,7 @@ namespace Convex.Example {
             return Task.CompletedTask;
         }
 
-        private Task LogChannelMessage(object source, ServerMessagedEventArgs e) {
+        private Task LogServerMessage(object source, ServerMessagedEventArgs e) {
             if (e.Message.Command.Equals(Commands.PRIVMSG))
                 OnLog(this, new AdvancedLoggingEventArgs(LogEventLevel.Information, $"<{e.Message.Origin} {e.Message.Nickname}> {e.Message.Args}"));
             else if (e.Message.Command.Equals(Commands.ERROR))
