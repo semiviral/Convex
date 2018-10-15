@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-var connection = new signalR.HubConnectionBuilder().withUrl("/ircHub").build();
+var connection = new signalR.HubConnectionBuilder().withUrl("/IrcHub").build();
 
 connection.on("ReceiveUpdate", function (user, message) {
     var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

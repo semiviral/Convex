@@ -45,7 +45,7 @@ namespace Convex.Client {
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseSignalR(routes => { routes.MapHub<IrcHub>("/ircHub"); });
+            app.UseSignalR(routes => { routes.MapHub<IrcHub>("/IrcHub"); });
             app.UseMvc();
         }
     }

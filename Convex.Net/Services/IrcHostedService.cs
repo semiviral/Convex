@@ -1,22 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
+using Convex.IRC.Component.Reference;
 using Convex.IRC.Dependency;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Convex.Client.Services {
-    public class IrcHostedService : IHostedService
+    public class IrcHostedService : IHostedService, IDisposable
     {
-        public IrcHostedService(string address, int port, Configuration configuration = null) {
-            Address = address;
-            Port = port;
-
-            Messages = new List<ServerMessage>();
+        public IrcHostedService() {
             Client = new IRC.Client();
+            Messages = new List<ServerMessage>();
+            Connection = new HubConnectionBuilder().WithUrl("/IrcHub").Build();
+
+            Connection.Closed += async error => {
+                await Task.Delay(new Random().Next(0, 5) * 1000));
+                await Connection.StartAsync();
+            };
+
+            Address = "irc.foonetic.net";
+            Port = 6667;
         }
 
         #region EVENT
@@ -41,7 +50,7 @@ namespace Convex.Client.Services {
 
         #region INIT
 
-        public void Initialise() {
+        private void Initialise() {
             Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
             Client.Logged += (sender, args) => {
                 Debug.WriteLine(args.Information);
@@ -50,10 +59,20 @@ namespace Convex.Client.Services {
             Client.Initialise(Address, Port);
         }
 
+        private async Task InitialiseHub() {
+            Connection.On<string>("ReceiveMessage", message => { Client.Server.Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.PRIVMSG, message)); });
+
+            try {
+                await Connection.StartAsync();
+
+            }
+        }
+
         #endregion
 
         #region MEMBERS
             
+        public HubConnection Connection { get; }
         public IClient Client { get; }
 
         public string Address { get; }
@@ -67,14 +86,22 @@ namespace Convex.Client.Services {
 
         public async Task StartAsync(CancellationToken cancellationToken) {
             Initialise();
+
+            co
+
             await DoWork();
         }
 
         public Task StopAsync(CancellationToken cancellationToken) {
-            Client.Dispose();
+            Dispose();
             return Task.CompletedTask;
         }
 
+        public void Dispose() {
+            Client.Dispose();
+        }
+        
         #endregion
+
     }
 }
