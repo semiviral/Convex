@@ -1,26 +1,17 @@
 ﻿@page
+<link rel="stylesheet" type="text/css" href="~/css/index.stylesheet.css"/>
+<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.7.1/less.min.js"></script>
+
+<script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/irc.js"></script>
+
 <div class="container">
-    <div class="row">&nbsp;</div>
-    <div class="row">
-        <div class="col-6">&nbsp;</div>
-        <div class="col-6">
-            User..........<input type="text" id="userInput" />
-            <br />
-            Message...<input type="text" id="messageInput" />
-            <input type="button" id="sendButton" value="Send Message" />
-        </div>
+    <div class="messageContainer">
+        <ul id="messagesList"/>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <hr />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-6">&nbsp;</div>
-        <div class="col-6">
-            <ul id="messagesList"></ul>
-        </div>
+
+    <div class="inputContainer">
+        <input type="text" id="messageInput"/>
+        <input type="button" id="sendButton" value="Send Message"/>
     </div>
 </div>
-<script src="~/lib/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/irc.js"></script>

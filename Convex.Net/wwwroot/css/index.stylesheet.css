@@ -1,0 +1,17 @@
+﻿.messageContainer {
+    width: 100vw;
+    height: 90vh;
+    position: relative;
+}
+
+#messagesList {
+    position: absolute;
+    top: 0;
+    overflow: visible;
+}
+
+.inputContainer {
+    width: 100vw;
+    height: auto;
+    position: relative;
+}
