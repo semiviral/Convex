@@ -8,19 +8,18 @@ using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Convex.IRC.Component.Reference;
 using Convex.IRC.Dependency;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {
-    public class IrcHostedService : IHostedService, IDisposable
-    {
+    public class IrcHostedService : IHostedService, IDisposable {
         public IrcHostedService() {
             Client = new IRC.Client();
             Messages = new List<ServerMessage>();
             Connection = new HubConnectionBuilder().WithUrl("/IrcHub").Build();
 
             Connection.Closed += async error => {
-                await Task.Delay(new Random().Next(0, 5) * 1000));
+                await Task.Delay(new Random().Next(0, 5) * 1000);
                 await Connection.StartAsync();
             };
 
@@ -30,12 +29,11 @@ namespace Convex.Client.Services {
 
         #region EVENT
 
-        private Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
+        private async Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
             Messages.Add(args.Message);
+            await Connection.InvokeAsync("SendMessage", args);
 
             Debug.WriteLine(args.Message.RawMessage);
-
-            return Task.CompletedTask;
         }
 
         #endregion
@@ -50,28 +48,31 @@ namespace Convex.Client.Services {
 
         #region INIT
 
-        private void Initialise() {
-            Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
-            Client.Logged += (sender, args) => {
-                Debug.WriteLine(args.Information);
-                return Task.CompletedTask;
-            };
-            Client.Initialise(Address, Port);
+        private async Task Initialise() {
+            await InitialiseHub();
+            await InitialiseClient();
+
         }
 
         private async Task InitialiseHub() {
             Connection.On<string>("ReceiveMessage", message => { Client.Server.Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.PRIVMSG, message)); });
 
-            try {
-                await Connection.StartAsync();
+            await Connection.StartAsync();
+        }
 
-            }
+        private async Task InitialiseClient() {
+            Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
+            Client.Logged += (sender, args) => {
+                Debug.WriteLine(args.Information);
+                return Task.CompletedTask;
+            };
+            await Client.Initialise(Address, Port);
         }
 
         #endregion
 
         #region MEMBERS
-            
+
         public HubConnection Connection { get; }
         public IClient Client { get; }
 
@@ -85,23 +86,21 @@ namespace Convex.Client.Services {
         #region INTERFACE IMPLEMENTATION
 
         public async Task StartAsync(CancellationToken cancellationToken) {
-            Initialise();
-
-            co
-
+            await Initialise();
             await DoWork();
         }
 
         public Task StopAsync(CancellationToken cancellationToken) {
             Dispose();
+
             return Task.CompletedTask;
         }
 
         public void Dispose() {
             Client.Dispose();
+            Connection.DisposeAsync().Wait();
         }
-        
-        #endregion
 
+        #endregion
     }
 }
