@@ -54,6 +54,8 @@ namespace Convex.Client.Services {
         #region INTERFACE IMPLEMENTATION
 
         public async Task StartAsync(CancellationToken cancellationToken) {
+            if (Client.IsInitialised) return;
+
             await Initialise();
             await DoWork();
         }
