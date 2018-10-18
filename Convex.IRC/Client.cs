@@ -24,6 +24,8 @@ namespace Convex.IRC {
         ///     receiving.
         /// </summary>
         public Client(Configuration configuration = null) {
+            Initialising = true;
+
             Server = new Server();
 
             TerminateSignaled += Terminate;
@@ -35,6 +37,8 @@ namespace Convex.IRC {
             Wrapper.Logged += OnLog;
             Wrapper.TerminateSignaled += OnTerminateSignaled;
             Wrapper.CommandReceived += Server.Connection.SendDataAsync;
+
+            Initialising = false;
         }
 
         #region INTERFACE IMPLEMENTATION
@@ -65,6 +69,7 @@ namespace Convex.IRC {
         private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
 
         public bool IsInitialised { get; private set; }
+        public bool Initialising { get; private set; }
 
         public Server Server { get; }
 
@@ -137,13 +142,19 @@ namespace Convex.IRC {
         }
 
         public async Task<bool> Initialise(string address, int port) {
+            if (IsInitialised || Initialising) return true;
+
+            Initialising = true;
+
             await InitialisePluginWrapper();
-            
+
             await Server.Initialise(address, port);
-            
+
             await OnInitialised(this, new ClassInitialisedEventArgs(this));
 
             await Server.SendConnectionInfo(GetClientConfiguration().Nickname, GetClientConfiguration().Realname);
+
+            Initialising = false;
 
             return IsInitialised = Server.Initialised && Wrapper.Initialised;
         }
