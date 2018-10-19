@@ -4,18 +4,14 @@ var connection = new signalR.HubConnectionBuilder().withUrl("/IrcHub").build();
 
 
 connection.on("ReceiveBroadcastMessage",
-    function(message) {
-        outputMessage(message);
+    function(rawMessage) {
+        outputMessage(rawMessage);
     });
 
-connection.start().catch(function(err) {
-    return console.error(err.toString());
-});
-
-document.getElementById("sendButton").addEventListener("click",
+document.getElementById("sendMessageButton").addEventListener("click",
     function(event) {
-        var message = document.getElementById("messageInput").value;
-        connection.invoke("BroadcastMessage", message).catch(function(err) {
+        var rawMessage = document.getElementById("messageInput").value;
+        connection.invoke("SendMessage", rawMessage).catch(function(err) {
             return console.error(err.toString());
         });
         event.preventDefault();
@@ -27,5 +23,8 @@ function outputMessage(message) {
     var li = document.createElement("li");
     li.textContent = encodedMsg;
     document.getElementById("messagesList").appendChild(li);
-    document.getElementById("messagesList").scrollTop = document.getElementById("messagesList").scrollHeight;
 }
+
+connection.start().catch(function (err) {
+    return console.error(err.toString());
+});

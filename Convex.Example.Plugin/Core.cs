@@ -106,7 +106,7 @@ namespace Convex.Example.Plugin {
 
             if (e.Message.SplitArgs.Count < 2) {
                 // typed only 'eve'
-                await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", "Type 'eve help' to view my command list."), Name));
+                await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", "Type 'eve help' to view my command list."), Name));
                 return;
             }
 
@@ -117,7 +117,7 @@ namespace Convex.Example.Plugin {
                     List<Tuple<string, string>> entries = e.Caller.LoadedCommands.Values.ToList();
                     string commandsReadable = string.Join(", ", entries.Where(entry => entry != null).Select(entry => entry.Item1));
 
-                    await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG}", entries.Count == 0 ? $"{e.Message.Origin} No commands currently active." : $"{e.Message.Origin} Active commands: {commandsReadable}"), Name));
+                    await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG}", entries.Count == 0 ? $"{e.Message.Origin} No commands currently active." : $"{e.Message.Origin} Active commands: {commandsReadable}"), Name));
                     return;
                 }
 
@@ -125,7 +125,7 @@ namespace Convex.Example.Plugin {
 
                 string valueToSend = queriedCommand.Equals(null) ? "Command not found." : $"{queriedCommand.Item1}: {queriedCommand.Item2}";
 
-                await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", valueToSend), Name));
+                await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", valueToSend), Name));
 
                 return;
             }
@@ -133,15 +133,15 @@ namespace Convex.Example.Plugin {
             if (e.Caller.CommandExists(e.Message.SplitArgs[1].ToLower()))
                 return;
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", "Invalid command. Type 'eve help' to view my command list."), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", "Invalid command. Type 'eve help' to view my command list."), Name));
         }
 
         private async Task MotdReplyEnd(ServerMessagedEventArgs args) {
             if (MotdReplyEndSequenceEnacted)
                 return;
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {args.Caller.GetClientConfiguration().Password}"), Name));
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs(Commands.MODE, $"{args.Caller.GetClientConfiguration().Nickname} +B"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {args.Caller.GetClientConfiguration().Password}"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.MODE, $"{args.Caller.GetClientConfiguration().Nickname} +B"), Name));
 
             args.Caller.Server.Channels.Add(new Channel("#testgrounds"));
 
@@ -152,14 +152,14 @@ namespace Convex.Example.Plugin {
             if (args.Message.SplitArgs.Count < 2 || !args.Message.SplitArgs[1].Equals("quit"))
                 return;
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs(Commands.QUIT, "Shutting down."), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.QUIT, "Shutting down."), Name));
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.SignalTerminate, null, Name));
         }
 
         private async Task Eval(ServerMessagedEventArgs e) {
             Status = PluginStatus.Processing;
 
-            IrcCommandReceivedEventArgs command = new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", string.Empty);
+            IrcCommandEventArgs command = new IrcCommandEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", string.Empty);
 
             if (e.Message.SplitArgs.Count < 3)
                 command.Arguments = "Not enough parameters.";
@@ -197,14 +197,14 @@ namespace Convex.Example.Plugin {
             Status = PluginStatus.Running;
 
             if (string.IsNullOrEmpty(message)) {
-                await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs(Commands.JOIN, args.Message.SplitArgs[2]), Name));
+                await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.JOIN, args.Message.SplitArgs[2]), Name));
 
                 args.Caller.Server.Channels.Add(new Channel(args.Message.SplitArgs[2].ToLower()));
 
                 message = $"Successfully joined channel: {args.Message.SplitArgs[2]}.";
             }
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", message), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", message), Name));
 
             Status = PluginStatus.Stopped;
         }
@@ -212,7 +212,7 @@ namespace Convex.Example.Plugin {
         private async Task Part(ServerMessagedEventArgs args) {
             Status = PluginStatus.Processing;
 
-            IrcCommandReceivedEventArgs command = new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
+            IrcCommandEventArgs command = new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
             if (args.Message.SplitArgs.Count < 3)
                 command.Arguments = "Insufficient parameters. Type 'eve help part' to view command's help index.";
@@ -235,14 +235,14 @@ namespace Convex.Example.Plugin {
             command.Arguments = $"Successfully parted channel: {channel}";
 
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, command, Name));
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs(Commands.PART, $"{channel} Channel part invoked by: {args.Message.Nickname}"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.PART, $"{channel} Channel part invoked by: {args.Message.Nickname}"), Name));
 
             Status = PluginStatus.Stopped;
         }
 
         private async Task Channels(ServerMessagedEventArgs args) {
             Status = PluginStatus.Running;
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Join(", ", args.Caller.Server.Channels.Where(channel => channel.Name.StartsWith("#")).Select(channel => channel.Name))), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Join(", ", args.Caller.Server.Channels.Where(channel => channel.Name.StartsWith("#")).Select(channel => channel.Name))), Name));
 
             Status = PluginStatus.Stopped;
         }
@@ -272,7 +272,7 @@ namespace Convex.Example.Plugin {
                 description += "....";
             }
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", $"{title} (by {channel}) — {description}"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", $"{title} (by {channel}) — {description}"), Name));
 
             Status = PluginStatus.Stopped;
         }
@@ -280,7 +280,7 @@ namespace Convex.Example.Plugin {
         private async Task Define(ServerMessagedEventArgs args) {
             Status = PluginStatus.Processing;
 
-            IrcCommandReceivedEventArgs command = new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
+            IrcCommandEventArgs command = new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
             if (args.Message.SplitArgs.Count < 3) {
                 command.Arguments = "Insufficient parameters. Type 'eve help define' to view correct usage.";
@@ -334,7 +334,7 @@ namespace Convex.Example.Plugin {
             if (args.Message.SplitArgs.Count < 2 || !args.Message.SplitArgs[1].Equals("lookup"))
                 return;
 
-            IrcCommandReceivedEventArgs command = new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
+            IrcCommandEventArgs command = new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
             if (args.Message.SplitArgs.Count < 3) {
                 command.Arguments = "Insufficient parameters. Type 'eve help lookup' to view correct usage.";
@@ -373,7 +373,7 @@ namespace Convex.Example.Plugin {
 
             Status = PluginStatus.Processing;
 
-            IrcCommandReceivedEventArgs command = new IrcCommandReceivedEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
+            IrcCommandEventArgs command = new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
             if (args.Message.SplitArgs.Count < 5) {
                 command.Arguments = "Insufficient parameters. Type 'eve help lookup' to view correct usage.";

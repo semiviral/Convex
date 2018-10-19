@@ -2,6 +2,6 @@
 
 namespace Convex.Client.Hubs {
     public interface IIrcHub {
-        Task ReceiveBroadcastMessage(string message);
+        Task ReceiveBroadcastMessage(string rawMessage);
     }
 }

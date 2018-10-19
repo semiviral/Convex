@@ -31,10 +31,10 @@ namespace Convex.Plugin {
                     Host.RegisterMethod((IAsyncRegistrar<T>) args.Result);
                     break;
                 case PluginActionType.SendMessage:
-                    if (!(args.Result is IrcCommandReceivedEventArgs))
+                    if (!(args.Result is IrcCommandEventArgs))
                         break;
 
-                    await OnCommandReceived(sender, (IrcCommandReceivedEventArgs) args.Result);
+                    await OnCommandReceived(sender, (IrcCommandEventArgs) args.Result);
                     break;
                 case PluginActionType.Log:
                     if (!(args.Result is string))
@@ -75,7 +75,7 @@ namespace Convex.Plugin {
         #region EVENTS
 
         public event AsyncEventHandler<InformationLoggedEventArgs> Logged;
-        public event AsyncEventHandler<IrcCommandReceivedEventArgs> CommandReceived;
+        public event AsyncEventHandler<IrcCommandEventArgs> CommandReceived;
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
 
         private async Task OnLog(object sender, InformationLoggedEventArgs args) {
@@ -85,7 +85,7 @@ namespace Convex.Plugin {
             await Logged.Invoke(sender, args);
         }
 
-        private async Task OnCommandReceived(object sender, IrcCommandReceivedEventArgs args) {
+        private async Task OnCommandReceived(object sender, IrcCommandEventArgs args) {
             if (CommandReceived == null)
                 return;
 

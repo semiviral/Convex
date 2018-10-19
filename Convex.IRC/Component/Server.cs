@@ -89,13 +89,13 @@ namespace Convex.IRC.Component {
                         if (Channels.Select(channel => channel.Name.Equals(((Channel) newItem).Name)).Count() > 1)
                             break;
 
-                        await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.JOIN, ((Channel) newItem).Name));
+                        await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.JOIN, ((Channel) newItem).Name));
                         break;
                     case NotifyCollectionChangedAction.Remove:
                         if (!Channels.Select(channel => channel.Name).Contains(((Channel) newItem).Name))
                             break;
 
-                        await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.PART, ((Channel) newItem).Name));
+                        await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.PART, ((Channel) newItem).Name));
                         break;
                     case NotifyCollectionChangedAction.Move:
                         break;
@@ -121,8 +121,8 @@ namespace Convex.IRC.Component {
         ///     sends client info to the server
         /// </summary>
         public async Task SendConnectionInfo(string nickname, string realname) {
-            await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.USER, $"{nickname} 0 * {realname}"));
-            await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.NICK, nickname));
+            await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.USER, $"{nickname} 0 * {realname}"));
+            await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.NICK, nickname));
 
             Identified = true;
         }
@@ -148,7 +148,7 @@ namespace Convex.IRC.Component {
             if (!rawData.StartsWith(Commands.PING))
                 return false;
 
-            await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.PONG, rawData.Remove(0, 5))); // removes 'PING ' from string
+            await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.PONG, rawData.Remove(0, 5))); // removes 'PING ' from string
             return true;
         }
 
