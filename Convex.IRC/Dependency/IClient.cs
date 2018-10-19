@@ -12,10 +12,12 @@ namespace Convex.IRC.Dependency {
         string Address { get; }
         List<string> IgnoreList { get; }
         bool IsInitialised { get; }
+        bool Initialising { get; }
         Dictionary<string, Tuple<string, string>> LoadedCommands { get; }
         int Port { get; }
         Server Server { get; }
         Version Version { get; }
+        Guid UniqueId { get; }
 
         event AsyncEventHandler<ErrorEventArgs> Error;
         event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;

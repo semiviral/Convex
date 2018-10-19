@@ -8,15 +8,13 @@ using Microsoft.AspNetCore.SignalR;
 namespace Convex.Client.Hubs {
     public class IrcHub : Hub<IIrcHub> {
         private readonly IIrcHostedService _ircService;
-        private CancellationToken _isCanceled;
+        private readonly CancellationToken _isCanceled;
 
         public IrcHub(IIrcHostedService ircHostedService) {
             _isCanceled = new CancellationToken(false);
-
             _ircService = ircHostedService;
-            _ircService.Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
-            _ircService.StartAsync(_isCanceled);
         }
+
 
         public async Task BroadcastMessage(string message) {
             await Clients.All.ReceiveBroadcastMessage(message);
@@ -27,7 +25,14 @@ namespace Convex.Client.Hubs {
         }
 
         public override async Task OnConnectedAsync() {
-            await BroadcastMessagesToNewClient(Context.ConnectionId);
+            if (!_ircService.Client.IsInitialised && !_ircService.Client.Initialising) {
+                _ircService.Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
+                await _ircService.StartAsync(_isCanceled);
+            } else {
+                while (!_ircService.Client.IsInitialised) Thread.Sleep(1000);
+
+                await BroadcastMessagesToNewClient(Context.ConnectionId);
+            }
 
             await base.OnConnectedAsync();
         }

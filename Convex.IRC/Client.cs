@@ -26,6 +26,7 @@ namespace Convex.IRC {
         public Client(Configuration configuration = null) {
             Initialising = true;
 
+            UniqueId = Guid.NewGuid();
             Server = new Server();
 
             TerminateSignaled += Terminate;
@@ -65,6 +66,8 @@ namespace Convex.IRC {
         }
 
         #region MEMBERS
+
+        public Guid UniqueId { get; }
 
         private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
 
