@@ -6,32 +6,43 @@ using Convex.IRC.Component;
 using Convex.IRC.Dependency;
 
 namespace Convex.Client.Services {
-    public class IrcHostedService : IIrcHostedService
-    {
+    public class IrcHostedService : IIrcHostedService {
         public IrcHostedService() {
             Client = new IRC.Client();
             Messages = new List<ServerMessage>();
 
+            Client.Logged += (sender, args) => {
+                Debug.WriteLine(args.Information);
+
+                return Task.CompletedTask;
+            };
+
+            Client.Server.ServerMessaged += (sender, args) => {
+                Messages.Add(args.Message);
+
+                return Task.CompletedTask;
+            };
+
             Address = "irc.foonetic.net";
             Port = 6667;
         }
-
-        #region MEMBERS
-        
-        public IClient Client { get; }
-
-        public string Address { get; }
-        public int Port { get; }
-
-        public List<ServerMessage> Messages { get; }
-
-        #endregion
 
         #region METHODS
 
         private async Task DoWork() {
             await Client.BeginListenAsync();
         }
+
+        #endregion
+
+        #region MEMBERS
+
+        public IClient Client { get; }
+
+        public string Address { get; }
+        public int Port { get; }
+
+        public List<ServerMessage> Messages { get; }
 
         #endregion
 
@@ -42,10 +53,6 @@ namespace Convex.Client.Services {
         }
 
         private async Task InitialiseClient() {
-            Client.Logged += (sender, args) => {
-                Debug.WriteLine(args.Information);
-                return Task.CompletedTask;
-            };
             await Client.Initialise(Address, Port);
         }
 

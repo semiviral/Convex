@@ -76,10 +76,10 @@ namespace Convex.IRC {
 
         public Server Server { get; }
 
-        private Configuration clientConfiguration;
+        private Configuration _clientConfiguration;
 
         public Configuration GetClientConfiguration() {
-            return clientConfiguration;
+            return _clientConfiguration;
         }
 
         public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
@@ -109,8 +109,6 @@ namespace Convex.IRC {
                 if (args.Message.Origin.StartsWith("#"))
                     Server.Channels.Add(new Channel(args.Message.Origin));
 
-                //if (GetUser(args.Message.Realname)?.GetTimeout() ?? false)
-                //    return;
             } else if (args.Message.Command.Equals(Commands.ERROR)) {
                 return;
             }
@@ -138,9 +136,9 @@ namespace Convex.IRC {
 
             if (configuration == null) {
                 Configuration.CheckCreateConfig(Configuration.DefaultConfigurationFilePath);
-                clientConfiguration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
+                _clientConfiguration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
             } else {
-                clientConfiguration = configuration;
+                _clientConfiguration = configuration;
             }
         }
 

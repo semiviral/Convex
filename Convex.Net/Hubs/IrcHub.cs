@@ -20,7 +20,7 @@ namespace Convex.Client.Hubs {
             await Clients.All.ReceiveBroadcastMessage(message);
         }
 
-        public async Task BroadcastMessagesToNewClient(string connectionId) {
+        public async Task BroadcastAllMessages(string connectionId) {
             foreach (ServerMessage message in _ircService.Messages) await Clients.Client(connectionId).ReceiveBroadcastMessage(message.ToString());
         }
 
@@ -31,7 +31,7 @@ namespace Convex.Client.Hubs {
             } else {
                 while (!_ircService.Client.IsInitialised) Thread.Sleep(1000);
 
-                await BroadcastMessagesToNewClient(Context.ConnectionId);
+                await BroadcastAllMessages(Context.ConnectionId);
             }
 
             await base.OnConnectedAsync();
