@@ -6,10 +6,6 @@ var connection = new signalR.HubConnectionBuilder().withUrl("/IrcHub").build();
 connection.on("ReceiveBroadcastMessage", function(message) {
     outputMessage(message);
 });
-connection.on("ReceiveBroadcastMessages",
-    function(message) {
-        message.forEach(outputMessage(message));
-    });
 
 connection.start().catch(function(err) {
     return console.error(err.toString());

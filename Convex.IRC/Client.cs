@@ -30,7 +30,7 @@ namespace Convex.IRC {
             Server = new Server();
 
             TerminateSignaled += Terminate;
-            Server.ServerMessaged += ServerMessaged;
+            Server.ServerMessaged += OnServerMessaged;
 
             InitialiseConfiguration(configuration);
 
@@ -101,7 +101,7 @@ namespace Convex.IRC {
             } while (Server.Connection.IsConnected);
         }
 
-        private async Task ServerMessaged(object source, ServerMessagedEventArgs args) {
+        private async Task OnServerMessaged(object source, ServerMessagedEventArgs args) {
             if (string.IsNullOrEmpty(args.Message.Command))
                 return;
 

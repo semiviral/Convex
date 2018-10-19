@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Services;
+using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Microsoft.AspNetCore.SignalR;
 
@@ -21,7 +21,7 @@ namespace Convex.Client.Hubs {
         }
 
         public async Task BroadcastMessagesToNewClient(string connectionId) {
-            await Clients.Client(connectionId).ReceiveBroadcastMessages(_ircService.Messages.Select(message => message.ToString()).ToArray());
+            foreach (ServerMessage message in _ircService.Messages) await Clients.Client(connectionId).ReceiveBroadcastMessage(message.ToString());
         }
 
         public override async Task OnConnectedAsync() {
