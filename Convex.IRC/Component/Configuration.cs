@@ -9,6 +9,24 @@ using Newtonsoft.Json;
 
 namespace Convex.IRC.Component {
     public class Configuration : IDisposable {
+        private static void WriteConfig(string configString, string path) {
+            using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
+                using (StreamWriter writer = new StreamWriter(stream)) {
+                    writer.WriteLine(configString);
+                    writer.Flush();
+                }
+            }
+        }
+
+        public static void CheckCreateConfig(string path) {
+            if (File.Exists(path))
+                return;
+
+            Console.WriteLine("Configuration file not found, creating.\n");
+
+            WriteConfig(DEFAULT_CONFIG, path);
+        }
+
         #region MEMBERS
 
         // I know this isn't readable. Just run the program once and you'll get a much cleaner
@@ -43,24 +61,6 @@ namespace Convex.IRC.Component {
         private string _logFilePath;
 
         #endregion
-
-        private static void WriteConfig(string configString, string path) {
-            using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
-                using (StreamWriter writer = new StreamWriter(stream)) {
-                    writer.WriteLine(configString);
-                    writer.Flush();
-                }
-            }
-        }
-
-        public static void CheckCreateConfig(string path) {
-            if (File.Exists(path))
-                return;
-
-            Console.WriteLine("Configuration file not found, creating.\n");
-
-            WriteConfig(DEFAULT_CONFIG, path);
-        }
 
 
         #region INTERFACE IMPLEMENTATION

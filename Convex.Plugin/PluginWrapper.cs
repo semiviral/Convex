@@ -10,17 +10,10 @@ using Convex.Plugin.Registrar;
 
 namespace Convex.Plugin {
     public class PluginWrapper<T> where T : EventArgs {
-        #region MEMBERS
-
-        public PluginHost<T> Host { get; }
-        public bool Initialised { get; private set; }
-
-        #endregion
-
         public PluginWrapper(string pluginsDirectory, Func<T, Task> onInvokedMethod) {
             Host = new PluginHost<T>(pluginsDirectory, onInvokedMethod);
         }
-        
+
         #region METHODS
 
         private async Task Callback(object sender, PluginActionEventArgs args) {
@@ -35,19 +28,19 @@ namespace Convex.Plugin {
                     if (!(args.Result is IAsyncRegistrar<T>))
                         break;
 
-                    Host.RegisterMethod((IAsyncRegistrar<T>)args.Result);
+                    Host.RegisterMethod((IAsyncRegistrar<T>) args.Result);
                     break;
                 case PluginActionType.SendMessage:
                     if (!(args.Result is IrcCommandReceivedEventArgs))
                         break;
 
-                    await OnCommandReceived(sender, (IrcCommandReceivedEventArgs)args.Result);
+                    await OnCommandReceived(sender, (IrcCommandReceivedEventArgs) args.Result);
                     break;
                 case PluginActionType.Log:
                     if (!(args.Result is string))
                         break;
 
-                    await OnLog(sender, new InformationLoggedEventArgs((string)args.Result));
+                    await OnLog(sender, new InformationLoggedEventArgs((string) args.Result));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -55,7 +48,7 @@ namespace Convex.Plugin {
         }
 
         #endregion
-        
+
         #region INIT
 
         public async Task Initialise() {
@@ -71,7 +64,14 @@ namespace Convex.Plugin {
         }
 
         #endregion
-        
+
+        #region MEMBERS
+
+        public PluginHost<T> Host { get; }
+        public bool Initialised { get; private set; }
+
+        #endregion
+
         #region EVENTS
 
         public event AsyncEventHandler<InformationLoggedEventArgs> Logged;

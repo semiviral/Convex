@@ -92,6 +92,7 @@ namespace Convex.Example.Plugin.Calculator {
                             break;
                     }
                 }
+
                 break;
             }
         }

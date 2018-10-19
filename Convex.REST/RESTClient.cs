@@ -13,10 +13,10 @@ namespace Convex.REST {
         public async Task<string> Request(RequestMethod method, string endPoint) {
             string responseValue = string.Empty;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(endPoint);
+            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(endPoint);
             request.Method = method.ToString();
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+            using (HttpWebResponse response = (HttpWebResponse) request.GetResponse()) {
                 if (response.StatusCode != HttpStatusCode.OK)
                     return null;
 

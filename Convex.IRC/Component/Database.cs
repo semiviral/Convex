@@ -16,16 +16,6 @@ using Microsoft.Data.Sqlite;
 
 namespace Convex.IRC.Component {
     public class Database {
-        #region MEMBERS
-
-        internal string FilePath { get; }
-
-        public bool Connected { get; private set; }
-        public bool IsInitialised { get; private set; }
-        public readonly ObservableCollection<User> Users;
-
-        #endregion
-
         /// <summary>
         ///     Initialise connections to database and sets properties
         /// </summary>
@@ -35,6 +25,16 @@ namespace Convex.IRC.Component {
 
             FilePath = databaseFilePath;
         }
+
+        #region MEMBERS
+
+        internal string FilePath { get; }
+
+        public bool Connected { get; private set; }
+        public bool IsInitialised { get; private set; }
+        public readonly ObservableCollection<User> Users;
+
+        #endregion
 
         #region INIT
 
@@ -84,9 +84,9 @@ namespace Convex.IRC.Component {
                         while (userEntries.Read()) {
                             int id = Convert.ToInt32(userEntries.GetValue(0));
                             string nickname = userEntries.GetValue(1).ToString();
-                            string realname = (string)userEntries.GetValue(2);
+                            string realname = (string) userEntries.GetValue(2);
                             int access = Convert.ToInt32(userEntries.GetValue(3));
-                            DateTime seen = DateTime.Parse((string)userEntries.GetValue(4));
+                            DateTime seen = DateTime.Parse((string) userEntries.GetValue(4));
 
                             users.Add(new User(id, nickname, realname, access));
                         }
@@ -115,7 +115,7 @@ namespace Convex.IRC.Component {
                     SqliteCommand getId = connection.CreateCommand();
                     getId.Transaction = transaction;
                     getId.CommandText = "SELECT MAX(id) FROM users";
-                    id = (int)getId.ExecuteScalar();
+                    id = (int) getId.ExecuteScalar();
 
                     transaction.Commit();
                 }
@@ -138,7 +138,7 @@ namespace Convex.IRC.Component {
 
                     using (SqliteDataReader messages = getMessages.ExecuteReader()) {
                         while (messages.Read())
-                            Users.SingleOrDefault(e => e.Id.Equals(Convert.ToInt32(messages["id"])))?.Messages.Add(new Message((int)messages["id"], (string)messages["sender"], (string)messages["message"], DateTime.Parse((string)messages["datetime"])));
+                            Users.SingleOrDefault(e => e.Id.Equals(Convert.ToInt32(messages["id"])))?.Messages.Add(new Message((int) messages["id"], (string) messages["sender"], (string) messages["message"], DateTime.Parse((string) messages["datetime"])));
                     }
 
                     transaction.Commit();
@@ -213,13 +213,13 @@ namespace Convex.IRC.Component {
                 if (!(item is User))
                     continue;
 
-                if (!UserExists(((User)item).Realname)) {
-                    User newUser = (User)item;
+                if (!UserExists(((User) item).Realname)) {
+                    User newUser = (User) item;
                     CreateUser(newUser.Access, newUser.Nickname, newUser.Realname, newUser.Seen);
                 }
 
-                ((User)item).PropertyChanged += AutoUpdateUsers;
-                ((User)item).Messages.CollectionChanged += MessageAdded;
+                ((User) item).PropertyChanged += AutoUpdateUsers;
+                ((User) item).Messages.CollectionChanged += MessageAdded;
             }
         }
 
@@ -231,7 +231,7 @@ namespace Convex.IRC.Component {
                 if (!(item is Message))
                     continue;
 
-                Message message = (Message)item;
+                Message message = (Message) item;
 
                 GetConnection(FilePath).Query(new DatabaseQueriedEventArgs($"INSERT INTO messages VALUES ({message.Id}, '{message.Sender}', '{message.Contents}', '{message.Date}')"));
             }
@@ -241,7 +241,7 @@ namespace Convex.IRC.Component {
             if (!(args is UserPropertyChangedEventArgs))
                 return;
 
-            UserPropertyChangedEventArgs castedArgs = (UserPropertyChangedEventArgs)args;
+            UserPropertyChangedEventArgs castedArgs = (UserPropertyChangedEventArgs) args;
 
             GetConnection(FilePath).Query(new DatabaseQueriedEventArgs($"UPDATE users SET {castedArgs.PropertyName}='{castedArgs.NewValue}' WHERE realname='{castedArgs.Name}'"));
         }

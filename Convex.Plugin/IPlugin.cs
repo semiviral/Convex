@@ -12,16 +12,6 @@ namespace Convex.Plugin {
     ///     Interface for hooking a new plugin into Eve
     /// </summary>
     public interface IPlugin {
-        #region MEMBERS
-
-        string Name { get; }
-        string Author { get; }
-        Version Version { get; }
-        string Id { get; }
-        PluginStatus Status { get; }
-
-        #endregion
-
         /// <summary>
         ///     Often used to register methods
         /// </summary>
@@ -31,20 +21,30 @@ namespace Convex.Plugin {
         Task CallDie();
 
         event AsyncEventHandler<PluginActionEventArgs> Callback;
+
+        #region MEMBERS
+
+        string Name { get; }
+        string Author { get; }
+        Version Version { get; }
+        string Id { get; }
+        PluginStatus Status { get; }
+
+        #endregion
     }
 
     public class PluginInstance {
+        public PluginInstance(IPlugin instance, PluginStatus status) {
+            Instance = instance;
+            Status = status;
+        }
+
         #region MEMBERS
 
         public readonly IPlugin Instance;
         public PluginStatus Status;
 
         #endregion
-
-        public PluginInstance(IPlugin instance, PluginStatus status) {
-            Instance = instance;
-            Status = status;
-        }
     }
 
     public enum PluginActionType {

@@ -11,6 +11,56 @@ using Convex.Event;
 
 namespace Convex.IRC.Component {
     public sealed class User : INotifyPropertyChanged {
+        public User(int id, string nickname, string realname, int access) {
+            Id = id;
+            Nickname = nickname;
+            Realname = realname;
+            Access = access;
+            Seen = DateTime.Now;
+        }
+
+        #region INTERFACE IMPLEMENTATION
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
+        /// <summary>
+        ///     Discern whether a user has exceeded command-querying limit
+        /// </summary>
+        /// <returns>true: user timeout</returns>
+        public bool GetTimeout() {
+            bool doTimeout = false;
+
+            if (Attempts.Equals(4))
+                if (Seen.AddMinutes(1) < DateTime.UtcNow)
+                    Attempts = 0; // if so, reset their attempts to 0
+                else
+                    doTimeout = true; // if not, timeout is true
+            else if (Access > 1)
+                // if user isn't admin/op, increment their attempts
+                Attempts++;
+
+            return doTimeout;
+        }
+
+        private void NotifyPropertyChanged(object newValue, [CallerMemberName] string memberName = "") {
+            OnPropertyChanged(this, new UserPropertyChangedEventArgs(memberName, Realname, newValue));
+        }
+
+        public void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
+            PropertyChanged?.Invoke(sender, e);
+        }
+
+        /// <summary>
+        ///     Adds a Args object to list
+        /// </summary>
+        /// <param name="user">user object</param>
+        /// <param name="message"><see cref="Message" /> to be added</param>
+        public void AddMessage(User user, Message message) {
+            user.Messages.Add(message);
+        }
+
         #region MEMBERS
 
         public int Id {
@@ -71,59 +121,16 @@ namespace Convex.IRC.Component {
         private DateTime _seen;
 
         #endregion
-
-        public User(int id, string nickname, string realname, int access) {
-            Id = id;
-            Nickname = nickname;
-            Realname = realname;
-            Access = access;
-            Seen = DateTime.Now;
-        }
-
-        #region INTERFACE IMPLEMENTATION
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
-        /// <summary>
-        ///     Discern whether a user has exceeded command-querying limit
-        /// </summary>
-        /// <returns>true: user timeout</returns>
-        public bool GetTimeout() {
-            bool doTimeout = false;
-
-            if (Attempts.Equals(4))
-                if (Seen.AddMinutes(1) < DateTime.UtcNow)
-                    Attempts = 0; // if so, reset their attempts to 0
-                else
-                    doTimeout = true; // if not, timeout is true
-            else if (Access > 1)
-                // if user isn't admin/op, increment their attempts
-                Attempts++;
-
-            return doTimeout;
-        }
-
-        private void NotifyPropertyChanged(object newValue, [CallerMemberName] string memberName = "") {
-            OnPropertyChanged(this, new UserPropertyChangedEventArgs(memberName, Realname, newValue));
-        }
-
-        public void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            PropertyChanged?.Invoke(sender, e);
-        }
-
-        /// <summary>
-        ///     Adds a Args object to list
-        /// </summary>
-        /// <param name="user">user object</param>
-        /// <param name="message"><see cref="Message" /> to be added</param>
-        public void AddMessage(User user, Message message) {
-            user.Messages.Add(message);
-        }
     }
 
     public class Message {
+        public Message(int id, string sender, string contents, DateTime timestamp) {
+            Id = id;
+            Sender = sender;
+            Contents = contents;
+            Date = timestamp;
+        }
+
         #region MEMBERS
 
         public int Id { get; }
@@ -132,12 +139,5 @@ namespace Convex.IRC.Component {
         public DateTime Date { get; }
 
         #endregion
-
-        public Message(int id, string sender, string contents, DateTime timestamp) {
-            Id = id;
-            Sender = sender;
-            Contents = contents;
-            Date = timestamp;
-        }
     }
 }

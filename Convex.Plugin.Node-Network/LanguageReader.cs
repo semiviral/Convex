@@ -10,6 +10,16 @@ using NodeNetwork;
 
 namespace Convex.Plugin.Node_Network {
     public class LanguageReader : IPlugin {
+        #region REGISTRARS
+
+        private Task ProcessText(ServerMessagedEventArgs args) {
+            Network.ProcessInput(args.Message.SplitArgs.ToArray());
+
+            return Task.CompletedTask;
+        }
+
+        #endregion
+
         #region MEMBERS
 
         public string Name => "LanguageReader";
@@ -43,16 +53,6 @@ namespace Convex.Plugin.Node_Network {
         }
 
         public event AsyncEventHandler<PluginActionEventArgs> Callback;
-
-        #endregion
-
-        #region REGISTRARS
-
-        private Task ProcessText(ServerMessagedEventArgs args) {
-            Network.ProcessInput(args.Message.SplitArgs.ToArray());
-
-            return Task.CompletedTask;
-        }
 
         #endregion
 

@@ -108,7 +108,6 @@ namespace Convex.IRC {
             if (args.Message.Command.Equals(Commands.PRIVMSG)) {
                 if (args.Message.Origin.StartsWith("#"))
                     Server.Channels.Add(new Channel(args.Message.Origin));
-
             } else if (args.Message.Command.Equals(Commands.ERROR)) {
                 return;
             }

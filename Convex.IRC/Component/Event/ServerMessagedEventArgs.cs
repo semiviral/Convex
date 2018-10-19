@@ -7,6 +7,11 @@ using Convex.IRC.Dependency;
 
 namespace Convex.IRC.Component.Event {
     public class ServerMessagedEventArgs : EventArgs {
+        public ServerMessagedEventArgs(IClient bot, ServerMessage message) {
+            Caller = bot;
+            Message = message;
+        }
+
         #region MEMBERS
 
         // todo: I don't like this solution
@@ -14,10 +19,5 @@ namespace Convex.IRC.Component.Event {
         public ServerMessage Message { get; }
 
         #endregion
-
-        public ServerMessagedEventArgs(IClient bot, ServerMessage message) {
-            Caller = bot;
-            Message = message;
-        }
     }
 }

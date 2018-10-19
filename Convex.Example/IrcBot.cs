@@ -16,17 +16,6 @@ using Serilog.Events;
 
 namespace Convex.Example {
     public class IrcBot : IDisposable {
-        #region MEMBERS
-
-        private string BotInfo => $"[Version {_bot.Version}] Evealyn is an IRC bot created by Antonio DiNostri as a primary learning project for C#.";
-
-        public bool IsInitialised { get; private set; }
-        public bool Executing => _bot.Server.Executing;
-        private readonly IClient _bot;
-        private readonly string[] _defaultChannels = {"#testgrounds"};
-
-        #endregion
-
         /// <summary>
         ///     Initialises class
         /// </summary>
@@ -57,6 +46,17 @@ namespace Convex.Example {
         public async Task Execute() {
             await _bot.BeginListenAsync();
         }
+
+        #endregion
+
+        #region MEMBERS
+
+        private string BotInfo => $"[Version {_bot.Version}] Evealyn is an IRC bot created by Antonio DiNostri as a primary learning project for C#.";
+
+        public bool IsInitialised { get; private set; }
+        public bool Executing => _bot.Server.Executing;
+        private readonly IClient _bot;
+        private readonly string[] _defaultChannels = {"#testgrounds"};
 
         #endregion
 

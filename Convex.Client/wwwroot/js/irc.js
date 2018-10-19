@@ -3,9 +3,10 @@
 var connection = new signalR.HubConnectionBuilder().withUrl("/IrcHub").build();
 
 
-connection.on("ReceiveBroadcastMessage", function(message) {
-    outputMessage(message);
-});
+connection.on("ReceiveBroadcastMessage",
+    function(message) {
+        outputMessage(message);
+    });
 
 connection.start().catch(function(err) {
     return console.error(err.toString());

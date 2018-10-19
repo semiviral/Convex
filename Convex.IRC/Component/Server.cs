@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
@@ -17,20 +16,6 @@ using Convex.IRC.Dependency;
 
 namespace Convex.IRC.Component {
     public class Server : IDisposable {
-        #region MEMBERS
-
-        public IConnection Connection { get; }
-
-        public bool Identified { get; set; }
-        public bool Initialised { get; private set; }
-        public bool Executing => Connection.Executing;
-
-        public ObservableCollection<Channel> Channels { get; }
-
-        public List<string> AllUsers => Channels.SelectMany(e => e.Inhabitants).ToList();
-
-        #endregion
-
         public Server() {
             Connection = new Connection();
             Channels = new ObservableCollection<Channel>();
@@ -69,6 +54,20 @@ namespace Convex.IRC.Component {
 
         #endregion
 
+        #region MEMBERS
+
+        public IConnection Connection { get; }
+
+        public bool Identified { get; set; }
+        public bool Initialised { get; private set; }
+        public bool Executing => Connection.Executing;
+
+        public ObservableCollection<Channel> Channels { get; }
+
+        public List<string> AllUsers => Channels.SelectMany(e => e.Inhabitants).ToList();
+
+        #endregion
+
         #region EVENTS
 
         public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
@@ -87,24 +86,22 @@ namespace Convex.IRC.Component {
 
                 switch (args.Action) {
                     case NotifyCollectionChangedAction.Add:
-                        if (Channels.Select(channel => channel.Name.Equals(((Channel)newItem).Name)).Count() > 1)
+                        if (Channels.Select(channel => channel.Name.Equals(((Channel) newItem).Name)).Count() > 1)
                             break;
 
-                        await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.JOIN, ((Channel)newItem).Name));
+                        await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.JOIN, ((Channel) newItem).Name));
                         break;
                     case NotifyCollectionChangedAction.Remove:
-                        if (!Channels.Select(channel => channel.Name).Contains(((Channel)newItem).Name))
+                        if (!Channels.Select(channel => channel.Name).Contains(((Channel) newItem).Name))
                             break;
 
-                        await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.PART, ((Channel)newItem).Name));
+                        await Connection.SendDataAsync(this, new IrcCommandReceivedEventArgs(Commands.PART, ((Channel) newItem).Name));
                         break;
                     case NotifyCollectionChangedAction.Move:
                         break;
                     case NotifyCollectionChangedAction.Replace:
                         break;
                     case NotifyCollectionChangedAction.Reset:
-                        break;
-                    default:
                         break;
                 }
             }

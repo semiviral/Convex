@@ -14,7 +14,7 @@ namespace Convex.Client.Hubs {
             _isCanceled = new CancellationToken(false);
             _ircService = ircHostedService;
         }
-        
+
         public async Task BroadcastMessage(string message) {
             await Clients.All.ReceiveBroadcastMessage(message);
         }

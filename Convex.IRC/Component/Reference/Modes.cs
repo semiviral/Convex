@@ -75,6 +75,11 @@
     }
 
     public class IrcMode {
+        public IrcMode(char identifier, string syntax) {
+            Identifier = identifier;
+            Syntax = syntax;
+        }
+
         #region MEMBERS
 
         public char Identifier { get; }
@@ -83,10 +88,5 @@
         public string Syntax { get; }
 
         #endregion
-
-        public IrcMode(char identifier, string syntax) {
-            Identifier = identifier;
-            Syntax = syntax;
-        }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Convex.Event;
 
-namespace Convex.IRC.Component.Net
-{
-    public interface IConnection
-    {
+namespace Convex.IRC.Component.Net {
+    public interface IConnection {
         string Address { get; }
         bool IsConnected { get; }
         bool IsInitialised { get; }

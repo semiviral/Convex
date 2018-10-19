@@ -7,6 +7,14 @@ using Convex.IRC.Component.Reference;
 
 namespace Convex.IRC.Component {
     public class Channel {
+        public Channel(string name) {
+            Name = name;
+            Topic = string.Empty;
+            Inhabitants = new List<string>();
+            Modes = new List<IrcMode>();
+            IsPrivate = !Name.StartsWith("#");
+        }
+
         #region MEMBERS
 
         public string Name { get; }
@@ -17,13 +25,5 @@ namespace Convex.IRC.Component {
         public bool Connected { get; internal set; }
 
         #endregion
-
-        public Channel(string name) {
-            Name = name;
-            Topic = string.Empty;
-            Inhabitants = new List<string>();
-            Modes = new List<IrcMode>();
-            IsPrivate = !Name.StartsWith("#");
-        }
     }
 }

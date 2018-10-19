@@ -10,33 +10,6 @@ using Convex.IRC.Component.Reference;
 
 namespace Convex.IRC.Component {
     public class ServerMessage {
-        #region MEMBERS
-
-        // Regex for parsing RawMessage messages
-        private static readonly Regex _MessageRegex = new Regex(@"^:(?<Sender>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)", RegexOptions.Compiled);
-
-        private static readonly Regex _SenderRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
-
-        public bool IsIrCv3Message { get; private set; }
-
-        public string RawMessage { get; }
-
-        public string Nickname { get; private set; }
-        public string Realname { get; private set; }
-        public string Hostname { get; private set; }
-        public string Origin { get; private set; }
-        public string Command { get; private set; }
-        public string Args { get; private set; }
-        public List<string> SplitArgs { get; private set; }
-
-        public DateTime Timestamp { get; private set; }
-
-        public string InputCommand { get; set; } = string.Empty;
-
-        public readonly Dictionary<string, string> Tags = new Dictionary<string, string>();
-
-        #endregion
-
         public ServerMessage(string rawData) {
             RawMessage = rawData.Trim();
 
@@ -101,5 +74,32 @@ namespace Convex.IRC.Component {
         public override string ToString() {
             return RawMessage;
         }
+
+        #region MEMBERS
+
+        // Regex for parsing RawMessage messages
+        private static readonly Regex _MessageRegex = new Regex(@"^:(?<Sender>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)", RegexOptions.Compiled);
+
+        private static readonly Regex _SenderRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
+
+        public bool IsIrCv3Message { get; private set; }
+
+        public string RawMessage { get; }
+
+        public string Nickname { get; private set; }
+        public string Realname { get; private set; }
+        public string Hostname { get; private set; }
+        public string Origin { get; private set; }
+        public string Command { get; private set; }
+        public string Args { get; private set; }
+        public List<string> SplitArgs { get; private set; }
+
+        public DateTime Timestamp { get; private set; }
+
+        public string InputCommand { get; set; } = string.Empty;
+
+        public readonly Dictionary<string, string> Tags = new Dictionary<string, string>();
+
+        #endregion
     }
 }

@@ -7,19 +7,6 @@ using System.Threading.Tasks;
 
 namespace Convex.Plugin.Registrar {
     public class MethodRegistrar<TEventArgs> : IAsyncRegistrar<TEventArgs> where TEventArgs : EventArgs {
-        #region MEMBERS
-
-        public Func<TEventArgs, Task> Composition { get; }
-        public Predicate<TEventArgs> CanExecute { get; }
-
-        public string Command { get; }
-        public Tuple<string, string> Description { get; }
-        public bool IsRegistered { get; }
-
-        public string UniqueId { get; } = Guid.NewGuid().ToString();
-
-        #endregion
-
         /// <summary>
         ///     Creates a new instance of MethodRegistrar
         /// </summary>
@@ -37,5 +24,18 @@ namespace Convex.Plugin.Registrar {
 
             IsRegistered = true;
         }
+
+        #region MEMBERS
+
+        public Func<TEventArgs, Task> Composition { get; }
+        public Predicate<TEventArgs> CanExecute { get; }
+
+        public string Command { get; }
+        public Tuple<string, string> Description { get; }
+        public bool IsRegistered { get; }
+
+        public string UniqueId { get; } = Guid.NewGuid().ToString();
+
+        #endregion
     }
 }
