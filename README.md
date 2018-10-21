@@ -2,7 +2,7 @@
 
  Convex is an IRC library that (tries) to achieve idiomatic simplicty.
 
- This library targets .NET Standard 2.0
+ This library targets .NET Standard 2.1
 
 # Implementing the IPlugin interface
 
@@ -18,4 +18,4 @@
 
  For questions, or if I've missed anything, feel free to e-mail me at semiviral@gmail.com.
 
- I will be doing more comprehensive documentation at some point. It may be a while, as the product currently changes often.
+ I will be doing more comprehensive documentation at some point (likely upon first full release). It may be a while, as the product currently changes often.
