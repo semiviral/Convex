@@ -8,22 +8,18 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Convex.Client.Hubs {
     public class IrcHub : Hub<IIrcHub> {
-        public IrcHub(IIrcHostedService ircHostedService) {
+        public IrcHub(IIrcService ircService) {
             _isCanceled = new CancellationToken(false);
-            _ircService = ircHostedService;
+            _ircService = ircService;
+            _ircService.Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
         }
 
         #region OVERRIDES
 
         public override async Task OnConnectedAsync() {
-            if (!_ircService.Client.IsInitialised && !_ircService.Client.Initialising) {
-                _ircService.Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
-                await _ircService.StartAsync(_isCanceled);
-            } else {
-                while (!_ircService.Client.IsInitialised) Thread.Sleep(1000);
+            while (!_ircService.Client.IsInitialised) await Task.Delay(1000, _isCanceled);
 
-                await BroadcastAllMessages(Context.ConnectionId);
-            }
+            await BroadcastAllMessages(Context.ConnectionId);
 
             await base.OnConnectedAsync();
         }
@@ -40,7 +36,7 @@ namespace Convex.Client.Hubs {
 
         #region MEMBERS
 
-        private readonly IIrcHostedService _ircService;
+        private readonly IIrcService _ircService;
         private readonly CancellationToken _isCanceled;
 
         #endregion
@@ -55,8 +51,8 @@ namespace Convex.Client.Hubs {
             foreach (ServerMessage message in _ircService.Messages) await Clients.Client(connectionId).ReceiveBroadcastMessage(message.ToString());
         }
 
-        public void SendMessage(string rawMessage) {
-            _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
+        public async Task SendMessage(string rawMessage) {
+           await _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
         }
 
         #endregion

@@ -1,16 +1,15 @@
 ﻿@page
 
-<link rel="stylesheet" type="text/css" href="~/css/index.stylesheet.css"/>
-<script type="text/javascript" src="~/lib/signalr/dist/browser/signalr.js"></script>
-<script type="text/javascript" src="~/js/irc.js"></script>
-
 <div class="container">
+    <div class="inputContainer">
+        <input type="text" id="messageInput" />
+        <input type="button" id="sendMessageButton" value="Send Message" />
+    </div>
     <div class="messageContainer">
         <ul id="messagesList"/>
     </div>
-
-    <div class="inputContainer">
-        <input type="text" id="messageInput"/>
-        <input type="button" id="sendMessageButton" value="Send Message"/>
-    </div>
 </div>
+
+<link rel="stylesheet" type="text/css" href="~/css/index.stylesheet.css" />
+<script type="text/javascript" src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script type="text/javascript" src="~/js/irc.js"></script>

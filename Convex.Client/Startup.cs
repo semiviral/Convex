@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace Convex.Client {
     public class Startup {
@@ -27,8 +29,11 @@ namespace Convex.Client {
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddSingleton<IIrcHostedService, IrcHostedService>();
             services.AddSignalR();
+            
+            services.AddSingleton<IrcService>();
+            services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<IrcService>());
+            services.AddSingleton<IIrcService>(provider => provider.GetRequiredService<IrcService>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

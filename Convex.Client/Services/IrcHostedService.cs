@@ -4,10 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Convex.IRC.Component;
 using Convex.IRC.Dependency;
+using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {
-    public class IrcHostedService : IIrcHostedService {
-        public IrcHostedService() {
+    public class IrcService : IHostedService, IIrcService {
+        public IrcService() {
             Client = new IRC.Client();
             Messages = new List<ServerMessage>();
 
