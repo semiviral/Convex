@@ -48,6 +48,8 @@ namespace Convex.Client.Hubs {
         }
 
         public async Task BroadcastAllMessages(string connectionId) {
+            if (Clients.Client(connectionId) == null) return;
+
             foreach (ServerMessage message in _ircService.Messages) await Clients.Client(connectionId).ReceiveBroadcastMessage(message.ToString());
         }
 
