@@ -12,9 +12,9 @@ namespace Convex.Client.Hubs {
         #region OVERRIDES
 
         public override async Task OnConnectedAsync() {
-            await _ircHubProxyService.BroadcastMessageBatch(Context.ConnectionId, 0, 200, false);
-
             await base.OnConnectedAsync();
+
+            await _ircHubProxyService.BroadcastMessageBatch(Context.ConnectionId, 0, 200, false);
         }
 
         #endregion

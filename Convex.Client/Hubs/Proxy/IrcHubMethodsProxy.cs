@@ -13,7 +13,7 @@ namespace Convex.Client.Hubs {
         }
 
         public async Task BroadcastMessage(string message) {
-            await _hubContext.Clients.All.SendAsync(message);
+            await _hubContext.Clients.All.SendAsync("ReceiveBroadcastMessage", message);
         }
 
         /// <summary>

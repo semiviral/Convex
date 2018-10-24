@@ -59,9 +59,13 @@ namespace Convex.Client.Hubs {
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
         public async Task BroadcastMessageBatch(string connectionId, int startIndex, int endIndex, bool isPrepend) {
-            await WaitForIrcServiceInitialised();
+            if (_ircService.Messages.Count <= 0) {
+                return;
+            }
 
-            TransformIndexValues(startIndex, endIndex);
+            Tuple<int, int> reversedIndexValues = ReverseIndexValues(startIndex, endIndex);
+            startIndex = reversedIndexValues.Item1;
+            endIndex = reversedIndexValues.Item2;
 
             if (startIndex <= endIndex || endIndex < 0) {
                 return;
@@ -82,11 +86,24 @@ namespace Convex.Client.Hubs {
             }
         }
 
-        private void TransformIndexValues(int startIndex, int endIndex) {
+        private Tuple<int, int> ReverseIndexValues(int startIndex, int endIndex) {
             int maximumMessagesKey = _ircService.Messages.Keys.Max();
 
-            startIndex = maximumMessagesKey - startIndex;
-            endIndex = maximumMessagesKey - endIndex;
+            int tempStartIndex = startIndex;
+            int tempEndIndex = endIndex;
+
+            tempStartIndex = maximumMessagesKey - endIndex;
+            tempEndIndex += startIndex;
+
+            if (tempStartIndex < 0) {
+                tempStartIndex = 0;
+            }
+
+            if (tempEndIndex > maximumMessagesKey) {
+                tempEndIndex = maximumMessagesKey;
+            }
+
+            return new Tuple<int, int>(tempStartIndex, tempEndIndex);
         }
 
         #endregion
