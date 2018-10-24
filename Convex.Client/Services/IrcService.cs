@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
         public IrcService() {
+            _firstMessagesEntry = false;
             Client = new IRC.Client();
             Messages = new SortedList<int, ServerMessage>();
 
@@ -20,7 +21,13 @@ namespace Convex.Client.Services {
             };
 
             Client.Server.ServerMessaged += (sender, args) => {
-                Messages[Messages.Keys.Max() + 1] = args.Message;
+                if (_firstMessagesEntry) {
+                    Messages.Add(Messages.Keys.Max() + 1, args.Message);
+                } else {
+                    Messages.Add(0, args.Message);
+
+                    _firstMessagesEntry = true;
+                }
 
                 return Task.CompletedTask;
             };
@@ -38,7 +45,9 @@ namespace Convex.Client.Services {
         #endregion
 
         #region MEMBERS
-        
+
+        private bool _firstMessagesEntry;
+
         public IClient Client { get; }
 
         public string Address { get; }
