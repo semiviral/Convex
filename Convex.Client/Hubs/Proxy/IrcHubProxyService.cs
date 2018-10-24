@@ -5,12 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Services;
 using Convex.Event;
+using Convex.IRC.Component.Event;
 using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Hubs {
     public class IrcHubProxyService : IHostedService, IIrcHubProxyService {
         public IrcHubProxyService(IIrcService ircService, IrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
+            _ircService.Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
             _ircHubMethodsProxy = ircHubMethodsProxy;
         }
 
@@ -33,6 +35,14 @@ namespace Convex.Client.Hubs {
 
         #endregion
 
+        #region EVENT
+
+        private async Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
+            await _ircHubMethodsProxy.BroadcastMessage(args.Message.RawMessage);
+        }
+
+        #endregion
+
         #region METHODS
 
         public async Task SendMessage(string rawMessage) {
@@ -50,6 +60,8 @@ namespace Convex.Client.Hubs {
         /// <returns></returns>
         public async Task BroadcastMessageBatch(string connectionId, int startIndex, int endIndex, bool isPrepend) {
             await WaitForIrcServiceInitialised();
+
+            TransformIndexValues(startIndex, endIndex);
 
             if (startIndex <= endIndex || endIndex < 0) {
                 return;
