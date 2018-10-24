@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Convex.IRC.Component;
@@ -9,7 +11,7 @@ namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
         public IrcService() {
             Client = new IRC.Client();
-            Messages = new ServerMessage[int.MaxValue];
+            Messages = new SortedList<int, ServerMessage>();
 
             Client.Logged += (sender, args) => {
                 Debug.WriteLine(args.Information);
@@ -18,7 +20,7 @@ namespace Convex.Client.Services {
             };
 
             Client.Server.ServerMessaged += (sender, args) => {
-                Messages[(Messages.Length - int.MaxValue) + 1] = args.Message;
+                Messages[Messages.Keys.Max() + 1] = args.Message;
 
                 return Task.CompletedTask;
             };
@@ -42,7 +44,7 @@ namespace Convex.Client.Services {
         public string Address { get; }
         public int Port { get; }
 
-        public ServerMessage[] Messages { get; }
+        public SortedList<int, ServerMessage> Messages { get; }
 
         #endregion
 

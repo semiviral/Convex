@@ -61,14 +61,17 @@ namespace Convex.Client.Hubs {
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
         public async Task BroadcastMessageBatch(string connectionId, int startIndex, int endIndex, bool isPrepended) {
+            while (_ircService.Messages[endIndex] == null && endIndex > 0) {
+                endIndex -= 1;
+            }
+
             if (Clients.Client(connectionId) == null || startIndex >= endIndex || startIndex < 0 || endIndex < 0) {
                 return;
             }
 
-            startIndex -= int.MaxValue;
-            endIndex -= int.MaxValue;
 
-            IEnumerable<string> messageList = _ircService.Messages.Select(message => message.RawMessage).Skip(startIndex).Take(endIndex - startIndex + 1);
+
+            IEnumerable<string> messageList = _ircService.Messages.Skip(startIndex).Take(endIndex - startIndex + 1).Select(message => message.Value.RawMessage);
 
             if (isPrepended) {
                 await Clients.Client(connectionId).ReceiveBroadcastMessageBatch(messageList);
