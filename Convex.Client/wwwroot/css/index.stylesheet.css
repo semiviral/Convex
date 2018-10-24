@@ -1,34 +1,82 @@
-﻿body {
-    background: #232323;
-    color: aliceblue;
-    font-family: Courier New;
+﻿/*#region BODY*/
+
+body {
+    background: #000;
     margin: 0;
-    overflow: hidden;
     padding: 0;
+    overflow: hidden;
+    height: 100%;
 }
+
+/*#endregion*/
+
+/*#region INHERITABLES*/
+
+.noPushing {
+    padding: 0;
+    margin: 0;
+}
+
+.font {
+    color: ghostwhite;
+    font-family: 'Lucida Console';
+    font-size: 12pt;
+}
+
+.nakedInput {
+    outline: none;
+    border: 0;
+    box-shadow: none;
+    vertical-align: middle;
+    background: transparent;
+}
+
+/*#endregion*/
 
 .container {
+    position: absolute;
     height: 100%;
-    width: 100%;
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-.messageContainer {
-    float: top;
-    max-height: 80%;
+/*#region MESSAGE CONTAINER*/
+
+#messageContainer {
+    flex: 1;
+    min-height: 0;
+    max-width: 100%;
+    overflow-y: auto;
 }
 
-#messagesList {
-    max-height: 100%;
-    overflow: auto;
-}
+    #messageContainer > ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+/*#endregion*/
+
+/*#region INPUT CONTAINER*/
 
 .inputContainer {
-    float: bottom;
-    height: auto;
+    display: flex;
+    padding: 0.5em 0;
     width: 100%;
+    background: #000;
 }
 
-#messageInput {
-    bottom: 0;
-    position: absolute;
-}
+    .inputContainer > span {
+        margin: 0 0.5em;
+        font-weight: bold;
+        text-align: center;
+        display: inline-flex;
+    }
+
+    .inputContainer > input {
+        display: inline-flex;
+        flex-grow: 1;
+    }
+
+/*#endregion*/

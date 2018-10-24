@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Convex.IRC.Component;
@@ -10,7 +9,7 @@ namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
         public IrcService() {
             Client = new IRC.Client();
-            Messages = new List<ServerMessage>();
+            Messages = new ServerMessage[int.MaxValue];
 
             Client.Logged += (sender, args) => {
                 Debug.WriteLine(args.Information);
@@ -19,7 +18,7 @@ namespace Convex.Client.Services {
             };
 
             Client.Server.ServerMessaged += (sender, args) => {
-                Messages.Add(args.Message);
+                Messages[(Messages.Length - int.MaxValue) + 1] = args.Message;
 
                 return Task.CompletedTask;
             };
@@ -37,13 +36,13 @@ namespace Convex.Client.Services {
         #endregion
 
         #region MEMBERS
-
+        
         public IClient Client { get; }
 
         public string Address { get; }
         public int Port { get; }
 
-        public List<ServerMessage> Messages { get; }
+        public ServerMessage[] Messages { get; }
 
         #endregion
 
@@ -62,7 +61,9 @@ namespace Convex.Client.Services {
         #region INTERFACE IMPLEMENTATION
 
         public async Task StartAsync(CancellationToken cancellationToken) {
-            if (Client.IsInitialised) return;
+            if (Client.IsInitialised) {
+                return;
+            }
 
             await Initialise();
             await DoWork();

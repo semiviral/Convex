@@ -11,7 +11,7 @@ using Convex.IRC.Component.Reference;
 namespace Convex.IRC.Component {
     public class ServerMessage {
         public ServerMessage(string rawData) {
-            RawMessage = rawData.Trim();
+            RawMessage = rawData;
 
             if (rawData.StartsWith("ERROR")) {
                 Command = Commands.ERROR;

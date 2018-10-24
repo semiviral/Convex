@@ -1,8 +1,10 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Services;
 using Convex.Event;
-using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Microsoft.AspNetCore.SignalR;
 
@@ -17,9 +19,11 @@ namespace Convex.Client.Hubs {
         #region OVERRIDES
 
         public override async Task OnConnectedAsync() {
-            while (!_ircService.Client.IsInitialised) await Task.Delay(1000, _isCanceled);
+            while (!_ircService.Client.IsInitialised) {
+                await Task.Delay(200, _isCanceled);
+            }
 
-            await BroadcastAllMessages(Context.ConnectionId);
+            await BroadcastMessageBatch(Context.ConnectionId, 0, 30, false);
 
             await base.OnConnectedAsync();
         }
@@ -29,7 +33,7 @@ namespace Convex.Client.Hubs {
         #region EVENT
 
         private async Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
-            await BroadcastMessage(args.Message.ToString());
+            await BroadcastMessage(args.Message.RawMessage);
         }
 
         #endregion
@@ -44,17 +48,37 @@ namespace Convex.Client.Hubs {
         #region RELAY METHODS
 
         public async Task BroadcastMessage(string message) {
+            Debug.WriteLine(message);
             await Clients.All.ReceiveBroadcastMessage(message);
         }
 
-        public async Task BroadcastAllMessages(string connectionId) {
-            if (Clients.Client(connectionId) == null) return;
+        /// <summary>
+        ///     Broadcasts a batch of messages.
+        /// </summary>
+        /// <param name="connectionId">Connection ID of client.</param>
+        /// <param name="startIndex">Start index. Cannot be negative.</param>
+        /// <param name="endIndex">Start index. Cannot be negative.</param>
+        /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
+        /// <returns></returns>
+        public async Task BroadcastMessageBatch(string connectionId, int startIndex, int endIndex, bool isPrepended) {
+            if (Clients.Client(connectionId) == null || startIndex >= endIndex || startIndex < 0 || endIndex < 0) {
+                return;
+            }
 
-            foreach (ServerMessage message in _ircService.Messages) await Clients.Client(connectionId).ReceiveBroadcastMessage(message.ToString());
+            startIndex -= int.MaxValue;
+            endIndex -= int.MaxValue;
+
+            IEnumerable<string> messageList = _ircService.Messages.Select(message => message.RawMessage).Skip(startIndex).Take(endIndex - startIndex + 1);
+
+            if (isPrepended) {
+                await Clients.Client(connectionId).ReceiveBroadcastMessageBatch(messageList);
+            } else {
+                await Clients.Client(connectionId).ReceiveBroadcastMessageBatch(messageList);
+            }
         }
 
         public async Task SendMessage(string rawMessage) {
-           await _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
+            await _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
         }
 
         #endregion

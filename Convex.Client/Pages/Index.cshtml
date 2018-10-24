@@ -1,12 +1,14 @@
 ﻿@page
 
 <div class="container">
-    <div class="inputContainer">
-        <input type="text" id="messageInput" />
-        <input type="button" id="sendMessageButton" value="Send Message" />
+    <div id="messageContainer"class="noPushing">
+        <ul id="messageList" class="font " />
     </div>
-    <div class="messageContainer">
-        <ul id="messagesList"/>
+
+    <div class="inputContainer">
+        <span class="font">:></span>
+
+        <input id="messageInput" class="font nakedInput" />
     </div>
 </div>
 

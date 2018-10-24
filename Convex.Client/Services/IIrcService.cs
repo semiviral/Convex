@@ -7,7 +7,7 @@ namespace Convex.Client.Services {
     public interface IIrcService : IDisposable {
         string Address { get; }
         IClient Client { get; }
-        List<ServerMessage> Messages { get; }
+        ServerMessage[] Messages { get; }
         int Port { get; }
     }
 }

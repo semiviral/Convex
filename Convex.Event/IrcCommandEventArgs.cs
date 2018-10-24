@@ -2,7 +2,7 @@
 
 namespace Convex.Event {
     public class IrcCommandEventArgs : EventArgs {
-        public IrcCommandEventArgs(string command, params string[] arguments) {
+        public IrcCommandEventArgs(string command, string arguments) {
             Command = command;
             Arguments = arguments;
         }
@@ -14,7 +14,7 @@ namespace Convex.Event {
         #region MEMBERS
 
         public string Command { get; set; }
-        public string[] Arguments { get; set; }
+        public string Arguments { get; set; }
 
         #endregion
     }
