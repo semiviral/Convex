@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +22,9 @@ namespace Convex.Client.Hubs {
                 await Task.Delay(200, _isCanceled);
             }
 
-            await BroadcastMessageBatch(Context.ConnectionId, 0, 30, false);
+            int messagesMax = _ircService.Messages.Keys.Max();
+
+            await BroadcastMessageBatch(Context.ConnectionId, messagesMax - 200, messagesMax, false);
 
             await base.OnConnectedAsync();
         }
@@ -48,7 +49,6 @@ namespace Convex.Client.Hubs {
         #region RELAY METHODS
 
         public async Task BroadcastMessage(string message) {
-            Debug.WriteLine(message);
             await Clients.All.ReceiveBroadcastMessage(message);
         }
 
@@ -61,20 +61,22 @@ namespace Convex.Client.Hubs {
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
         public async Task BroadcastMessageBatch(string connectionId, int startIndex, int endIndex, bool isPrepended) {
-            while (_ircService.Messages[endIndex] == null && endIndex > 0) {
-                endIndex -= 1;
+            if (_ircService.Messages.Count < endIndex + 1) {
+                endIndex = _ircService.Messages.Count;
             }
 
-            if (Clients.Client(connectionId) == null || startIndex >= endIndex || startIndex < 0 || endIndex < 0) {
+            if (startIndex < 0) {
+                startIndex = 0;
+            }
+
+            if (Clients.Client(connectionId) == null || startIndex >= endIndex || endIndex < 0) {
                 return;
             }
-
-
 
             IEnumerable<string> messageList = _ircService.Messages.Skip(startIndex).Take(endIndex - startIndex + 1).Select(message => message.Value.RawMessage);
 
             if (isPrepended) {
-                await Clients.Client(connectionId).ReceiveBroadcastMessageBatch(messageList);
+                await Clients.Client(connectionId).ReceiveBroadcastMessageBatchPrepend(messageList.Reverse());
             } else {
                 await Clients.Client(connectionId).ReceiveBroadcastMessageBatch(messageList);
             }

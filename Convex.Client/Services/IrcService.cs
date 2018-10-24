@@ -29,6 +29,8 @@ namespace Convex.Client.Services {
                     _firstMessagesEntry = true;
                 }
 
+                Debug.WriteLine(args.Message.RawMessage);
+
                 return Task.CompletedTask;
             };
 

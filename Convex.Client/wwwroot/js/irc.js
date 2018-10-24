@@ -26,7 +26,7 @@ window.addEventListener("DOMContentLoaded",
         });
 
         connection.on("ReceiveBroadcastMessageBatchPrepend", function (rawMessages) {
-            rawMessages.forEach(message => { prepend(message) });
+            rawMessages.forEach(message => { prependMessage(message) });
         });
 
         //#endregion
@@ -64,7 +64,7 @@ window.addEventListener("DOMContentLoaded",
             var li = document.createElement("li");
             li.textContent = cleanString(message);
 
-            document.getElementById("messagesList").insertBefore(li, document.getElementById("messagesList").childNodes[0]);
+            document.getElementById("messageList").insertBefore(li, document.getElementById("messageList").childNodes[0]);
         }
 
         function appendMessage(message) {
