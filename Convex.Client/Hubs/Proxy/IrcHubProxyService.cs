@@ -51,7 +51,7 @@ namespace Convex.Client.Hubs {
 
         /// <summary>
         ///     Broadcasts a batch of messages.
-        ///     The client's first index is the maximum index, decrementing from there. So the most recent index is the first.
+        ///     The client's first index is the maximum index, decrementing from there. So the most recent index is the first index the list.
         /// </summary>
         /// <param name="connectionId">Connection ID of client.</param>
         /// <param name="startIndex">Start index. Cannot be negative.</param>
@@ -77,12 +77,6 @@ namespace Convex.Client.Hubs {
                 await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, true);
             } else {
                 await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, false);
-            }
-        }
-
-        private async Task WaitForIrcServiceInitialised() {
-            while (!_ircService.Client.IsInitialised) {
-                await Task.Delay(200);
             }
         }
 
