@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 #endregion
 
 namespace Convex.Example {
-    public class Program {
+    public static class Program {
         #region MEMBERS
 
         private static IrcBot Bot { get; set; }

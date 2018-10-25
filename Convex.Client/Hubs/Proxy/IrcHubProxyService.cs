@@ -80,6 +80,13 @@ namespace Convex.Client.Hubs {
             }
         }
 
+
+        /// <summary>
+        /// Reverses the effective range of the give index values from the start to the end of the message array.
+        /// </summary>
+        /// <param name="startIndex"></param>
+        /// <param name="endIndex"></param>
+        /// <returns></returns>
         private Tuple<int, int> ReverseIndexValues(int startIndex, int endIndex) {
             int maximumMessagesKey = _ircService.Messages.Keys.Max();
 

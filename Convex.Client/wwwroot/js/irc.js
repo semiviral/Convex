@@ -38,6 +38,8 @@ window.addEventListener("DOMContentLoaded",
 
             keyMap[event.keyCode] = event.keyType == "onkeydown";
 
+            console.log(event.keyCode + " " + event.keyType);
+
             if (keyMap[16] == true) return;
 
             if (keyMap[13] == true)

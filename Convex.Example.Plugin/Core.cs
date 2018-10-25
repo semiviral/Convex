@@ -111,7 +111,7 @@ namespace Convex.Example.Plugin {
             }
 
             // built-in 'help' command
-            if (e.Message.SplitArgs[1].ToLower().Equals("help")) {
+            if (e.Message.SplitArgs[1].Equals("help", StringComparison.OrdinalIgnoreCase)) {
                 if (e.Message.SplitArgs.Count.Equals(2)) {
                     // in this case, 'help' is the only text in the string.
                     List<Tuple<string, string>> entries = e.Caller.LoadedCommands.Values.ToList();
