@@ -67,7 +67,7 @@ namespace Convex.Client.Hubs {
             startIndex = reversedIndexValues.Item1;
             endIndex = reversedIndexValues.Item2;
 
-            if (startIndex <= endIndex || endIndex < 0) {
+            if (startIndex >= endIndex || endIndex <= 0) {
                 return;
             }
 
