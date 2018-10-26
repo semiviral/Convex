@@ -33,12 +33,12 @@ window.addEventListener("DOMContentLoaded",
 
         //#region EVENT LISTENERS
 
-        document.getElementById("messageInput").addEventListener("onkeydown", function (event) {
+        document.getElementById("messageInput").addEventListener("keydown", function (event) {
             mapKey(event.keyCode, event.keyType);
 
             keyMap[event.keyCode] = event.keyType == "onkeydown";
 
-            console.log(event.keyCode + " " + event.keyType);
+            console.log(event + " " + event);
 
             if (keyMap[16] == true) return;
 
@@ -84,7 +84,7 @@ window.addEventListener("DOMContentLoaded",
 
         function mapKey(keyCode, keyType) {
             console.log("Map[" + keyCode + "] => " + keyType);
-            map[keyCode] = keyType == "keydown";
+            keyMap[keyCode] = keyType == "keydown";
             console.log("Map[" + keyCode + "] => " + keyType);
         }
 
