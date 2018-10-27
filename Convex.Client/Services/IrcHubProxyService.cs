@@ -10,7 +10,7 @@ using Convex.IRC.Component.Event;
 using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {
-    public class IrcHubProxyService : IHostedService, IIrcHubProxyService {
+    public class IrcHubProxyService : IIrcHubProxyService {
         public IrcHubProxyService(IIrcService ircService, IrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
             _ircService.Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
