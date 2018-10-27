@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Convex.Client.Services;
+using Convex.Client.Hubs.Proxy;
 using Convex.Event;
 using Convex.IRC.Component.Event;
 using Microsoft.Extensions.Hosting;
+using Convex.IRC.Component;
 
-namespace Convex.Client.Hubs {
+namespace Convex.Client.Services {
     public class IrcHubProxyService : IHostedService, IIrcHubProxyService {
         public IrcHubProxyService(IIrcService ircService, IrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
@@ -58,20 +59,16 @@ namespace Convex.Client.Hubs {
         /// <param name="endIndex">Start index. Cannot be negative.</param>
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
-        public async Task BroadcastMessageBatch(string connectionId, int startIndex, int endIndex, bool isPrepend) {
+        public async Task BroadcastMessageBatch(string connectionId, DateTime startIndex, DateTime endIndex, bool isPrepend) {
             if (_ircService.Messages.Count <= 0) {
                 return;
             }
 
-            Tuple<int, int> reversedIndexValues = ReverseIndexValues(startIndex, endIndex);
-            startIndex = reversedIndexValues.Item1;
-            endIndex = reversedIndexValues.Item2;
-
-            if (startIndex >= endIndex || endIndex <= 0) {
+            if (startIndex >= endIndex || endIndex <= DateTime.Now) {
                 return;
             }
 
-            IEnumerable<string> messageBatch = _ircService.Messages.Skip(startIndex).Take(endIndex - startIndex + 1).Select(message => message.Value.RawMessage).Reverse();
+            IEnumerable<string> messageBatch = _ircService.Messages.Where(kvp => IsDateBetween(kvp.Key, startIndex, endIndex)).Select(kvp => kvp.Value.RawMessage);
 
             if (isPrepend) {
                 await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, true);
@@ -80,31 +77,16 @@ namespace Convex.Client.Hubs {
             }
         }
 
-
-        /// <summary>
-        /// Reverses the effective range of the give index values from the start to the end of the message array.
-        /// </summary>
-        /// <param name="startIndex"></param>
-        /// <param name="endIndex"></param>
-        /// <returns></returns>
-        private Tuple<int, int> ReverseIndexValues(int startIndex, int endIndex) {
-            int maximumMessagesKey = _ircService.Messages.Keys.Max();
-
-            int tempStartIndex = startIndex;
-            int tempEndIndex = endIndex;
-
-            tempStartIndex = maximumMessagesKey - endIndex;
-            tempEndIndex += startIndex;
-
-            if (tempStartIndex < 0) {
-                tempStartIndex = 0;
+        private IEnumerable<DateTime> GetDatesBetween(IEnumerable<DateTime> dateList, DateTime startDate, DateTime endDate) {
+            foreach (DateTime date in dateList) {
+                if (IsDateBetween(date, startDate, endDate)) {
+                    yield return date;
+                }
             }
+        }
 
-            if (tempEndIndex > maximumMessagesKey) {
-                tempEndIndex = maximumMessagesKey;
-            }
-
-            return new Tuple<int, int>(tempStartIndex, tempEndIndex);
+        private bool IsDateBetween(DateTime date, DateTime startDate, DateTime endDate) {
+            return date >= startDate && date <= endDate;
         }
 
         #endregion

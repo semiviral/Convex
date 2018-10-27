@@ -34,18 +34,18 @@ window.addEventListener("DOMContentLoaded",
         //#region EVENT LISTENERS
 
         document.getElementById("messageInput").addEventListener("keydown", function (event) {
-            mapKey(event.keyCode, event.keyType);
+            keyMap[event.keyCode] = true;
 
-            keyMap[event.keyCode] = event.keyType == "onkeydown";
+            if (keyMap[16] === true) return;
 
-            console.log(event + " " + event);
-
-            if (keyMap[16] == true) return;
-
-            if (keyMap[13] == true)
+            if (keyMap[13] === true)
                 sendMessage(document.getElementById("messageInput").textContent);
 
             return false;
+        });
+
+        document.getElementById("messageInput").addEventListener("keyup", function (event) {
+            keymap[event.keyCode] = false;
         });
 
         //#endregion
@@ -80,12 +80,6 @@ window.addEventListener("DOMContentLoaded",
         function cleanString(message) {
             return message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-        }
-
-        function mapKey(keyCode, keyType) {
-            console.log("Map[" + keyCode + "] => " + keyType);
-            keyMap[keyCode] = keyType == "keydown";
-            console.log("Map[" + keyCode + "] => " + keyType);
         }
 
         //#endregion

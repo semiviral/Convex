@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Convex.Client.Hubs {
+namespace Convex.Client.Hubs.Proxy {
     public class IrcHubMethodsProxy {
         private IHubContext<IrcHub> _hubContext;
 
@@ -26,7 +24,7 @@ namespace Convex.Client.Hubs {
         /// <returns></returns>
         public async Task BroadcastMessageBatch(string connectionId, IEnumerable<string> messageBatch, bool isPrepended) {
             if (isPrepended) {
-                await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveBroadcastMessageBatchPrepend", messageBatch.Reverse());
+                await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveBroadcastMessageBatchPrepend", messageBatch);
             } else {
                 await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveBroadcastMessageBatch", messageBatch);
             }

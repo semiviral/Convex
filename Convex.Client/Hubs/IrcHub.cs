@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using Convex.Client.Services;
 
 namespace Convex.Client.Hubs {
     public class IrcHub : Hub<IIrcHub> {
