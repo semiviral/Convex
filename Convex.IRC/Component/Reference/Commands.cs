@@ -1,4 +1,7 @@
-﻿namespace Convex.IRC.Component.Reference {
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Convex.IRC.Component.Reference {
     public static class Commands {
         #region MEMBERS
 
@@ -549,6 +552,12 @@
         ///     :Cannot change mode for other user
         /// </summary>
         public const string ERROR_USERS_DONT_MATCH = "502";
+
+        #endregion
+
+        #region METHODS
+
+        public static List<string> CommandsList { get; } = new List<string>(typeof(Commands).GetFields().Select(field => field.Name));
 
         #endregion
     }

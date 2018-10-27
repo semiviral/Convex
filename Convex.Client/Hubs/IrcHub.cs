@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Convex.Client.Hubs {
     public class IrcHub : Hub<IIrcHub> {
-        public IrcHub(IIrcHubProxyService ircHubProxyService) {
+        public IrcHub(IIrcHubProxy ircHubProxyService) {
             _isCanceled = new CancellationToken(false);
             _ircHubProxyService = ircHubProxyService;
         }
@@ -22,7 +22,7 @@ namespace Convex.Client.Hubs {
 
         #region MEMBERS
 
-        private readonly IIrcHubProxyService _ircHubProxyService;
+        private readonly IIrcHubProxy _ircHubProxyService;
         private readonly CancellationToken _isCanceled;
 
         #endregion

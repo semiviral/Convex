@@ -38,8 +38,8 @@ namespace Convex.Client {
 
             services.AddSingleton<IrcHubMethodsProxy>();
 
-            services.AddSingleton<IrcHubProxyService>();
-            services.AddSingleton<IIrcHubProxyService>(provider => provider.GetRequiredService<IrcHubProxyService>());
+            services.AddSingleton<IrcHubProxy>();
+            services.AddSingleton<IIrcHubProxy>(provider => provider.GetRequiredService<IrcHubProxy>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

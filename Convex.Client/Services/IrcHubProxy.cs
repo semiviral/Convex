@@ -10,8 +10,8 @@ using Convex.IRC.Component.Event;
 using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {
-    public class IrcHubProxyService : IIrcHubProxyService {
-        public IrcHubProxyService(IIrcService ircService, IrcHubMethodsProxy ircHubMethodsProxy) {
+    public class IrcHubProxy : IIrcHubProxy {
+        public IrcHubProxy(IIrcService ircService, IrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
             _ircService.Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
             _ircHubMethodsProxy = ircHubMethodsProxy;
@@ -44,12 +44,16 @@ namespace Convex.Client.Services {
 
         #endregion
 
-        #region METHODS
+        #region CLIENT TO SERVER METHODS
 
         public async Task SendMessage(string rawMessage) {
             await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(_ircService.Client.Config.Nickname, rawMessage));
             await _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
         }
+
+        #endregion
+
+        #region SERVER TO CLIENT METHODS
 
         /// <summary>
         ///     Broadcasts a batch of messages.
@@ -89,6 +93,10 @@ namespace Convex.Client.Services {
                 await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => FormatServerMessage(message)), false);
             }
         }
+
+        #endregion
+
+        #region METHODS
 
         private IEnumerable<DateTime> GetDatesBetween(IEnumerable<DateTime> dateList, DateTime startDate, DateTime endDate) {
             foreach (DateTime date in dateList) {
