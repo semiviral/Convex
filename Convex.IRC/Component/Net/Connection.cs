@@ -60,11 +60,11 @@ namespace Convex.IRC.Component.Net {
             try {
                 await ConnectAsync();
 
-                await OnConnected(this, new ConnectedEventArgs(this, "Successfully connected to provided address."));
-            } catch (Exception) {
-                await OnDisconnected(this, new DisconnectedEventArgs(this, "Could not connect to provided address."));
+                await OnConnected(this, new ConnectedEventArgs(this, $"Successfully connected to '{Address}'."));
+            } catch (Exception e) {
+                await OnDisconnected(this, new DisconnectedEventArgs(this, $"Could not connect to '{Address}'."));
 
-                throw;
+                throw e;
             }
         }
 
@@ -111,8 +111,9 @@ namespace Convex.IRC.Component.Net {
         }
 
         private async Task WriteAsync(string writable) {
-            if (_writer.BaseStream == null)
+            if (_writer.BaseStream == null) {
                 throw new NullReferenceException(nameof(_writer.BaseStream));
+            }
 
             await _writer.WriteLineAsync(writable);
             await _writer.FlushAsync();
@@ -121,8 +122,9 @@ namespace Convex.IRC.Component.Net {
         }
 
         internal async Task<string> ReadAsync() {
-            if (_reader.BaseStream == null)
+            if (_reader.BaseStream == null) {
                 throw new NullReferenceException(nameof(_reader.BaseStream));
+            }
 
             return await _reader.ReadLineAsync();
         }
@@ -138,36 +140,41 @@ namespace Convex.IRC.Component.Net {
         public event AsyncEventHandler<InformationLoggedEventArgs> Logged;
 
         private async Task OnInitialised(object sender, ClassInitialisedEventArgs args) {
-            if (Initialised == null)
+            if (Initialised == null) {
                 return;
+            }
 
             await Initialised.Invoke(sender, args);
         }
 
         private async Task OnConnected(object sender, ConnectedEventArgs args) {
-            if (Connected == null)
+            if (Connected == null) {
                 return;
+            }
 
             await Connected.Invoke(sender, args);
         }
 
         private async Task OnDisconnected(object sender, DisconnectedEventArgs args) {
-            if (Disconnected == null)
+            if (Disconnected == null) {
                 return;
+            }
 
             await Disconnected.Invoke(sender, args);
         }
 
         private async Task OnFlushed(object sender, StreamFlushedEventArgs args) {
-            if (Flushed == null)
+            if (Flushed == null) {
                 return;
+            }
 
             await Flushed.Invoke(sender, args);
         }
 
         private async Task OnLogged(object sender, InformationLoggedEventArgs args) {
-            if (Logged == null)
+            if (Logged == null) {
                 return;
+            }
 
             await Logged.Invoke(sender, args);
         }

@@ -16,7 +16,7 @@ namespace Convex.Client.Hubs {
         public override async Task OnConnectedAsync() {
             await base.OnConnectedAsync();
 
-            await _ircHubProxyService.BroadcastMessageBatch(Context.ConnectionId, DateTime.MinValue, DateTime.Now.AddHours(1), false);
+            await _ircHubProxyService.BroadcastMessageBatch(Context.ConnectionId, false, 0, 200);
         }
 
         #endregion

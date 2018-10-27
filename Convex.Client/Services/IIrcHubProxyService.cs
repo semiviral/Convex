@@ -8,7 +8,7 @@ namespace Convex.Client.Services {
         Task SendMessage(string rawMessage);
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, DateTime startIndex, DateTime endIndex);
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex);
-        Task BroadcastMessageBatch(string connectionId, IEnumerable<string> messageBatch);
+        Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<string> messageBatch);
 
     }
 }
