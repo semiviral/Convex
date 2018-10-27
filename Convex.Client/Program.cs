@@ -1,4 +1,6 @@
-﻿using Convex.IRC.Component;
+﻿using System;
+using Convex.Event;
+using Convex.IRC.Component;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
@@ -16,6 +18,18 @@ namespace Convex.Client {
 
         public static IWebHost BuildWebHost(string[] args) {
             return WebHost.CreateDefaultBuilder(args).UseStartup<Startup>().Build();
+        }
+
+        public static string FormatLogAsOutput(LogEventArgs args) {
+            return $"[{nameof(args.Level).ToUpper()} {DateTime.Now}] {args.Information}\r\n";
+        }
+
+        public static string FormatLogAsOutput(ServerMessage message) {
+            return $"[IRC {DateTime.Now}] <{message.Nickname}> {message.Args}";
+        }
+
+        public static string FormatLogAsOutput(string nickname, string message) {
+            return $"[IRC {DateTime.Now}] <{nickname}> {message}";
         }
 
         #region MEMBERS

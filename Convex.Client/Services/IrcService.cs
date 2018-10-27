@@ -8,7 +8,6 @@ using Convex.IRC.Component;
 using Convex.IRC.Dependency;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
 
 namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
@@ -24,7 +23,7 @@ namespace Convex.Client.Services {
 
             Client.Server.ServerMessaged += (sender, args) => {
                 Messages.Add(new Tuple<int, DateTime>(GetMaxIndex(), args.Message.Timestamp), args.Message);
-
+                
                 Debug.WriteLine(args.Message.RawMessage);
 
                 return Task.CompletedTask;
@@ -35,10 +34,7 @@ namespace Convex.Client.Services {
         }
 
         #region EVENT
-
-        public void Log(string information) {
-
-        }
+        
 
         #endregion
 

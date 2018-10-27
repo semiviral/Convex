@@ -38,7 +38,7 @@ namespace Convex.Client.Services {
         #region EVENT
 
         private async Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
-            await _ircHubMethodsProxy.BroadcastMessage(args.Message.RawMessage);
+            await _ircHubMethodsProxy.BroadcastMessage(Program.FormatLogAsOutput(args.Message));
         }
 
         #endregion
@@ -46,6 +46,7 @@ namespace Convex.Client.Services {
         #region METHODS
 
         public async Task SendMessage(string rawMessage) {
+            await _ircHubMethodsProxy.BroadcastMessage(Program.FormatLogAsOutput(_ircService.Client.GetClientConfiguration().Nickname, rawMessage));
             await _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
         }
 
