@@ -7,7 +7,7 @@ using Convex.Client.Hubs.Proxy;
 using Convex.Event;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
-using Microsoft.Extensions.Hosting;
+using Convex.IRC.Component.Reference;
 
 namespace Convex.Client.Services {
     public class IrcHubProxy : IIrcHubProxy {
@@ -48,7 +48,7 @@ namespace Convex.Client.Services {
 
         public async Task SendMessage(string rawMessage) {
             await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(_ircService.Client.Config.Nickname, rawMessage));
-            await _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
+            await _ircService.Client.Server.Connection.SendDataAsync(this, ConvertToCommandArgs(rawMessage));
         }
 
         #endregion
@@ -116,6 +116,18 @@ namespace Convex.Client.Services {
 
         private string FormatServerMessage(ServerMessage message) {
             return StaticLog.FormatLogAsOutput(message);
+        }
+
+        private IrcCommandEventArgs ConvertToCommandArgs(string rawMessage) {
+            int firstSpaceIndex = rawMessage.IndexOf(' ');
+            string command = rawMessage.Substring(0, firstSpaceIndex).ToUpper();
+            string content = rawMessage.Remove(0, firstSpaceIndex + 1);
+
+            if (rawMessage.StartsWith('/')) {
+                return new IrcCommandEventArgs(command.Remove(0, 1), content);
+            } else {
+                return new IrcCommandEventArgs(Commands.PRIVMSG, "#testgrounds " + rawMessage);
+            }
         }
 
         #endregion
