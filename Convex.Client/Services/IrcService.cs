@@ -11,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
         public IrcService() {
-            Client = new IRC.Client();
+            Client = new IRC.Client(Program.Config);
             Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
 
             Client.Logged += (sender, args) => {
@@ -27,10 +27,18 @@ namespace Convex.Client.Services {
 
                 return Task.CompletedTask;
             };
-
+            
             Address = "irc.foonetic.net";
             Port = 6667;
         }
+
+        #region EVENT
+
+        public void Log(string information) {
+
+        }
+
+        #endregion
 
         #region METHODS
 

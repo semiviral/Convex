@@ -19,8 +19,9 @@ namespace Convex.IRC.Component {
         }
 
         public static void CheckCreateConfig(string path) {
-            if (File.Exists(path))
+            if (File.Exists(path)) {
                 return;
+            }
 
             Console.WriteLine("Configuration file not found, creating.\n");
 
@@ -32,10 +33,11 @@ namespace Convex.IRC.Component {
         // I know this isn't readable. Just run the program once and you'll get a much cleaner
         // representation of the default config in the generated config.json
         public const string DEFAULT_CONFIG = "{\r\n\t\"IgnoreList\": [],\r\n\t\"ApiKeys\": { \"YouTube\": \"\", \"Dictionary\": \"\" },\r\n\t\"Realname\": \"Evealyn\",\r\n\t\"Nickname\": \"Eve\",\r\n\t\"Password\": \"evepass\",\r\n\t\"DatabaseFilePath\": \"\",\r\n\t\"LogFilePath\": \"\"\r\n}\r\n";
-        public static readonly string DefaultResourceDirectory = AppContext.BaseDirectory.EndsWith(@"\") ? $@"{AppContext.BaseDirectory}Resources" : $@"{AppContext.BaseDirectory}\Resources";
+        public static readonly string DefaultResourceDirectory = AppContext.BaseDirectory.EndsWith(@"\") ? $@"{AppContext.BaseDirectory}\Resources" : $@"{AppContext.BaseDirectory}\Resources";
         public static readonly string DefaultConfigurationFilePath = DefaultResourceDirectory + @"\config.json";
         public static readonly string DefualtDatabaseFilePath = DefaultResourceDirectory + @"\users.sqlite";
         public static readonly string DefaultLogFilePath = DefaultResourceDirectory + @"\Logged.txt";
+        public static readonly string DefaultPluginDirectoryPath = DefaultResourceDirectory + @"\Plugins";
 
         public List<string> IgnoreList { get; } = new List<string>();
         public Dictionary<string, string> ApiKeys { get; } = new Dictionary<string, string>();
@@ -62,7 +64,6 @@ namespace Convex.IRC.Component {
 
         #endregion
 
-
         #region INTERFACE IMPLEMENTATION
 
         public void Dispose() {
@@ -70,8 +71,9 @@ namespace Convex.IRC.Component {
         }
 
         protected virtual void Dispose(bool dispose) {
-            if (!dispose || _disposed)
+            if (!dispose || _disposed) {
                 return;
+            }
 
             WriteConfig(JsonConvert.SerializeObject(this), string.IsNullOrWhiteSpace(FilePath) ? DefaultConfigurationFilePath : FilePath);
 

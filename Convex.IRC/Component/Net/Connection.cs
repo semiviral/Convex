@@ -61,10 +61,10 @@ namespace Convex.IRC.Component.Net {
                 await ConnectAsync();
 
                 await OnConnected(this, new ConnectedEventArgs(this, $"Successfully connected to '{Address}'."));
-            } catch (Exception e) {
+            } catch (Exception) {
                 await OnDisconnected(this, new DisconnectedEventArgs(this, $"Could not connect to '{Address}'."));
 
-                throw e;
+                throw;
             }
         }
 
