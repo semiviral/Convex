@@ -12,4 +12,8 @@
     <ProjectReference Include="..\Convex.Event\Convex.Event.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Serilog" Version="2.7.1" />
+  </ItemGroup>
+
 </Project>

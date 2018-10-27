@@ -3,7 +3,6 @@
 using System;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.Example.Event;
 using Convex.IRC;
 using Convex.IRC.Component.Event;
 using Convex.IRC.Component.Reference;
@@ -21,9 +20,9 @@ namespace Convex.Example {
         /// </summary>
         public IrcBot() {
             _bot = new Client();
-            _bot.Initialised += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, "Client initialised."));
-            _bot.Logged += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, args.Information));
-            _bot.Server.Connection.Flushed += (sender, args) => OnLog(sender, new AdvancedLoggingEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
+            _bot.Initialised += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, "Client initialised."));
+            _bot.Logged += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, args.Information));
+            _bot.Server.Connection.Flushed += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
             _bot.Server.ServerMessaged += LogServerMessage;
 
             Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(_bot.GetClientConfiguration().LogFilePath).WriteTo.LiterateConsole().CreateLogger();
@@ -55,13 +54,13 @@ namespace Convex.Example {
         public bool IsInitialised { get; private set; }
         public bool Executing => _bot.Server.Executing;
         private readonly IClient _bot;
-        private readonly string[] _defaultChannels = {"#testgrounds"};
+        private readonly string[] _defaultChannels = { "#testgrounds" };
 
         #endregion
 
         #region EVENTS
 
-        private static Task OnLog(object sender, AdvancedLoggingEventArgs args) {
+        private static Task OnLog(object sender, LogEventArgs args) {
             switch (args.Level) {
                 case LogEventLevel.Verbose:
                     Log.Verbose(args.Information);
@@ -89,12 +88,13 @@ namespace Convex.Example {
         }
 
         private Task LogServerMessage(object source, ServerMessagedEventArgs e) {
-            if (e.Message.Command.Equals(Commands.PRIVMSG))
-                OnLog(this, new AdvancedLoggingEventArgs(LogEventLevel.Information, $"<{e.Message.Origin} {e.Message.Nickname}> {e.Message.Args}"));
-            else if (e.Message.Command.Equals(Commands.ERROR))
-                OnLog(this, new AdvancedLoggingEventArgs(LogEventLevel.Error, e.Message.RawMessage));
-            else
-                OnLog(this, new AdvancedLoggingEventArgs(LogEventLevel.Information, e.Message.RawMessage));
+            if (e.Message.Command.Equals(Commands.PRIVMSG)) {
+                OnLog(this, new LogEventArgs(LogEventLevel.Information, $"<{e.Message.Origin} {e.Message.Nickname}> {e.Message.Args}"));
+            } else if (e.Message.Command.Equals(Commands.ERROR)) {
+                OnLog(this, new LogEventArgs(LogEventLevel.Error, e.Message.RawMessage));
+            } else {
+                OnLog(this, new LogEventArgs(LogEventLevel.Information, e.Message.RawMessage));
+            }
 
             return Task.CompletedTask;
         }
@@ -111,8 +111,9 @@ namespace Convex.Example {
         }
 
         private async Task Info(ServerMessagedEventArgs e) {
-            if (e.Message.SplitArgs.Count < 2 || !e.Message.SplitArgs[1].Equals("info"))
+            if (e.Message.SplitArgs.Count < 2 || !e.Message.SplitArgs[1].Equals("info")) {
                 return;
+            }
 
             await _bot.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.PRIVMSG, $"{e.Message.Origin} {BotInfo}"));
         }
@@ -122,8 +123,9 @@ namespace Convex.Example {
         #region DISPOSE
 
         private void Dispose(bool disposing) {
-            if (disposing)
+            if (disposing) {
                 _bot?.Dispose();
+            }
         }
 
         public void Dispose() {

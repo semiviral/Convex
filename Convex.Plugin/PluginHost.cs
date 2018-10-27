@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
+using Serilog.Events;
 
 #endregion
 
@@ -39,9 +40,9 @@ namespace Convex.Plugin {
         #region EVENTS
 
         public event AsyncEventHandler<PluginActionEventArgs> PluginCallback;
-        public event AsyncEventHandler<InformationLoggedEventArgs> Logged;
+        public event AsyncEventHandler<LogEventArgs> Logged;
 
-        private async Task OnLog(object sender, InformationLoggedEventArgs args) {
+        private async Task OnLog(object sender, LogEventArgs args) {
             if (Logged == null)
                 return;
 
@@ -58,7 +59,7 @@ namespace Convex.Plugin {
         }
 
         public async Task StopPlugins() {
-            await OnLog(this, new InformationLoggedEventArgs("STOP PLUGINS RECEIVED — shutting down."));
+            await OnLog(this, new LogEventArgs(LogEventLevel.Information, "STOP PLUGINS RECEIVED — shutting down."));
             ShuttingDown = true;
 
             foreach (PluginInstance pluginInstance in Plugins)
@@ -115,13 +116,13 @@ namespace Convex.Plugin {
             } catch (ReflectionTypeLoadException ex) {
                 foreach (Exception loaderException in ex.LoaderExceptions)
                     await OnLog(this,
-                        new InformationLoggedEventArgs($"LoaderException occured loading a plugin: {loaderException}"));
+                        new LogEventArgs(LogEventLevel.Information, $"LoaderException occured loading a plugin: {loaderException}"));
             } catch (Exception ex) {
-                await OnLog(this, new InformationLoggedEventArgs($"Error occurred loading a plugin ({currentPluginIterated.Name}, {currentPluginIterated.Version}): {ex}"));
+                await OnLog(this, new LogEventArgs(LogEventLevel.Information, $"Error occurred loading a plugin ({currentPluginIterated.Name}, {currentPluginIterated.Version}): {ex}"));
             }
 
             if (Plugins.Count > 0)
-                await OnLog(this, new InformationLoggedEventArgs($"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => new Tuple<string, Version>(plugin.Instance.Name, plugin.Instance.Version)))}"));
+                await OnLog(this, new LogEventArgs(LogEventLevel.Information, $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => new Tuple<string, Version>(plugin.Instance.Name, plugin.Instance.Version)))}"));
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace Convex.IRC.Component.Net {
         event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
         event AsyncEventHandler<StreamFlushedEventArgs> Flushed;
         event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
-        event AsyncEventHandler<InformationLoggedEventArgs> Logged;
+        event AsyncEventHandler<LogEventArgs> Logged;
 
         void Dispose();
         Task Initialise(string address, int port);

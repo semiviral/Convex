@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Convex.IRC.Component;
 using Convex.IRC.Dependency;
 using Microsoft.Extensions.Hosting;
+using Serilog;
+using Serilog.Events;
 
 namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
@@ -27,7 +29,7 @@ namespace Convex.Client.Services {
 
                 return Task.CompletedTask;
             };
-            
+
             Address = "irc.foonetic.net";
             Port = 6667;
         }

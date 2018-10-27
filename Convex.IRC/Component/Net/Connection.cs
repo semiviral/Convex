@@ -1,10 +1,11 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Convex.Event;
+using Serilog.Events;
 
 #endregion
 
@@ -89,11 +90,11 @@ namespace Convex.IRC.Component.Net {
             try {
                 data = await ReadAsync();
             } catch (NullReferenceException) {
-                await OnLogged(this, new InformationLoggedEventArgs("Stream disconnected. Attempting to reconnect..."));
+                await OnLogged(this, new LogEventArgs(LogEventLevel.Information, "Stream disconnected. Attempting to reconnect..."));
 
                 await AttemptConnect();
             } catch (Exception ex) {
-                await OnLogged(this, new InformationLoggedEventArgs($"Exception occured while listening on stream: {ex.Message}"));
+                await OnLogged(this, new LogEventArgs(LogEventLevel.Information, $"Exception occured while listening on stream: {ex.Message}"));
             }
 
             Executing = false;
@@ -137,7 +138,7 @@ namespace Convex.IRC.Component.Net {
         public event AsyncEventHandler<ConnectedEventArgs> Connected;
         public event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
         public event AsyncEventHandler<StreamFlushedEventArgs> Flushed;
-        public event AsyncEventHandler<InformationLoggedEventArgs> Logged;
+        public event AsyncEventHandler<LogEventArgs> Logged;
 
         private async Task OnInitialised(object sender, ClassInitialisedEventArgs args) {
             if (Initialised == null) {
@@ -171,7 +172,7 @@ namespace Convex.IRC.Component.Net {
             await Flushed.Invoke(sender, args);
         }
 
-        private async Task OnLogged(object sender, InformationLoggedEventArgs args) {
+        private async Task OnLogged(object sender, LogEventArgs args) {
             if (Logged == null) {
                 return;
             }

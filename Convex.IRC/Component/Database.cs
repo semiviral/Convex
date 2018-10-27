@@ -1,4 +1,4 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using System.Collections.Generic;
@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
 using Microsoft.Data.Sqlite;
+using Serilog.Events;
 
 #endregion
 
@@ -41,18 +42,20 @@ namespace Convex.IRC.Component {
         public async Task Initialise() {
             await CheckCreate();
 
-            foreach (User user in await LoadUsers())
+            foreach (User user in await LoadUsers()) {
                 Users.Add(user);
+            }
 
             IsInitialised = true;
             await OnInitialised(this, new ClassInitialisedEventArgs(this));
         }
 
         private async Task CheckCreate() {
-            if (File.Exists(FilePath))
+            if (File.Exists(FilePath)) {
                 return;
+            }
 
-            await LogInformation(this, new InformationLoggedEventArgs("Database file not found, creating."));
+            await LogInformation(this, new LogEventArgs(LogEventLevel.Information, "Database file not found, creating."));
 
             using (SqliteConnection connection = GetConnection(FilePath, SqliteOpenMode.ReadWriteCreate)) {
                 connection.Open();
@@ -64,11 +67,11 @@ namespace Convex.IRC.Component {
         }
 
         private static SqliteConnection GetConnection(string source, SqliteOpenMode mode = SqliteOpenMode.ReadWrite) {
-            return new SqliteConnection(new SqliteConnectionStringBuilder {DataSource = source, Mode = mode}.ToString());
+            return new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = source, Mode = mode }.ToString());
         }
 
         private async Task<IEnumerable<User>> LoadUsers() {
-            await LogInformation(this, new InformationLoggedEventArgs("Loading users."));
+            await LogInformation(this, new LogEventArgs(LogEventLevel.Information, "Loading users."));
 
             List<User> users = new List<User>();
 
@@ -84,9 +87,9 @@ namespace Convex.IRC.Component {
                         while (userEntries.Read()) {
                             int id = Convert.ToInt32(userEntries.GetValue(0));
                             string nickname = userEntries.GetValue(1).ToString();
-                            string realname = (string) userEntries.GetValue(2);
+                            string realname = (string)userEntries.GetValue(2);
                             int access = Convert.ToInt32(userEntries.GetValue(3));
-                            DateTime seen = DateTime.Parse((string) userEntries.GetValue(4));
+                            DateTime seen = DateTime.Parse((string)userEntries.GetValue(4));
 
                             users.Add(new User(id, nickname, realname, access));
                         }
@@ -115,7 +118,7 @@ namespace Convex.IRC.Component {
                     SqliteCommand getId = connection.CreateCommand();
                     getId.Transaction = transaction;
                     getId.CommandText = "SELECT MAX(id) FROM users";
-                    id = (int) getId.ExecuteScalar();
+                    id = (int)getId.ExecuteScalar();
 
                     transaction.Commit();
                 }
@@ -125,8 +128,9 @@ namespace Convex.IRC.Component {
         }
 
         private void ReadMessagesIntoUsers() {
-            if (Users.Count.Equals(0))
+            if (Users.Count.Equals(0)) {
                 return;
+            }
 
             using (SqliteConnection connection = GetConnection(FilePath)) {
                 connection.Open();
@@ -137,8 +141,9 @@ namespace Convex.IRC.Component {
                     getMessages.CommandText = "SELECT * FROM messages";
 
                     using (SqliteDataReader messages = getMessages.ExecuteReader()) {
-                        while (messages.Read())
-                            Users.SingleOrDefault(e => e.Id.Equals(Convert.ToInt32(messages["id"])))?.Messages.Add(new Message((int) messages["id"], (string) messages["sender"], (string) messages["message"], DateTime.Parse((string) messages["datetime"])));
+                        while (messages.Read()) {
+                            Users.SingleOrDefault(e => e.Id.Equals(Convert.ToInt32(messages["id"])))?.Messages.Add(new Message((int)messages["id"], (string)messages["sender"], (string)messages["message"], DateTime.Parse((string)messages["datetime"])));
+                        }
                     }
 
                     transaction.Commit();
@@ -189,59 +194,66 @@ namespace Convex.IRC.Component {
         #region EVENTS
 
         public event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
-        public event AsyncEventHandler<InformationLoggedEventArgs> Log;
+        public event AsyncEventHandler<LogEventArgs> Log;
 
         private async Task OnInitialised(object sender, ClassInitialisedEventArgs args) {
-            if (Initialised == null)
+            if (Initialised == null) {
                 return;
+            }
 
             await Initialised.Invoke(sender, args);
         }
 
-        private async Task LogInformation(object sender, InformationLoggedEventArgs args) {
-            if (Log == null)
+        private async Task LogInformation(object sender, LogEventArgs args) {
+            if (Log == null) {
                 return;
+            }
 
             await Log.Invoke(sender, args);
         }
 
         private void UserAdded(object sender, NotifyCollectionChangedEventArgs args) {
-            if (!args.Action.Equals(NotifyCollectionChangedAction.Add))
+            if (!args.Action.Equals(NotifyCollectionChangedAction.Add)) {
                 return;
+            }
 
             foreach (object item in args.NewItems) {
-                if (!(item is User))
+                if (!(item is User)) {
                     continue;
+                }
 
-                if (!UserExists(((User) item).Realname)) {
-                    User newUser = (User) item;
+                if (!UserExists(((User)item).Realname)) {
+                    User newUser = (User)item;
                     CreateUser(newUser.Access, newUser.Nickname, newUser.Realname, newUser.Seen);
                 }
 
-                ((User) item).PropertyChanged += AutoUpdateUsers;
-                ((User) item).Messages.CollectionChanged += MessageAdded;
+                ((User)item).PropertyChanged += AutoUpdateUsers;
+                ((User)item).Messages.CollectionChanged += MessageAdded;
             }
         }
 
         private void MessageAdded(object sender, NotifyCollectionChangedEventArgs args) {
-            if (!args.Action.Equals(NotifyCollectionChangedAction.Add))
+            if (!args.Action.Equals(NotifyCollectionChangedAction.Add)) {
                 return;
+            }
 
             foreach (object item in args.NewItems) {
-                if (!(item is Message))
+                if (!(item is Message)) {
                     continue;
+                }
 
-                Message message = (Message) item;
+                Message message = (Message)item;
 
                 GetConnection(FilePath).Query(new DatabaseQueriedEventArgs($"INSERT INTO messages VALUES ({message.Id}, '{message.Sender}', '{message.Contents}', '{message.Date}')"));
             }
         }
 
         private void AutoUpdateUsers(object sender, PropertyChangedEventArgs args) {
-            if (!(args is UserPropertyChangedEventArgs))
+            if (!(args is UserPropertyChangedEventArgs)) {
                 return;
+            }
 
-            UserPropertyChangedEventArgs castedArgs = (UserPropertyChangedEventArgs) args;
+            UserPropertyChangedEventArgs castedArgs = (UserPropertyChangedEventArgs)args;
 
             GetConnection(FilePath).Query(new DatabaseQueriedEventArgs($"UPDATE users SET {castedArgs.PropertyName}='{castedArgs.NewValue}' WHERE realname='{castedArgs.Name}'"));
         }

@@ -1,10 +1,12 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
+using Serilog.Events;
+
 
 #endregion
 
@@ -17,30 +19,34 @@ namespace Convex.Plugin {
         #region METHODS
 
         private async Task Callback(object sender, PluginActionEventArgs args) {
-            if (Host.ShuttingDown)
+            if (Host.ShuttingDown) {
                 return;
+            }
 
             switch (args.ActionType) {
                 case PluginActionType.SignalTerminate:
                     await OnTerminated(sender, new OperationTerminatedEventArgs(sender, "Terminate signaled."));
                     break;
                 case PluginActionType.RegisterMethod:
-                    if (!(args.Result is IAsyncRegistrar<T>))
+                    if (!(args.Result is IAsyncRegistrar<T>)) {
                         break;
+                    }
 
-                    Host.RegisterMethod((IAsyncRegistrar<T>) args.Result);
+                    Host.RegisterMethod((IAsyncRegistrar<T>)args.Result);
                     break;
                 case PluginActionType.SendMessage:
-                    if (!(args.Result is IrcCommandEventArgs))
+                    if (!(args.Result is IrcCommandEventArgs)) {
                         break;
+                    }
 
-                    await OnCommandReceived(sender, (IrcCommandEventArgs) args.Result);
+                    await OnCommandReceived(sender, (IrcCommandEventArgs)args.Result);
                     break;
                 case PluginActionType.Log:
-                    if (!(args.Result is string))
+                    if (!(args.Result is string)) {
                         break;
+                    }
 
-                    await OnLog(sender, new InformationLoggedEventArgs((string) args.Result));
+                    await OnLog(sender, new LogEventArgs(LogEventLevel.Information, (string)args.Result));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -52,8 +58,9 @@ namespace Convex.Plugin {
         #region INIT
 
         public async Task Initialise() {
-            if (Host == null)
+            if (Host == null) {
                 return;
+            }
 
             Host.Logged += OnLog;
             Host.PluginCallback += Callback;
@@ -74,27 +81,30 @@ namespace Convex.Plugin {
 
         #region EVENTS
 
-        public event AsyncEventHandler<InformationLoggedEventArgs> Logged;
+        public event AsyncEventHandler<LogEventArgs> Logged;
         public event AsyncEventHandler<IrcCommandEventArgs> CommandReceived;
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
 
-        private async Task OnLog(object sender, InformationLoggedEventArgs args) {
-            if (Logged == null)
+        private async Task OnLog(object sender, LogEventArgs args) {
+            if (Logged == null) {
                 return;
+            }
 
             await Logged.Invoke(sender, args);
         }
 
         private async Task OnCommandReceived(object sender, IrcCommandEventArgs args) {
-            if (CommandReceived == null)
+            if (CommandReceived == null) {
                 return;
+            }
 
             await CommandReceived.Invoke(sender, args);
         }
 
         private async Task OnTerminated(object sender, OperationTerminatedEventArgs args) {
-            if (TerminateSignaled == null)
+            if (TerminateSignaled == null) {
                 return;
+            }
 
             await TerminateSignaled.Invoke(sender, args);
         }

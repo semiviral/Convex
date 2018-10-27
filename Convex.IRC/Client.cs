@@ -34,7 +34,7 @@ namespace Convex.IRC {
 
             InitialiseConfiguration(configuration);
 
-            Wrapper = new PluginWrapper<ServerMessagedEventArgs>($@"{AppContext.BaseDirectory}\Plugins", OnInvokedMethod);
+            Wrapper = new PluginWrapper<ServerMessagedEventArgs>(Configuration.DefaultPluginDirectoryPath, OnInvokedMethod);
             Wrapper.Logged += OnLog;
             Wrapper.TerminateSignaled += OnTerminateSignaled;
             Wrapper.CommandReceived += Server.Connection.SendDataAsync;
@@ -188,7 +188,7 @@ namespace Convex.IRC {
         public event AsyncEventHandler<DatabaseQueriedEventArgs> Queried;
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
         public event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
-        public event AsyncEventHandler<InformationLoggedEventArgs> Logged;
+        public event AsyncEventHandler<LogEventArgs> Logged;
         public event AsyncEventHandler<ErrorEventArgs> Error;
 
         private async Task OnQuery(object sender, DatabaseQueriedEventArgs args) {
@@ -219,7 +219,7 @@ namespace Convex.IRC {
             await Error.Invoke(sender, args);
         }
 
-        private async Task OnLog(object sender, InformationLoggedEventArgs args) {
+        private async Task OnLog(object sender, LogEventArgs args) {
             if (Logged == null)
                 return;
 
