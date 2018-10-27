@@ -45,7 +45,7 @@ window.addEventListener("DOMContentLoaded",
         });
 
         document.getElementById("messageInput").addEventListener("keyup", function (event) {
-            keymap[event.keyCode] = false;
+            keyMap[event.keyCode] = false;
         });
 
         //#endregion
@@ -58,20 +58,18 @@ window.addEventListener("DOMContentLoaded",
             connection.invoke("sendMessage", rawMessage).catch(function (err) {
                 return console.error(err.toString());
             });
-
-            event.preventDefault();
         }
 
         function prependMessage(message) {
             var li = document.createElement("li");
-            li.textContent = encode(message);
+            li.textContent = message;
 
             document.getElementById("messageList").insertBefore(li, document.getElementById("messageList").childNodes[0]);
         }
 
         function appendMessage(message) {
             var li = document.createElement("li");
-            li.textContent = encode(message);
+            li.textContent = message;
 
             document.getElementById("messageList").appendChild(li);
             document.getElementById("messageContainer").scrollTop = document.getElementById("messageContainer").scrollHeight;
