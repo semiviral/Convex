@@ -29,7 +29,8 @@ namespace Convex.IRC.Dependency {
         bool CommandExists(string command);
         void Dispose();
         string GetApiKey(string type);
-        Configuration GetClientConfiguration();
+        Configuration Config { get; }
+
         Tuple<string, string> GetCommand(string command);
         Task<bool> Initialise(string address, int port);
         void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar);

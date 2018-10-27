@@ -101,7 +101,7 @@ namespace Convex.Example.Plugin {
             if (e.Caller.IgnoreList.Contains(e.Message.Realname))
                 return;
 
-            if (!e.Message.SplitArgs[0].Replace(",", string.Empty).Equals(e.Caller.GetClientConfiguration().Nickname.ToLower()))
+            if (!e.Message.SplitArgs[0].Replace(",", string.Empty).Equals(e.Caller.Config.Nickname.ToLower()))
                 return;
 
             if (e.Message.SplitArgs.Count < 2) {
@@ -140,8 +140,8 @@ namespace Convex.Example.Plugin {
             if (MotdReplyEndSequenceEnacted)
                 return;
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {args.Caller.GetClientConfiguration().Password}"), Name));
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.MODE, $"{args.Caller.GetClientConfiguration().Nickname} +B"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {args.Caller.Config.Password}"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.MODE, $"{args.Caller.Config.Nickname} +B"), Name));
 
             args.Caller.Server.Channels.Add(new Channel("#testgrounds"));
 

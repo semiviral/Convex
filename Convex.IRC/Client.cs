@@ -23,7 +23,7 @@ namespace Convex.IRC {
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     receiving.
         /// </summary>
-        public Client(Configuration configuration = null) {
+        public Client(Configuration config = null) {
             Initialising = true;
 
             UniqueId = Guid.NewGuid();
@@ -32,7 +32,7 @@ namespace Convex.IRC {
             TerminateSignaled += Terminate;
             Server.ServerMessaged += OnServerMessaged;
 
-            InitialiseConfiguration(configuration);
+            InitialiseConfiguration(config);
 
             Wrapper = new PluginWrapper<ServerMessagedEventArgs>(Configuration.DefaultPluginDirectoryPath, OnInvokedMethod);
             Wrapper.Logged += OnLog;
@@ -55,12 +55,13 @@ namespace Convex.IRC {
         #endregion
 
         private async Task Dispose(bool dispose) {
-            if (!dispose || _disposed)
+            if (!dispose || _disposed) {
                 return;
+            }
 
             await Wrapper.Host.StopPlugins();
             Server?.Dispose();
-            GetClientConfiguration()?.Dispose();
+            Config?.Dispose();
 
             _disposed = true;
         }
@@ -68,26 +69,19 @@ namespace Convex.IRC {
         #region MEMBERS
 
         public Guid UniqueId { get; }
+        public Server Server { get; }
+        public Configuration Config { get; private set; }
+        public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
 
-        private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
+        public List<string> IgnoreList => Config.IgnoreList ?? new List<string>();
+        public Dictionary<string, Tuple<string, string>> LoadedCommands => Wrapper.Host.DescriptionRegistry;
 
+        public string Address => Server.Connection.Address;
+        public int Port => Server.Connection.Port;
         public bool IsInitialised { get; private set; }
         public bool Initialising { get; private set; }
 
-        public Server Server { get; }
-
-        private Configuration _clientConfiguration;
-
-        public Configuration GetClientConfiguration() {
-            return _clientConfiguration;
-        }
-
-        public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
-
-        public Dictionary<string, Tuple<string, string>> LoadedCommands => Wrapper.Host.DescriptionRegistry;
-        public string Address => Server.Connection.Address;
-        public int Port => Server.Connection.Port;
-        public List<string> IgnoreList => GetClientConfiguration().IgnoreList ?? new List<string>();
+        private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
 
         private bool _disposed;
 
@@ -102,21 +96,25 @@ namespace Convex.IRC {
         }
 
         private async Task OnServerMessaged(object source, ServerMessagedEventArgs args) {
-            if (string.IsNullOrEmpty(args.Message.Command))
+            if (string.IsNullOrEmpty(args.Message.Command)) {
                 return;
+            }
 
             if (args.Message.Command.Equals(Commands.PRIVMSG)) {
-                if (args.Message.Origin.StartsWith("#"))
+                if (args.Message.Origin.StartsWith("#")) {
                     Server.Channels.Add(new Channel(args.Message.Origin));
+                }
             } else if (args.Message.Command.Equals(Commands.ERROR)) {
                 return;
             }
 
-            if (args.Message.Nickname.Equals(GetClientConfiguration().Nickname) || GetClientConfiguration().IgnoreList.Contains(args.Message.Realname))
+            if (args.Message.Nickname.Equals(Config.Nickname) || Config.IgnoreList.Contains(args.Message.Realname)) {
                 return;
+            }
 
-            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(GetClientConfiguration().Nickname.ToLower()))
+            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(Config.Nickname.ToLower())) {
                 args.Message.InputCommand = args.Message.SplitArgs[1].ToLower();
+            }
 
             try {
                 await Wrapper.Host.InvokeAsync(args);
@@ -130,19 +128,22 @@ namespace Convex.IRC {
         #region INIT
 
         private void InitialiseConfiguration(Configuration configuration) {
-            if (!Directory.Exists(Configuration.DefaultResourceDirectory))
+            if (!Directory.Exists(Configuration.DefaultResourceDirectory)) {
                 Directory.CreateDirectory(Configuration.DefaultResourceDirectory);
+            }
 
             if (configuration == null) {
                 Configuration.CheckCreateConfig(Configuration.DefaultConfigurationFilePath);
-                _clientConfiguration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
+                Config = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
             } else {
-                _clientConfiguration = configuration;
+                Config = configuration;
             }
         }
 
         public async Task<bool> Initialise(string address, int port) {
-            if (IsInitialised || Initialising) return true;
+            if (IsInitialised || Initialising) {
+                return true;
+            }
 
             Initialising = true;
 
@@ -152,7 +153,7 @@ namespace Convex.IRC {
 
             await OnInitialised(this, new ClassInitialisedEventArgs(this));
 
-            await Server.SendConnectionInfo(GetClientConfiguration().Nickname, GetClientConfiguration().Realname);
+            await Server.SendConnectionInfo(Config.Nickname, Config.Realname);
 
             Initialising = false;
 
@@ -192,36 +193,41 @@ namespace Convex.IRC {
         public event AsyncEventHandler<ErrorEventArgs> Error;
 
         private async Task OnQuery(object sender, DatabaseQueriedEventArgs args) {
-            if (Queried == null)
+            if (Queried == null) {
                 return;
+            }
 
             await Queried.Invoke(sender, args);
         }
 
         private async Task OnTerminateSignaled(object sender, OperationTerminatedEventArgs args) {
-            if (TerminateSignaled == null)
+            if (TerminateSignaled == null) {
                 return;
+            }
 
             await TerminateSignaled.Invoke(sender, args);
         }
 
         private async Task OnInitialised(object sender, ClassInitialisedEventArgs args) {
-            if (Initialised == null)
+            if (Initialised == null) {
                 return;
+            }
 
             await Initialised.Invoke(sender, args);
         }
 
         private async Task OnError(object sender, ErrorEventArgs args) {
-            if (Error == null)
+            if (Error == null) {
                 return;
+            }
 
             await Error.Invoke(sender, args);
         }
 
         private async Task OnLog(object sender, LogEventArgs args) {
-            if (Logged == null)
+            if (Logged == null) {
                 return;
+            }
 
             await Logged.Invoke(sender, args);
         }
@@ -276,12 +282,13 @@ namespace Convex.IRC {
 
 
         public string GetApiKey(string type) {
-            return GetClientConfiguration().ApiKeys[type];
+            return Config.ApiKeys[type];
         }
 
         private async Task OnInvokedMethod(ServerMessagedEventArgs args) {
-            if (!Wrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command))
+            if (!Wrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
                 return;
+            }
 
             await Wrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);
         }
@@ -324,14 +331,16 @@ namespace Convex.IRC {
             // * SplitArgs [2] is always your nickname
 
             // in this case, Eve is the only one in the channel
-            if (e.Message.SplitArgs.Count < 4)
+            if (e.Message.SplitArgs.Count < 4) {
                 return Task.CompletedTask;
+            }
 
             foreach (string s in e.Message.SplitArgs[3].Split(' ')) {
                 Channel currentChannel = Server.Channels.SingleOrDefault(channel => channel.Name.Equals(channelName));
 
-                if (currentChannel == null || currentChannel.Inhabitants.Contains(s))
+                if (currentChannel == null || currentChannel.Inhabitants.Contains(s)) {
                     continue;
+                }
 
                 Server?.Channels.Single(channel => channel.Name.Equals(channelName)).Inhabitants.Add(s);
             }

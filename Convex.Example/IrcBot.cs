@@ -25,7 +25,7 @@ namespace Convex.Example {
             _bot.Server.Connection.Flushed += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
             _bot.Server.ServerMessaged += LogServerMessage;
 
-            Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(_bot.GetClientConfiguration().LogFilePath).WriteTo.LiterateConsole().CreateLogger();
+            Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(_bot.Config.LogFilePath).WriteTo.LiterateConsole().CreateLogger();
         }
 
         #region INIT

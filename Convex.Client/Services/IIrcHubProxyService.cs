@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Convex.IRC.Component;
 using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {
@@ -8,7 +9,6 @@ namespace Convex.Client.Services {
         Task SendMessage(string rawMessage);
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, DateTime startIndex, DateTime endIndex);
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex);
-        Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<string> messageBatch);
-
+        Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch);
     }
 }

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Hubs.Proxy;
 using Convex.Event;
+using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Microsoft.Extensions.Hosting;
 
@@ -38,7 +39,7 @@ namespace Convex.Client.Services {
         #region EVENT
 
         private async Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
-            await _ircHubMethodsProxy.BroadcastMessage(Program.FormatLogAsOutput(args.Message));
+            await _ircHubMethodsProxy.BroadcastMessage(LogStringFormatter.FormatLogAsOutput(args.Message));
         }
 
         #endregion
@@ -46,7 +47,7 @@ namespace Convex.Client.Services {
         #region METHODS
 
         public async Task SendMessage(string rawMessage) {
-            await _ircHubMethodsProxy.BroadcastMessage(Program.FormatLogAsOutput(_ircService.Client.GetClientConfiguration().Nickname, rawMessage));
+            await _ircHubMethodsProxy.BroadcastMessage(LogStringFormatter.FormatLogAsOutput(_ircService.Client.Config.Nickname, rawMessage));
             await _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
         }
 
@@ -67,7 +68,7 @@ namespace Convex.Client.Services {
             if (startIndex >= endIndex || endIndex <= DateTime.Now) {
                 return;
             }
-            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.Messages.Where(kvp => IsDateBetween(kvp.Key.Item2, startIndex, endIndex)).Select(kvp => kvp.Value.RawMessage));
+            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.Messages.Where(kvp => IsDateBetween(kvp.Key.Item2, startIndex, endIndex)).Select(kvp => kvp.Value));
         }
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex) {
@@ -79,16 +80,14 @@ namespace Convex.Client.Services {
                 return;
             }
 
-            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.Messages.Where(kvp => IsIntBetween(kvp.Key.Item1, startIndex, endIndex)).Select(kvp => kvp.Value.RawMessage));
+            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.Messages.Where(kvp => IsIntBetween(kvp.Key.Item1, startIndex, endIndex)).Select(kvp => kvp.Value));
         }
 
-        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<string> messageBatch) {
-
-
+        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch) {
             if (isPrepend) {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, true);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => LogStringFormatter.FormatLogAsOutput(message)), true);
             } else {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, false);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => LogStringFormatter.FormatLogAsOutput(message)), false);
             }
         }
 

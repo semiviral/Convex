@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Convex.IRC.Component;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Convex.Client.Hubs.Proxy {

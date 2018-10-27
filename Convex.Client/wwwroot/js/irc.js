@@ -64,14 +64,14 @@ window.addEventListener("DOMContentLoaded",
 
         function prependMessage(message) {
             var li = document.createElement("li");
-            li.textContent = cleanString(message);
+            //li.textContent = cleanString(message);
 
             document.getElementById("messageList").insertBefore(li, document.getElementById("messageList").childNodes[0]);
         }
 
         function appendMessage(message) {
             var li = document.createElement("li");
-            li.textContent = cleanString(message);
+            //li.textContent = cleanString(message);
 
             document.getElementById("messageList").appendChild(li);
             document.getElementById("messageContainer").scrollTop = document.getElementById("messageContainer").scrollHeight;
@@ -79,7 +79,6 @@ window.addEventListener("DOMContentLoaded",
 
         function cleanString(message) {
             return message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
         }
 
         //#endregion

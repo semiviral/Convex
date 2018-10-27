@@ -45,7 +45,7 @@ namespace Convex.Client.Services {
         }
 
         public int GetMaxIndex() {
-            return Messages.Keys.Select(tup => tup.Item1).Max();
+            return Messages.Count <= 0 ? 0 : Messages.Keys.Select(tup => tup.Item1).Max();
         }
 
         #endregion
