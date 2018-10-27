@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Convex.Client.Services;
+using System;
 
 namespace Convex.Client.Hubs {
     public class IrcHub : Hub<IIrcHub> {
@@ -15,7 +16,7 @@ namespace Convex.Client.Hubs {
         public override async Task OnConnectedAsync() {
             await base.OnConnectedAsync();
 
-            await _ircHubProxyService.BroadcastMessageBatch(Context.ConnectionId, 0, 200, false);
+            await _ircHubProxyService.BroadcastMessageBatch(Context.ConnectionId, DateTime.MinValue, DateTime.Now.AddHours(1), false);
         }
 
         #endregion

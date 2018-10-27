@@ -12,7 +12,7 @@ namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
         public IrcService() {
             Client = new IRC.Client();
-            Messages = new SortedList<DateTime, ServerMessage>();
+            Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
 
             Client.Logged += (sender, args) => {
                 Debug.WriteLine(args.Information);
@@ -21,7 +21,7 @@ namespace Convex.Client.Services {
             };
 
             Client.Server.ServerMessaged += (sender, args) => {
-                Messages.Add(args.Message.Timestamp, args.Message);
+                Messages.Add(new Tuple<int, DateTime>(GetMaxIndex(), args.Message.Timestamp), args.Message);
 
                 Debug.WriteLine(args.Message.RawMessage);
 
@@ -38,6 +38,10 @@ namespace Convex.Client.Services {
             await Client.BeginListenAsync();
         }
 
+        public int GetMaxIndex() {
+            return Messages.Keys.Select(tup => tup.Item1).Max();
+        }
+
         #endregion
 
         #region MEMBERS
@@ -47,7 +51,7 @@ namespace Convex.Client.Services {
         public string Address { get; }
         public int Port { get; }
 
-        public SortedList<DateTime, ServerMessage> Messages { get; }
+        public SortedList<Tuple<int, DateTime>, ServerMessage> Messages { get; }
 
         #endregion
 

@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Hubs.Proxy;
 using Convex.Event;
 using Convex.IRC.Component.Event;
 using Microsoft.Extensions.Hosting;
-using Convex.IRC.Component;
 
 namespace Convex.Client.Services {
     public class IrcHubProxyService : IHostedService, IIrcHubProxyService {
@@ -59,7 +58,7 @@ namespace Convex.Client.Services {
         /// <param name="endIndex">Start index. Cannot be negative.</param>
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
-        public async Task BroadcastMessageBatch(string connectionId, DateTime startIndex, DateTime endIndex, bool isPrepend) {
+        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, DateTime startIndex, DateTime endIndex) {
             if (_ircService.Messages.Count <= 0) {
                 return;
             }
@@ -67,8 +66,23 @@ namespace Convex.Client.Services {
             if (startIndex >= endIndex || endIndex <= DateTime.Now) {
                 return;
             }
+            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.Messages.Where(kvp => IsDateBetween(kvp.Key.Item2, startIndex, endIndex)).Select(kvp => kvp.Value.RawMessage));
+        }
 
-            IEnumerable<string> messageBatch = _ircService.Messages.Where(kvp => IsDateBetween(kvp.Key, startIndex, endIndex)).Select(kvp => kvp.Value.RawMessage);
+        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex) {
+            if (_ircService.Messages.Count <= 0) {
+                return;
+            }
+
+            if (startIndex >= endIndex || endIndex <= 0) {
+                return;
+            }
+
+            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.Messages.Where(kvp => IsIntBetween(kvp.Key.Item1, startIndex, endIndex)).Select(kvp => kvp.Value.RawMessage));
+        }
+
+        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<string> messageBatch) {
+
 
             if (isPrepend) {
                 await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, true);
@@ -87,6 +101,10 @@ namespace Convex.Client.Services {
 
         private bool IsDateBetween(DateTime date, DateTime startDate, DateTime endDate) {
             return date >= startDate && date <= endDate;
+        }
+
+        private bool IsIntBetween(int value, int int1, int int2) {
+            return value >= int1 && value <= int2;
         }
 
         #endregion
