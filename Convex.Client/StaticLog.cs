@@ -2,27 +2,28 @@
 using Convex.Event;
 using Convex.IRC.Component;
 using Serilog;
+using Serilog.Events;
 
 namespace Convex.Client {
     public class StaticLog {
-        public static void OnLog(object sender, LogEventArgs args) {
+        public static void LogInformation(object sender, LogEventArgs args) {
             switch (args.Level) {
-                case Serilog.Events.LogEventLevel.Verbose:
-                    Log.Verbose(args.Information);
+                case LogEventLevel.Verbose:
+                    Log.Verbose(FormatLogAsOutput(args));
                     break;
-                case Serilog.Events.LogEventLevel.Debug:
+                case LogEventLevel.Debug:
                     Log.Debug(args.Information);
                     break;
-                case Serilog.Events.LogEventLevel.Information:
+                case LogEventLevel.Information:
                     Log.Information(args.Information);
                     break;
-                case Serilog.Events.LogEventLevel.Warning:
+                case LogEventLevel.Warning:
                     Log.Warning(args.Information);
                     break;
-                case Serilog.Events.LogEventLevel.Error:
+                case LogEventLevel.Error:
                     Log.Error(args.Information);
                     break;
-                case Serilog.Events.LogEventLevel.Fatal:
+                case LogEventLevel.Fatal:
                     Log.Fatal(args.Information);
                     break;
             }

@@ -14,6 +14,7 @@ using Convex.IRC.Dependency;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
 using Newtonsoft.Json;
+using Serilog;
 
 #endregion
 

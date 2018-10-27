@@ -1,5 +1,4 @@
-﻿using System;
-using Convex.Event;
+﻿using System.IO;
 using Convex.IRC.Component;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +9,10 @@ namespace Convex.Client {
     public static class Program {
         public static void Main(string[] args) {
             Config = JsonConvert.DeserializeObject<Configuration>(DEFAULT_CONFIG);
+
+            if (!File.Exists(Config.LogFilePath)) {
+                File.Create(Config.LogFilePath);
+            }
 
             Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Config.LogFilePath).CreateLogger();
 

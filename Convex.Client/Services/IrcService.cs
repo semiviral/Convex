@@ -15,7 +15,7 @@ namespace Convex.Client.Services {
             Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
 
             Client.Logged += (sender, args) => {
-
+                StaticLog.LogInformation(sender, args);
 
                 Debug.WriteLine(args.Information);
 
