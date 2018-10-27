@@ -1,6 +1,7 @@
 ﻿using System;
 using Convex.Event;
 using Convex.IRC.Component;
+using Convex.IRC.Component.Reference;
 using Serilog;
 using Serilog.Events;
 
@@ -34,6 +35,9 @@ namespace Convex.Client {
         }
 
         public static string FormatLogAsOutput(ServerMessage message) {
+
+            //if (message.Command == Commands.NAMES_REPLY)
+            //    return string.Empty;
             return $"[IRC {GetTime()}] <{message.Nickname}> {message.Args}";
         }
 

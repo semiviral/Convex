@@ -47,6 +47,10 @@ namespace Convex.Client.Services {
         #region CLIENT TO SERVER METHODS
 
         public async Task SendMessage(string rawMessage) {
+            if (string.IsNullOrWhiteSpace(rawMessage)) {
+                return;
+            }
+
             await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(_ircService.Client.Config.Nickname, rawMessage));
             await _ircService.Client.Server.Connection.SendDataAsync(this, ConvertToCommandArgs(rawMessage));
         }
@@ -119,7 +123,7 @@ namespace Convex.Client.Services {
         }
 
         private IrcCommandEventArgs ConvertToCommandArgs(string rawMessage) {
-            int firstSpaceIndex = rawMessage.IndexOf(' ');
+            int firstSpaceIndex = rawMessage.IndexOf(' ') == -1 ? 0 : rawMessage.IndexOf(' ');
             string command = rawMessage.Substring(0, firstSpaceIndex).ToUpper();
             string content = rawMessage.Remove(0, firstSpaceIndex + 1);
 

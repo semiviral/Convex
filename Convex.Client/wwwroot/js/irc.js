@@ -36,9 +36,17 @@ window.addEventListener("DOMContentLoaded",
         document.getElementById("messageInput").addEventListener("keydown", function (event) {
             keyMap[event.keyCode] = true;
 
+            switch (event.keyCode) {
+                case 13:
+                    if (keyMap[16] === true) return;
+
+                    sendMessage(document.getElementById("messageInput").textContent);
+                    document.getElementById("messageInput").value = "";
+                    break;
+            }
+
             if (keyMap[16] == false && keyMap[13] === true) {
-                sendMessage(document.getElementById("messageInput").textContent);
-                document.getElementById("messageInput").value = "";
+
             }
         });
 
