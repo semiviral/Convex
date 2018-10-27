@@ -17,16 +17,16 @@ window.addEventListener("DOMContentLoaded",
         });
 
         connection.on("ReceiveBroadcastMessage",
-            function (message) {
-                appendMessage(message);
+            function (rawMessage) {
+                appendMessage(rawMessage);
             });
 
-        connection.on("ReceiveBroadcastMessageBatch", function (messages) {
-            messages.forEach(message => { appendMessage(message) });
+        connection.on("ReceiveBroadcastMessageBatch", function (rawMessages) {
+            rawMessages.forEach(message => { appendMessage(message) });
         });
 
-        connection.on("ReceiveBroadcastMessageBatchPrepend", function (messages) {
-            messages.forEach(message => { prependMessage(message) });
+        connection.on("ReceiveBroadcastMessageBatchPrepend", function (rawMessages) {
+            rawMessages.forEach(message => { prependMessage(message) });
         });
 
         //#endregion
@@ -64,19 +64,22 @@ window.addEventListener("DOMContentLoaded",
 
         function prependMessage(message) {
             var li = document.createElement("li");
+            li.textContent = encode(message);
 
             document.getElementById("messageList").insertBefore(li, document.getElementById("messageList").childNodes[0]);
         }
 
         function appendMessage(message) {
             var li = document.createElement("li");
+            li.textContent = encode(message);
 
             document.getElementById("messageList").appendChild(li);
             document.getElementById("messageContainer").scrollTop = document.getElementById("messageContainer").scrollHeight;
         }
 
-        function cleanString(message) {
+        function encode(message) {
             return message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
         }
 
         //#endregion

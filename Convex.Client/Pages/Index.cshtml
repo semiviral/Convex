@@ -1,17 +1,24 @@
 ﻿@page
 
-<div class="container">
-    <div id="messageContainer"class="noPushing">
-        <ul id="messageList" class="font " />
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <link rel="stylesheet" type="text/css" href="~/css/index.stylesheet.css" />
+    <script type="text/javascript" src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script type="text/javascript" src="~/js/irc.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div id="messageContainer" class="noPushing">
+            <ul id="messageList" class="font " />
+        </div>
+
+        <div class="inputContainer">
+            <span class="font">:></span>
+            <input id="messageInput" class="font nakedInput" />
+        </div>
     </div>
-
-    <div class="inputContainer">
-        <span class="font">:></span>
-
-        <input id="messageInput" class="font nakedInput" />
-    </div>
-</div>
-
-<link rel="stylesheet" type="text/css" href="~/css/index.stylesheet.css" />
-<script type="text/javascript" src="~/lib/signalr/dist/browser/signalr.js"></script>
-<script type="text/javascript" src="~/js/irc.js"></script>
+</body>
+</html>

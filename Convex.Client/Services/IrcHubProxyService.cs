@@ -39,7 +39,7 @@ namespace Convex.Client.Services {
         #region EVENT
 
         private async Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
-            await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(args.Message));
+            await _ircHubMethodsProxy.BroadcastMessage(FormatServerMessage(args.Message));
         }
 
         #endregion
@@ -84,9 +84,9 @@ namespace Convex.Client.Services {
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch) {
             if (isPrepend) {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => StaticLog.FormatLogAsOutput(message)), true);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => FormatServerMessage(message)), true);
             } else {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => StaticLog.FormatLogAsOutput(message)), false);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => FormatServerMessage(message)), false);
             }
         }
 
@@ -104,6 +104,10 @@ namespace Convex.Client.Services {
 
         private bool IsIntBetween(int value, int int1, int int2) {
             return value >= int1 && value <= int2;
+        }
+
+        private string FormatServerMessage(ServerMessage message) {
+            return StaticLog.FormatLogAsOutput(message);
         }
 
         #endregion
