@@ -39,7 +39,7 @@ namespace Convex.Client.Services {
         #region EVENT
 
         private async Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
-            await _ircHubMethodsProxy.BroadcastMessage(LogStringFormatter.FormatLogAsOutput(args.Message));
+            await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(args.Message));
         }
 
         #endregion
@@ -47,13 +47,12 @@ namespace Convex.Client.Services {
         #region METHODS
 
         public async Task SendMessage(string rawMessage) {
-            await _ircHubMethodsProxy.BroadcastMessage(LogStringFormatter.FormatLogAsOutput(_ircService.Client.Config.Nickname, rawMessage));
+            await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(_ircService.Client.Config.Nickname, rawMessage));
             await _ircService.Client.Server.Connection.SendDataAsync(this, new IrcCommandEventArgs(string.Empty, rawMessage));
         }
 
         /// <summary>
         ///     Broadcasts a batch of messages.
-        ///     The client's first index is the maximum index, decrementing from there. So the most recent index is the first index the list.
         /// </summary>
         /// <param name="connectionId">Connection ID of client.</param>
         /// <param name="startIndex">Start index. Cannot be negative.</param>
@@ -85,9 +84,9 @@ namespace Convex.Client.Services {
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch) {
             if (isPrepend) {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => LogStringFormatter.FormatLogAsOutput(message)), true);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => StaticLog.FormatLogAsOutput(message)), true);
             } else {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => LogStringFormatter.FormatLogAsOutput(message)), false);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => StaticLog.FormatLogAsOutput(message)), false);
             }
         }
 

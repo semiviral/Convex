@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Convex.IRC.Component;
 using Convex.IRC.Dependency;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 
 namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
@@ -16,6 +15,8 @@ namespace Convex.Client.Services {
             Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
 
             Client.Logged += (sender, args) => {
+
+
                 Debug.WriteLine(args.Information);
 
                 return Task.CompletedTask;
@@ -23,7 +24,7 @@ namespace Convex.Client.Services {
 
             Client.Server.ServerMessaged += (sender, args) => {
                 Messages.Add(new Tuple<int, DateTime>(GetMaxIndex(), args.Message.Timestamp), args.Message);
-                
+
                 Debug.WriteLine(args.Message.RawMessage);
 
                 return Task.CompletedTask;
@@ -32,11 +33,6 @@ namespace Convex.Client.Services {
             Address = "irc.foonetic.net";
             Port = 6667;
         }
-
-        #region EVENT
-        
-
-        #endregion
 
         #region METHODS
 
