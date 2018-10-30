@@ -12,7 +12,8 @@
         // Eve will probably only use general mode specs,
         // +v, +o, etc. that are the same across most servers.
         // 
-        // Notes on mode
+        //
+        // Notes on modes
         // =============
         //
         // A lot of general and important modes are missing.
@@ -20,8 +21,6 @@
         //
         // Mode functionality beyond per-basis user recognition 
         // isn't very important.
-        //
-        // todo add modes that are missing
 
         public static IrcMode Ban = new IrcMode('b', "MODE %c +b %n!%i@%h");
 
@@ -75,7 +74,7 @@
     }
 
     public class IrcMode {
-        public IrcMode(char identifier, string syntax) {
+        public IrcMode(char identifier, string syntax = "") {
             Identifier = identifier;
             Syntax = syntax;
         }
