@@ -10,7 +10,7 @@ using Convex.Plugin.Registrar;
 
 namespace Convex.Client.Model {
     public class IrcClientWrapper : IIrcClientWrapper {
-        public IrcClientWrapper(Configuration config = null) {
+        public IrcClientWrapper(IConfiguration config = null) {
             Channels = new List<Channel>();
             Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
 

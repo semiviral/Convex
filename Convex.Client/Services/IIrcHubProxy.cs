@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Convex.IRC.Net;
 using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {

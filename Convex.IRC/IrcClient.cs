@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
+using Convex.IRC.Net;
 using Convex.IRC.Util;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
@@ -20,7 +21,7 @@ namespace Convex.IRC {
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     receiving.
         /// </summary>
-        public IrcClient(Configuration config = null) {
+        public IrcClient(IConfiguration config = null) {
             Initialising = true;
 
             UniqueId = Guid.NewGuid();
@@ -119,7 +120,7 @@ namespace Convex.IRC {
 
         #region INIT
 
-        private void InitialiseConfiguration(Configuration configuration) {
+        private void InitialiseConfiguration(IConfiguration configuration) {
             if (!Directory.Exists(Configuration.DefaultResourceDirectory)) {
                 Directory.CreateDirectory(Configuration.DefaultResourceDirectory);
             }

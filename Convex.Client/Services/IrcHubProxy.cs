@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Models.Proxy;
 using Convex.Event;
+using Convex.IRC.Net;
 using Convex.IRC.Util;
 
 namespace Convex.Client.Services {

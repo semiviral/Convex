@@ -4,7 +4,7 @@ using Convex.IRC.Net;
 using Serilog;
 using Serilog.Events;
 
-namespace Convex.Client {
+namespace Convex.IRC.Util {
     public class StaticLog {
         public static void LogInformation(object sender, LogEventArgs args) {
             switch (args.Level) {

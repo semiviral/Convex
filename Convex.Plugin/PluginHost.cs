@@ -74,7 +74,7 @@ namespace Convex.Plugin {
             AddComposition(registrar);
 
             if (DescriptionRegistry.Keys.Contains(registrar.UniqueId))
-                Debug.WriteLine($"'{registrar.UniqueId}' description already exists, skipping entry.");
+                StaticLog .WriteLine($"'{registrar.UniqueId}' description already exists, skipping entry.");
             else
                 DescriptionRegistry.Add(registrar.UniqueId, registrar.Description);
         }

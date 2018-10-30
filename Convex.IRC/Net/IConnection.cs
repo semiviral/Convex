@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Convex.Event;
+using Convex.IRC.Net.Event;
 
 namespace Convex.IRC.Net {
     public interface IConnection {

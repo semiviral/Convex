@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Convex.Event;
+using Convex.IRC.Net;
 using Convex.Plugin.Registrar;
 
 namespace Convex.IRC {

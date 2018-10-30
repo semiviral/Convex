@@ -13,5 +13,7 @@ namespace Convex.IRC.Net {
         void Dispose();
         Task Initialise(string address, int port);
         Task SendConnectionInfo(string nickname, string realname);
+
+        Task ListenAsync(IIrcClient caller);
     }
 }

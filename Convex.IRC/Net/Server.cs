@@ -34,7 +34,7 @@ namespace Convex.IRC.Net {
         /// <remarks>
         ///     Use this method to begin listening cycle.
         /// </remarks>
-        internal async Task ListenAsync(IIrcClient caller) {
+        public async Task ListenAsync(IIrcClient caller) {
             string rawData = await Connection.ListenAsync();
 
             if (string.IsNullOrEmpty(rawData) || await CheckPing(rawData)) {
