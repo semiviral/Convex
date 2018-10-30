@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
+using Convex.Util;
 using Serilog.Events;
 
 
@@ -81,16 +82,13 @@ namespace Convex.Plugin {
 
         #region EVENTS
 
-        public event AsyncEventHandler<LogEventArgs> Logged;
         public event AsyncEventHandler<IrcCommandEventArgs> CommandReceived;
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
 
-        private async Task OnLog(object sender, LogEventArgs args) {
-            if (Logged == null) {
-                return;
-            }
+        private Task OnLog(object sender, LogEventArgs args) {
+            StaticLog.Log(args);
 
-            await Logged.Invoke(sender, args);
+            return Task.CompletedTask;
         }
 
         private async Task OnCommandReceived(object sender, IrcCommandEventArgs args) {

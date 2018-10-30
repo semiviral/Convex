@@ -37,6 +37,7 @@ namespace Convex.Client {
             services.AddSingleton<IIrcService>(provider => provider.GetRequiredService<IrcService>());
 
             services.AddSingleton<IrcHubMethodsProxy>();
+            services.AddSingleton<IIrcHubMethodsProxy>(provider => provider.GetRequiredService<IrcHubMethodsProxy>());
 
             services.AddSingleton<IrcHubProxy>();
             services.AddSingleton<IIrcHubProxy>(provider => provider.GetRequiredService<IrcHubProxy>());

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Convex.IRC.Net;
-using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {
-    public interface IIrcHubProxy : IHostedService {
-        Task SendMessage(string rawMessage);
+    public interface IIrcHubProxy {
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, DateTime startIndex, DateTime endIndex);
-        Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex);
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch);
+        Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex);
+        Task SendMessage(string rawMessage);
+        Task StartAsync(CancellationToken cancellationToken);
+        Task StopAsync(CancellationToken cancellationToken);
     }
 }

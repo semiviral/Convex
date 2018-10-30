@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +10,7 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
+using Convex.Util;
 using Serilog.Events;
 
 #endregion
@@ -74,7 +74,7 @@ namespace Convex.Plugin {
             AddComposition(registrar);
 
             if (DescriptionRegistry.Keys.Contains(registrar.UniqueId))
-                StaticLog .WriteLine($"'{registrar.UniqueId}' description already exists, skipping entry.");
+                StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"'{registrar.UniqueId}' description already exists, skipping entry."));
             else
                 DescriptionRegistry.Add(registrar.UniqueId, registrar.Description);
         }
@@ -159,7 +159,7 @@ namespace Convex.Plugin {
                 if (autoStart)
                     plugin.Start();
             } catch (Exception ex) {
-                Debug.WriteLine(ex, $"Error adding plugin: {ex.Message}");
+                StaticLog.Log(new LogEventArgs(LogEventLevel.Warning, $"Error adding plugin: {ex.Message}"));
             }
         }
 

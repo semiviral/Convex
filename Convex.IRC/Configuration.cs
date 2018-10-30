@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Convex.Event;
+using Convex.Util;
 using Newtonsoft.Json;
 
 #endregion
@@ -23,7 +25,7 @@ namespace Convex.IRC {
                 return;
             }
 
-            Console.WriteLine("Configuration file not found, creating.\n");
+            StaticLog.Log(new LogEventArgs(Serilog.Events.LogEventLevel.Information, "Configuration file not found, creating.\n"));
 
             WriteConfig(DEFAULT_CONFIG, path);
         }

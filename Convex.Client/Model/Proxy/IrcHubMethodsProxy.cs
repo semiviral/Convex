@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Convex.Client.Hubs;
 
 namespace Convex.Client.Models.Proxy {
-    public class IrcHubMethodsProxy {
+    public class IrcHubMethodsProxy : IIrcHubMethodsProxy {
         private IHubContext<IrcHub> _hubContext;
 
         public IrcHubMethodsProxy(IHubContext<IrcHub> hubContext) {

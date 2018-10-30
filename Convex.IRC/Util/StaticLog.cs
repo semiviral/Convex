@@ -1,6 +1,5 @@
 ﻿using System;
 using Convex.Event;
-using Convex.IRC.Net;
 using Serilog;
 using Serilog.Events;
 
@@ -31,13 +30,6 @@ namespace Convex.IRC.Util {
 
         public static string FormatLogAsOutput(LogEventArgs args) {
             return $"[{nameof(args.Level).ToUpper()} {GetTime()}] {args.Information}\r\n";
-        }
-
-        public static string FormatLogAsOutput(ServerMessage message) {
-
-            //if (message.Command == Commands.NAMES_REPLY)
-            //    return string.Empty;
-            return $"[IRC {GetTime()}] <{message.Nickname}> {message.Args}";
         }
 
         public static string FormatLogAsOutput(string nickname, string message) {

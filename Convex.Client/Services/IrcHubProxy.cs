@@ -3,24 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Convex.Client.Model.Log.Sinks;
 using Convex.Client.Models.Proxy;
 using Convex.Event;
 using Convex.IRC.Net;
-using Convex.IRC.Util;
+using Convex.Util;
+using Serilog;
 
 namespace Convex.Client.Services {
     public class IrcHubProxy : IIrcHubProxy {
-        public IrcHubProxy(IIrcService ircService, IrcHubMethodsProxy ircHubMethodsProxy) {
+        public IrcHubProxy(IIrcService ircService, IIrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
             _ircHubMethodsProxy = ircHubMethodsProxy;
-
             _ircService.IrcClientWrapper.RegisterMethod(new Plugin.Registrar.MethodRegistrar<ServerMessagedEventArgs>(OnIrcServiceServerMessaged, null, Commands.ALL, null));
+            Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Program.Config.LogFilePath).WriteTo.ServerMessageSink(_ircHubMethodsProxy).CreateLogger();
         }
 
         #region MEMBERS
 
         private IIrcService _ircService;
-        private IrcHubMethodsProxy _ircHubMethodsProxy;
+        private IIrcHubMethodsProxy _ircHubMethodsProxy;
 
         #endregion
 
@@ -119,7 +121,7 @@ namespace Convex.Client.Services {
         }
 
         private string FormatServerMessage(ServerMessage message) {
-            return StaticLog.FormatLogAsOutput(message);
+            return StaticLog.FormatLogAsOutput(message.Nickname, message.Args);
         }
 
         private IrcCommandEventArgs ConvertToCommandArgs(string rawMessage) {
