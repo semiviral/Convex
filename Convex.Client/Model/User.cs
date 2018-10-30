@@ -1,15 +1,13 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Convex.Event;
 
 #endregion
 
-namespace Convex.IRC.Component {
+namespace Convex.Client.Model {
     public sealed class User : INotifyPropertyChanged {
         public User(int id, string nickname, string realname, int access) {
             Id = id;
@@ -32,14 +30,16 @@ namespace Convex.IRC.Component {
         public bool GetTimeout() {
             bool doTimeout = false;
 
-            if (Attempts.Equals(4))
-                if (Seen.AddMinutes(1) < DateTime.UtcNow)
+            if (Attempts.Equals(4)) {
+                if (Seen.AddMinutes(1) < DateTime.UtcNow) {
                     Attempts = 0; // if so, reset their attempts to 0
-                else
+                } else {
                     doTimeout = true; // if not, timeout is true
-            else if (Access > 1)
+                }
+            } else if (Access > 1) {
                 // if user isn't admin/op, increment their attempts
                 Attempts++;
+            }
 
             return doTimeout;
         }
@@ -50,15 +50,6 @@ namespace Convex.IRC.Component {
 
         public void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
             PropertyChanged?.Invoke(sender, e);
-        }
-
-        /// <summary>
-        ///     Adds a Args object to list
-        /// </summary>
-        /// <param name="user">user object</param>
-        /// <param name="message"><see cref="Message" /> to be added</param>
-        public void AddMessage(User user, Message message) {
-            user.Messages.Add(message);
         }
 
         #region MEMBERS
@@ -111,32 +102,12 @@ namespace Convex.IRC.Component {
             }
         }
 
-        public ObservableCollection<Message> Messages { get; } = new ObservableCollection<Message>();
-        public List<string> Channels { get; } = new List<string>();
         private int _access;
         private int _attempts;
         private int _id;
         private string _nickname;
         private string _realname;
         private DateTime _seen;
-
-        #endregion
-    }
-
-    public class Message {
-        public Message(int id, string sender, string contents, DateTime timestamp) {
-            Id = id;
-            Sender = sender;
-            Contents = contents;
-            Date = timestamp;
-        }
-
-        #region MEMBERS
-
-        public int Id { get; }
-        public string Sender { get; }
-        public string Contents { get; }
-        public DateTime Date { get; }
 
         #endregion
     }

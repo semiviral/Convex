@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web;
-using Convex.IRC.Component;
 using Microsoft.AspNetCore.SignalR;
+using Convex.Client.Hubs;
 
-namespace Convex.Client.Hubs.Proxy {
+namespace Convex.Client.Models.Proxy {
     public class IrcHubMethodsProxy {
         private IHubContext<IrcHub> _hubContext;
 

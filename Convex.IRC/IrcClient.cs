@@ -14,17 +14,16 @@ using Convex.IRC.Dependency;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
 using Newtonsoft.Json;
-using Serilog;
 
 #endregion
 
 namespace Convex.IRC {
-    public sealed class Client : IDisposable, IClient {
+    public sealed class IrcClient : IDisposable, IClient {
         /// <summary>
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     receiving.
         /// </summary>
-        public Client(Configuration config = null) {
+        public IrcClient(Configuration config = null) {
             Initialising = true;
 
             UniqueId = Guid.NewGuid();
@@ -101,11 +100,7 @@ namespace Convex.IRC {
                 return;
             }
 
-            if (args.Message.Command.Equals(Commands.PRIVMSG)) {
-                if (args.Message.Origin.StartsWith("#")) {
-                    Server.Channels.Add(new Channel(args.Message.Origin));
-                }
-            } else if (args.Message.Command.Equals(Commands.ERROR)) {
+            if (args.Message.Command.Equals(Commands.ERROR)) {
                 return;
             }
 
@@ -172,11 +167,6 @@ namespace Convex.IRC {
         /// </summary>
         private void RegisterMethods() {
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Nick, null, Commands.NICK, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Join, null, Commands.JOIN, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Part, null, Commands.PART, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(ChannelTopic, null, Commands.CHANNEL_TOPIC, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NewTopic, null, Commands.TOPIC, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NamesReply, null, Commands.NAMES_REPLY, null));
         }
 
         public void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar) {
@@ -300,53 +290,6 @@ namespace Convex.IRC {
 
         private async Task Nick(ServerMessagedEventArgs e) {
             await OnQuery(this, new DatabaseQueriedEventArgs($"UPDATE users SET nickname='{e.Message.Origin}' WHERE realname='{e.Message.Realname}'"));
-        }
-
-        private Task Join(ServerMessagedEventArgs e) {
-            Server.GetChannel(e.Message.Origin)?.Inhabitants.Add(e.Message.Nickname);
-
-            return Task.CompletedTask;
-        }
-
-        private Task Part(ServerMessagedEventArgs e) {
-            Server.GetChannel(e.Message.Origin)?.Inhabitants.RemoveAll(x => x.Equals(e.Message.Nickname));
-
-            return Task.CompletedTask;
-        }
-
-        private Task ChannelTopic(ServerMessagedEventArgs e) {
-            Server.GetChannel(e.Message.SplitArgs[0]).Topic = e.Message.Args.Substring(e.Message.Args.IndexOf(' ') + 2);
-
-            return Task.CompletedTask;
-        }
-
-        private Task NewTopic(ServerMessagedEventArgs e) {
-            Server.GetChannel(e.Message.Origin).Topic = e.Message.Args;
-
-            return Task.CompletedTask;
-        }
-
-        private Task NamesReply(ServerMessagedEventArgs e) {
-            string channelName = e.Message.SplitArgs[1];
-
-            // * SplitArgs [2] is always your nickname
-
-            // in this case, Eve is the only one in the channel
-            if (e.Message.SplitArgs.Count < 4) {
-                return Task.CompletedTask;
-            }
-
-            foreach (string s in e.Message.SplitArgs[3].Split(' ')) {
-                Channel currentChannel = Server.Channels.SingleOrDefault(channel => channel.Name.Equals(channelName));
-
-                if (currentChannel == null || currentChannel.Inhabitants.Contains(s)) {
-                    continue;
-                }
-
-                Server?.Channels.Single(channel => channel.Name.Equals(channelName)).Inhabitants.Add(s);
-            }
-
-            return Task.CompletedTask;
         }
 
         #endregion

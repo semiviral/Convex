@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Convex.Client.Hubs.Proxy;
+using Convex.Client.Models.Proxy;
 using Convex.Event;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;

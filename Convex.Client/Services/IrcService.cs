@@ -11,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
         public IrcService() {
-            Client = new IRC.Client(Program.Config);
+            Client = new IRC.IrcClient(Program.Config);
             Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
 
             Client.Logged += (sender, args) => {
