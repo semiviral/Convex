@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Convex.Client.Services;
+using Convex.Client.Proxy;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Convex.Client.Hubs {

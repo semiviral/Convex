@@ -30,8 +30,9 @@ namespace Convex.Client.Services {
 
         #region INIT
 
-        private async Task Initialise() {
+        public async Task Initialise() {
             await InitialiseClient();
+            await DoWork();
         }
 
         private async Task InitialiseClient() {
@@ -42,13 +43,8 @@ namespace Convex.Client.Services {
 
         #region INTERFACE IMPLEMENTATION
 
-        public async Task StartAsync(CancellationToken cancellationToken) {
-            if (IrcClientWrapper.IsInitialised) {
-                return;
-            }
-
-            await Initialise();
-            await DoWork();
+        public Task StartAsync(CancellationToken cancellationToken) {
+            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken) {

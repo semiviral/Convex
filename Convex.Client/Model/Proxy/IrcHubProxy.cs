@@ -5,18 +5,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Model.Log.Sinks;
 using Convex.Client.Models.Proxy;
+using Convex.Client.Services;
 using Convex.Event;
 using Convex.IRC.Net;
 using Convex.Util;
 using Serilog;
 
-namespace Convex.Client.Services {
+namespace Convex.Client.Proxy {
     public class IrcHubProxy : IIrcHubProxy {
         public IrcHubProxy(IIrcService ircService, IIrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
             _ircHubMethodsProxy = ircHubMethodsProxy;
             _ircService.IrcClientWrapper.RegisterMethod(new Plugin.Registrar.MethodRegistrar<ServerMessagedEventArgs>(OnIrcServiceServerMessaged, null, Commands.ALL, null));
             Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Program.Config.LogFilePath).WriteTo.ServerMessageSink(_ircHubMethodsProxy).CreateLogger();
+
+            _ircService.Initialise();
         }
 
         #region MEMBERS

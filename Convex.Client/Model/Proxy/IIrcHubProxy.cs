@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Convex.IRC.Net;
 
-namespace Convex.Client.Services {
+namespace Convex.Client.Proxy {
     public interface IIrcHubProxy {
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, DateTime startIndex, DateTime endIndex);
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch);

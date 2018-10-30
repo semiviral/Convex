@@ -24,6 +24,8 @@ namespace Convex.IRC {
         public IrcClient(IConfiguration config = null) {
             Initialising = true;
 
+            _pendingPlugins = new Stack<IAsyncRegistrar<ServerMessagedEventArgs>>();
+
             UniqueId = Guid.NewGuid();
             Server = new Server();
 
@@ -81,6 +83,8 @@ namespace Convex.IRC {
         private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
 
         private bool _disposed;
+
+        private Stack<IAsyncRegistrar<ServerMessagedEventArgs>> _pendingPlugins;
 
         #endregion
 
@@ -141,6 +145,8 @@ namespace Convex.IRC {
             Initialising = true;
 
             await InitialisePluginWrapper();
+
+            RegisterMethods();
 
             await Server.Initialise(address, port);
 
@@ -207,7 +213,19 @@ namespace Convex.IRC {
         #region METHODS
 
         public void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar) {
+            if (!IsInitialised && !Initialising) {
+                _pendingPlugins.Push(methodRegistrar);
+
+                return;
+            }
+
             Wrapper.Host.RegisterMethod(methodRegistrar);
+        }
+
+        private void RegisterMethods() {
+            while (_pendingPlugins.Count > 0) {
+                RegisterMethod(_pendingPlugins.Pop());
+            }
         }
 
         /// <summary>
@@ -235,6 +253,10 @@ namespace Convex.IRC {
         private async Task OnInvokedMethod(ServerMessagedEventArgs args) {
             if (!Wrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
                 return;
+            }
+
+            if (!args.Message.Command.Equals(Commands.ALL)) {
+                await Wrapper.Host.CompositionHandlers[Commands.ALL].Invoke(this, args);
             }
 
             await Wrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);

@@ -13,8 +13,9 @@ namespace Convex.Client.Model {
         public IrcClientWrapper(IConfiguration config = null) {
             Channels = new List<Channel>();
             Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
-
             _baseClient = new IrcClient(config);
+
+            RegisterMethods();
         }
 
         #region MEMBERS
@@ -32,7 +33,6 @@ namespace Convex.Client.Model {
 
         public async Task Initialise(string address, int port) {
             await _baseClient.Initialise(address, port);
-            RegisterMethods();
         }
 
         #endregion
@@ -110,24 +110,33 @@ namespace Convex.Client.Model {
             return Task.CompletedTask;
         }
 
-        private async Task Nick(ServerMessagedEventArgs e) {
+        private Task Nick(ServerMessagedEventArgs e) {
             //await _ba.OnQuery(this, new DatabaseQueriedEventArgs($"UPDATE users SET nickname='{e.Message.Origin}' WHERE realname='{e.Message.Realname}'"));
+
+            return Task.CompletedTask;
         }
 
         private Task Join(ServerMessagedEventArgs e) {
             GetChannel(e.Message.Origin)?.Inhabitants.Add(new User(e.Message.Nickname));
+
             return Task.CompletedTask;
         }
+
         private Task Part(ServerMessagedEventArgs e) {
             GetChannel(e.Message.Origin)?.Inhabitants.RemoveAll(x => x.Nickname.Equals(e.Message.Nickname));
+
             return Task.CompletedTask;
         }
+
         private Task ChannelTopic(ServerMessagedEventArgs e) {
             GetChannel(e.Message.SplitArgs[0]).Topic = e.Message.Args.Substring(e.Message.Args.IndexOf(' ') + 2);
+
             return Task.CompletedTask;
         }
+
         private Task NewTopic(ServerMessagedEventArgs e) {
             GetChannel(e.Message.Origin).Topic = e.Message.Args;
+
             return Task.CompletedTask;
         }
 

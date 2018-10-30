@@ -47,7 +47,7 @@ namespace Convex.Plugin {
                         break;
                     }
 
-                    await OnLog(sender, new LogEventArgs(LogEventLevel.Information, (string)args.Result));
+                    StaticLog.Log(new LogEventArgs(LogEventLevel.Information, (string)args.Result));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -63,7 +63,6 @@ namespace Convex.Plugin {
                 return;
             }
 
-            Host.Logged += OnLog;
             Host.PluginCallback += Callback;
             await Host.LoadPlugins();
             Host.StartPlugins();
@@ -84,12 +83,6 @@ namespace Convex.Plugin {
 
         public event AsyncEventHandler<IrcCommandEventArgs> CommandReceived;
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
-
-        private Task OnLog(object sender, LogEventArgs args) {
-            StaticLog.Log(args);
-
-            return Task.CompletedTask;
-        }
 
         private async Task OnCommandReceived(object sender, IrcCommandEventArgs args) {
             if (CommandReceived == null) {

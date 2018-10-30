@@ -40,30 +40,24 @@ namespace Convex.Plugin {
         #region EVENTS
 
         public event AsyncEventHandler<PluginActionEventArgs> PluginCallback;
-        public event AsyncEventHandler<LogEventArgs> Logged;
-
-        private async Task OnLog(object sender, LogEventArgs args) {
-            if (Logged == null)
-                return;
-
-            await Logged.Invoke(sender, args);
-        }
 
         #endregion
 
         #region METHODS
 
         public void StartPlugins() {
-            foreach (PluginInstance pluginInstance in Plugins)
+            foreach (PluginInstance pluginInstance in Plugins) {
                 pluginInstance.Instance.Start();
+            }
         }
 
         public async Task StopPlugins() {
-            await OnLog(this, new LogEventArgs(LogEventLevel.Information, "STOP PLUGINS RECEIVED — shutting down."));
+            StaticLog.Log(new LogEventArgs(LogEventLevel.Information, "STOP PLUGINS RECEIVED — shutting down."));
             ShuttingDown = true;
 
-            foreach (PluginInstance pluginInstance in Plugins)
+            foreach (PluginInstance pluginInstance in Plugins) {
                 await pluginInstance.Instance.Stop();
+            }
         }
 
         public async Task InvokeAsync(T args) {
@@ -73,19 +67,22 @@ namespace Convex.Plugin {
         public void RegisterMethod(IAsyncRegistrar<T> registrar) {
             AddComposition(registrar);
 
-            if (DescriptionRegistry.Keys.Contains(registrar.UniqueId))
+            if (DescriptionRegistry.Keys.Contains(registrar.UniqueId)) {
                 StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"'{registrar.UniqueId}' description already exists, skipping entry."));
-            else
+            } else {
                 DescriptionRegistry.Add(registrar.UniqueId, registrar.Description);
+            }
         }
 
         private void AddComposition(IAsyncRegistrar<T> registrar) {
-            if (!CompositionHandlers.ContainsKey(registrar.Command))
+            if (!CompositionHandlers.ContainsKey(registrar.Command)) {
                 CompositionHandlers.Add(registrar.Command, null);
+            }
 
             CompositionHandlers[registrar.Command] += async (sender, args) => {
-                if (!registrar.CanExecute(args))
+                if (!registrar.CanExecute(args)) {
                     return;
+                }
 
                 await registrar.Composition(args);
             };
@@ -95,9 +92,10 @@ namespace Convex.Plugin {
         /// <summary>
         ///     Loads all plugins
         /// </summary>
-        public async Task LoadPlugins() {
-            if (!Directory.Exists(PluginsDirectory))
+        public Task LoadPlugins() {
+            if (!Directory.Exists(PluginsDirectory)) {
                 Directory.CreateDirectory(PluginsDirectory);
+            }
 
             IPlugin currentPluginIterated = null;
 
@@ -114,16 +112,20 @@ namespace Convex.Plugin {
                     AddPlugin(plugin, false);
                 }
             } catch (ReflectionTypeLoadException ex) {
-                foreach (Exception loaderException in ex.LoaderExceptions)
-                    await OnLog(this,
-                        new LogEventArgs(LogEventLevel.Information, $"LoaderException occured loading a plugin: {loaderException}"));
+                foreach (Exception loaderException in ex.LoaderExceptions) {
+                    StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"LoaderException occured loading a plugin: {loaderException}"));
+                }
             } catch (Exception ex) {
-                await OnLog(this, new LogEventArgs(LogEventLevel.Information, $"Error occurred loading a plugin ({currentPluginIterated.Name}, {currentPluginIterated.Version}): {ex}"));
+                StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"Error occurred loading a plugin ({currentPluginIterated.Name}, {currentPluginIterated.Version}): {ex}"));
             }
 
-            if (Plugins.Count > 0)
-                await OnLog(this, new LogEventArgs(LogEventLevel.Information, $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => new Tuple<string, Version>(plugin.Instance.Name, plugin.Instance.Version)))}"));
+            if (Plugins.Count > 0) {
+                StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => new Tuple<string, Version>(plugin.Instance.Name, plugin.Instance.Version)))}"));
+            }
+
+            return Task.CompletedTask;
         }
+
 
         /// <summary>
         ///     Gets instance of plugin by assembly name
@@ -131,7 +133,7 @@ namespace Convex.Plugin {
         /// <param name="assemblyName">full name of assembly</param>
         /// <returns></returns>
         private static IEnumerable<IPlugin> GetPluginInstances(string assemblyName) {
-            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin) Activator.CreateInstance(type));
+            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin)Activator.CreateInstance(type));
         }
 
         /// <summary>
@@ -156,16 +158,18 @@ namespace Convex.Plugin {
             try {
                 Plugins.Add(new PluginInstance(plugin, PluginStatus.Stopped));
 
-                if (autoStart)
+                if (autoStart) {
                     plugin.Start();
+                }
             } catch (Exception ex) {
                 StaticLog.Log(new LogEventArgs(LogEventLevel.Warning, $"Error adding plugin: {ex.Message}"));
             }
         }
 
         private async Task OnPluginCallback(object source, PluginActionEventArgs e) {
-            if (PluginCallback == null)
+            if (PluginCallback == null) {
                 return;
+            }
 
             await PluginCallback.Invoke(source, e);
         }

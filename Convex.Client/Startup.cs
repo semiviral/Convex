@@ -1,5 +1,6 @@
 ﻿using Convex.Client.Hubs;
 using Convex.Client.Models.Proxy;
+using Convex.Client.Proxy;
 using Convex.Client.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
