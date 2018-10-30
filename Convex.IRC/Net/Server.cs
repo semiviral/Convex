@@ -9,7 +9,7 @@ using Convex.IRC.Component.Reference;
 
 #endregion
 
-namespace Convex.IRC.Component {
+namespace Convex.IRC.Net {
     public class Server : IDisposable {
         public Server() {
             Connection = new Connection();

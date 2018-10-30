@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
-using Convex.IRC.Component.Reference;
+using Convex.IRC.Util;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
 using Newtonsoft.Json;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Convex.IRC.Component.Reference {
+namespace Convex.IRC.Util {
     public static class Commands {
         #region MEMBERS
 

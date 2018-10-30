@@ -10,7 +10,7 @@ using Serilog.Events;
 
 #endregion
 
-namespace Convex.IRC.Component.Net {
+namespace Convex.IRC.Net {
     public sealed class Connection : IConnection {
         public void Dispose() {
             _client?.Dispose();

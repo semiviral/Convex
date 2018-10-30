@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Convex.Event;
+using Convex.Irc.Component.Net.Event;
 
-namespace Convex.IRC.Component.Net {
+namespace Convex.IRC.Net {
     public interface IConnection {
         IAddress Address { get; }
         bool IsConnected { get; }

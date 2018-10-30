@@ -1,15 +1,15 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Convex.IRC.Component.Reference;
+using Convex.IRC.Util;
 
 #endregion
 
-namespace Convex.IRC.Component {
-    public class ServerMessage {
+namespace Convex.IRC.Net {
+    public class ServerMessage : IServerMessage {
         public ServerMessage(string rawData) {
             RawMessage = rawData;
 
@@ -22,25 +22,30 @@ namespace Convex.IRC.Component {
             Parse();
         }
 
+        #region METHODS
+
         /// <summary>
         ///     For parsing IRCv3 message tags
         /// </summary>
         private void ParseTagsPrefix() {
-            if (!RawMessage.StartsWith("@"))
+            if (!RawMessage.StartsWith("@")) {
                 return;
+            }
 
             IsIrCv3Message = true;
 
             string fullTagsPrefix = RawMessage.Substring(0, RawMessage.IndexOf(' '));
             string[] primitiveTagsCollection = RawMessage.Split(';');
 
-            foreach (string[] splitPrimitiveTag in primitiveTagsCollection.Select(primitiveTag => primitiveTag.Split('=')))
+            foreach (string[] splitPrimitiveTag in primitiveTagsCollection.Select(primitiveTag => primitiveTag.Split('='))) {
                 Tags.Add(splitPrimitiveTag[0], splitPrimitiveTag[1] ?? string.Empty);
+            }
         }
 
         public void Parse() {
-            if (!_MessageRegex.IsMatch(RawMessage))
+            if (!_MessageRegex.IsMatch(RawMessage)) {
                 return;
+            }
 
             ParseTagsPrefix();
 
@@ -60,10 +65,11 @@ namespace Convex.IRC.Component {
             Args = mVal.Groups["Args"].Value.DeliminateSpaces();
 
             // splits the first 5 sections of the message for parsing
-            SplitArgs = Args.Split(new[] {' '}, 4).Select(arg => arg.Trim()).ToList();
+            SplitArgs = Args.Split(new[] { ' ' }, 4).Select(arg => arg.Trim()).ToList();
 
-            if (!sMatch.Success)
+            if (!sMatch.Success) {
                 return;
+            }
 
             string realname = sMatch.Groups["Realname"].Value;
             Nickname = sMatch.Groups["Nickname"].Value;
@@ -74,6 +80,8 @@ namespace Convex.IRC.Component {
         public override string ToString() {
             return RawMessage;
         }
+
+        #endregion
 
         #region MEMBERS
 

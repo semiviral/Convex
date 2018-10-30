@@ -1,4 +1,4 @@
-﻿namespace Convex.IRC.Component.Net {
+﻿namespace Convex.IRC.Net {
     public class Address : IAddress {
         public Address(string hostname, int port) {
             Hostname = hostname;

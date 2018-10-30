@@ -1,4 +1,4 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using Microsoft.Data.Sqlite;
 
 #endregion
 
-namespace Convex.IRC.Component {
+namespace Convex.IRC.Util {
     public static class Extensions {
         /// <summary>
         ///     Obtain HTTP response from a GET request

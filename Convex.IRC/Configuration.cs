@@ -1,4 +1,4 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 #endregion
 
-namespace Convex.IRC.Component {
+namespace Convex.IRC {
     public class Configuration : IDisposable {
         private static void WriteConfig(string configString, string path) {
             using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {

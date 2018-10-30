@@ -5,12 +5,13 @@ using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using Convex.Event;
+using Convex.IRC.Util;
 using Microsoft.Data.Sqlite;
 using Serilog.Events;
 
 #endregion
 
-namespace Convex.IRC.Component {
+namespace Convex.IRC {
     public class Database {
         /// <summary>
         ///     Initialise connections to database and sets properties
