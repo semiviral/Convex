@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Convex.Event;
+using Convex.Irc.Component.Net.Event;
 using Serilog.Events;
 
 #endregion
@@ -23,8 +24,7 @@ namespace Convex.IRC.Component.Net {
 
         #region MEMBERS
 
-        public string Address { get; private set; }
-        public int Port { get; private set; }
+        public IAddress Address { get; private set; }
         public bool IsConnected { get; private set; }
         public bool IsInitialised { get; private set; }
         public bool Executing { get; set; }
@@ -38,9 +38,8 @@ namespace Convex.IRC.Component.Net {
 
         #region INIT
 
-        public async Task Initialise(string address, int port) {
-            Address = address;
-            Port = port;
+        public async Task Initialise(string hostname, int port) {
+            Address = new Address(hostname, port);
 
             Connected += (sender, args) => {
                 IsConnected = true;
@@ -61,9 +60,9 @@ namespace Convex.IRC.Component.Net {
             try {
                 await ConnectAsync();
 
-                await OnConnected(this, new ConnectedEventArgs(this, $"Successfully connected to '{Address}'."));
+                await OnConnected(this, new ConnectedEventArgs(this));
             } catch (Exception) {
-                await OnDisconnected(this, new DisconnectedEventArgs(this, $"Could not connect to '{Address}'."));
+                await OnDisconnected(this, new DisconnectedEventArgs(this));
 
                 throw;
             }
@@ -104,7 +103,7 @@ namespace Convex.IRC.Component.Net {
 
         private async Task ConnectAsync() {
             _client = new TcpClient();
-            await _client.ConnectAsync(Address, Port);
+            await _client.ConnectAsync(Address.Hostname, Address.Port);
 
             _networkStream = _client.GetStream();
             _reader = new StreamReader(_networkStream);

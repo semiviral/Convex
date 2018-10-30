@@ -17,13 +17,6 @@ namespace Convex.Client.Model {
             Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
 
             _baseClient = new IrcClient(config);
-            _baseClient.Logged += (sender, args) => {
-                StaticLog.LogInformation(sender, args);
-
-                Debug.WriteLine(args.Information);
-
-                return Task.CompletedTask;
-            };
         }
 
         #region MEMBERS

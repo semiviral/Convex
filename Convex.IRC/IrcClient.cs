@@ -34,7 +34,6 @@ namespace Convex.IRC {
             InitialiseConfiguration(config);
 
             Wrapper = new PluginWrapper<ServerMessagedEventArgs>(Configuration.DefaultPluginDirectoryPath, OnInvokedMethod);
-            Wrapper.Logged += OnLog;
             Wrapper.TerminateSignaled += OnTerminateSignaled;
             Wrapper.CommandReceived += Server.Connection.SendDataAsync;
 
@@ -66,7 +65,7 @@ namespace Convex.IRC {
         #endregion
 
         #region MEMBERS
-
+        
         public Guid UniqueId { get; }
         public Server Server { get; }
         public Configuration Config { get; private set; }
@@ -75,8 +74,8 @@ namespace Convex.IRC {
         public List<string> IgnoreList => Config.IgnoreList ?? new List<string>();
         public Dictionary<string, Tuple<string, string>> LoadedCommands => Wrapper.Host.DescriptionRegistry;
 
-        public string Address => Server.Connection.Address;
-        public int Port => Server.Connection.Port;
+        public string Address => Server.Connection.Address.Hostname;
+        public int Port => Server.Connection.Address.Port;
         public bool IsInitialised { get; private set; }
         public bool Initialising { get; private set; }
 
@@ -159,10 +158,6 @@ namespace Convex.IRC {
             await Wrapper.Initialise();
         }
 
-        public void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar) {
-            Wrapper.Host.RegisterMethod(methodRegistrar);
-        }
-
         #endregion
 
         #region EVENTS
@@ -170,7 +165,6 @@ namespace Convex.IRC {
         public event AsyncEventHandler<DatabaseQueriedEventArgs> Queried;
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
         public event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
-        public event AsyncEventHandler<LogEventArgs> Logged;
         public event AsyncEventHandler<ErrorEventArgs> Error;
 
         private async Task OnQuery(object sender, DatabaseQueriedEventArgs args) {
@@ -205,14 +199,6 @@ namespace Convex.IRC {
             await Error.Invoke(sender, args);
         }
 
-        private async Task OnLog(object sender, LogEventArgs args) {
-            if (Logged == null) {
-                return;
-            }
-
-            await Logged.Invoke(sender, args);
-        }
-
         private async Task Terminate(object sender, OperationTerminatedEventArgs args) {
             await Dispose(true);
         }
@@ -220,6 +206,10 @@ namespace Convex.IRC {
         #endregion
 
         #region METHODS
+
+        public void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar) {
+            Wrapper.Host.RegisterMethod(methodRegistrar);
+        }
 
         /// <summary>
         ///     Returns a specified command from commands list
@@ -238,7 +228,6 @@ namespace Convex.IRC {
         public bool CommandExists(string command) {
             return !GetCommand(command).Equals(default(Tuple<string, string>));
         }
-
 
         public string GetApiKey(string type) {
             return Config.ApiKeys[type];

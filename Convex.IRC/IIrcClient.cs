@@ -22,7 +22,6 @@ namespace Convex.IRC {
 
         event AsyncEventHandler<ErrorEventArgs> Error;
         event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
-        event AsyncEventHandler<LogEventArgs> Logged;
         event AsyncEventHandler<DatabaseQueriedEventArgs> Queried;
         event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
 
