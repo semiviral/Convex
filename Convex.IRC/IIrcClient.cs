@@ -7,8 +7,8 @@ using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Convex.Plugin.Registrar;
 
-namespace Convex.IRC.Dependency {
-    public interface IClient {
+namespace Convex.IRC {
+    public interface IIrcClient {
         string Address { get; }
         List<string> IgnoreList { get; }
         bool IsInitialised { get; }

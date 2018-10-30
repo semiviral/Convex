@@ -13,8 +13,9 @@ namespace Convex.Client.Services {
     public class IrcHubProxy : IIrcHubProxy {
         public IrcHubProxy(IIrcService ircService, IrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
-            _ircService.Client.Server.ServerMessaged += OnIrcServiceServerMessaged;
             _ircHubMethodsProxy = ircHubMethodsProxy;
+
+            _ircService.IrcClientWrapper.RegisterMethod(new Plugin.Registrar.MethodRegistrar<ServerMessagedEventArgs>(OnIrcServiceServerMessaged, null, Commands.ALL, null));
         }
 
         #region MEMBERS
@@ -36,9 +37,9 @@ namespace Convex.Client.Services {
 
         #endregion
 
-        #region EVENT
+        #region REGISTRARS
 
-        private async Task OnIrcServiceServerMessaged(object sender, ServerMessagedEventArgs args) {
+        private async Task OnIrcServiceServerMessaged(ServerMessagedEventArgs args) {
             await _ircHubMethodsProxy.BroadcastMessage(FormatServerMessage(args.Message));
         }
 
@@ -51,8 +52,8 @@ namespace Convex.Client.Services {
                 return;
             }
 
-            await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(_ircService.Client.Config.Nickname, rawMessage));
-            await _ircService.Client.Server.Connection.SendDataAsync(this, ConvertToCommandArgs(rawMessage));
+            await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(Program.Config.Nickname, rawMessage));
+            await _ircService.IrcClientWrapper.SendMessageAsync(this, ConvertToCommandArgs(rawMessage));
         }
 
         #endregion
@@ -68,18 +69,18 @@ namespace Convex.Client.Services {
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, DateTime startIndex, DateTime endIndex) {
-            if (_ircService.Messages.Count <= 0) {
+            if (_ircService.IrcClientWrapper.Messages.Count <= 0) {
                 return;
             }
 
             if (startIndex >= endIndex || endIndex <= DateTime.Now) {
                 return;
             }
-            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.Messages.Where(kvp => IsDateBetween(kvp.Key.Item2, startIndex, endIndex)).Select(kvp => kvp.Value));
+            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.IrcClientWrapper.Messages.Where(kvp => IsDateBetween(kvp.Key.Item2, startIndex, endIndex)).Select(kvp => kvp.Value));
         }
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex) {
-            if (_ircService.Messages.Count <= 0) {
+            if (_ircService.IrcClientWrapper.Messages.Count <= 0) {
                 return;
             }
 
@@ -87,7 +88,7 @@ namespace Convex.Client.Services {
                 return;
             }
 
-            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.Messages.Where(kvp => IsIntBetween(kvp.Key.Item1, startIndex, endIndex)).Select(kvp => kvp.Value));
+            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.IrcClientWrapper.Messages.Where(kvp => IsIntBetween(kvp.Key.Item1, startIndex, endIndex)).Select(kvp => kvp.Value));
         }
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch) {

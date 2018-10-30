@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 #endregion
 
 namespace Convex.IRC {
-    public sealed class IrcClient : IDisposable, IClient {
+    public sealed class IrcClient : IDisposable, IIrcClient {
         /// <summary>
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     receiving.
@@ -158,17 +158,8 @@ namespace Convex.IRC {
 
         private async Task InitialisePluginWrapper() {
             await Wrapper.Initialise();
-
-            RegisterMethods();
         }
-
-        /// <summary>
-        ///     Register all methods
-        /// </summary>
-        private void RegisterMethods() {
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Nick, null, Commands.NICK, null));
-        }
-
+        
         public void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar) {
             Wrapper.Host.RegisterMethod(methodRegistrar);
         }
@@ -282,14 +273,6 @@ namespace Convex.IRC {
             }
 
             await Wrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);
-        }
-
-        #endregion
-
-        #region REGISTRARS
-
-        private async Task Nick(ServerMessagedEventArgs e) {
-            await OnQuery(this, new DatabaseQueriedEventArgs($"UPDATE users SET nickname='{e.Message.Origin}' WHERE realname='{e.Message.Realname}'"));
         }
 
         #endregion

@@ -5,7 +5,7 @@ namespace Convex.IRC.Component.Reference {
     public static class Commands {
         #region MEMBERS
 
-        public const string DEFAULT = "";
+        public const string ALL = "";
         public const string ABORT = "ABORT";
         public const string USER = "USER";
         public const string NICK = "NICK";

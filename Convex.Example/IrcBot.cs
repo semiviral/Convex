@@ -53,7 +53,7 @@ namespace Convex.Example {
 
         public bool IsInitialised { get; private set; }
         public bool Executing => _bot.Server.Executing;
-        private readonly IClient _bot;
+        private readonly IIrcClient _bot;
         private readonly string[] _defaultChannels = { "#testgrounds" };
 
         #endregion

@@ -1,19 +1,43 @@
 ﻿#region USINGS
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Convex.Event;
+using Convex.IRC.Component.Reference;
 
 #endregion
 
 namespace Convex.Client.Model {
     public sealed class User : INotifyPropertyChanged {
-        public User(int id, string nickname, string realname, int access) {
-            Id = id;
+        public User(string nickname, string realname, int access) {
+            Modes = new List<IrcMode>();
+            
             Nickname = nickname;
             Realname = realname;
             Access = access;
+            Seen = DateTime.Now;
+        }
+
+        public User(string rawUser) {
+            Modes = new List<IrcMode>();
+
+            StringBuilder userName = new StringBuilder();
+            foreach (char character in rawUser) {
+                if (_modeIdentifiers.Contains(character)) {
+                    Modes.Add(new IrcMode(character));
+                    continue;
+                }
+
+                userName.Append(character);
+            }
+
+            Nickname = userName.ToString();
+            Realname = userName.ToString();
+            Access = 9;
             Seen = DateTime.Now;
         }
 
@@ -54,13 +78,7 @@ namespace Convex.Client.Model {
 
         #region MEMBERS
 
-        public int Id {
-            get => _id;
-            set {
-                _id = value;
-                NotifyPropertyChanged(value);
-            }
-        }
+        private char[] _modeIdentifiers = { '~', '@', '+' };
 
         public int Attempts {
             get => _attempts;
@@ -102,12 +120,20 @@ namespace Convex.Client.Model {
             }
         }
 
+        public List<IrcMode> Modes {
+            get => _modes;
+            private set {
+                _modes = value;
+                NotifyPropertyChanged(value);
+            }
+        }
+
         private int _access;
         private int _attempts;
-        private int _id;
         private string _nickname;
         private string _realname;
         private DateTime _seen;
+        private List<IrcMode> _modes;
 
         #endregion
     }

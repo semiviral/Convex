@@ -1,7 +1,6 @@
 ﻿using System;
 using Convex.Event;
 using Convex.IRC.Component;
-using Convex.IRC.Component.Reference;
 using Serilog;
 using Serilog.Events;
 

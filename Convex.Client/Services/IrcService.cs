@@ -4,31 +4,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Convex.Client.Model;
 using Convex.IRC.Component;
-using Convex.IRC.Dependency;
 using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
         public IrcService() {
-            Client = new IRC.IrcClient(Program.Config);
-            Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
-
-            Client.Logged += (sender, args) => {
-                StaticLog.LogInformation(sender, args);
-
-                Debug.WriteLine(args.Information);
-
-                return Task.CompletedTask;
-            };
-
-            Client.Server.ServerMessaged += (sender, args) => {
-                Messages.Add(new Tuple<int, DateTime>(GetMaxIndex(), args.Message.Timestamp), args.Message);
-
-                Debug.WriteLine(args.Message.RawMessage);
-
-                return Task.CompletedTask;
-            };
+            IrcClientWrapper = new IrcClientWrapper(Program.Config);
 
             Address = "irc.foonetic.net";
             Port = 6667;
@@ -37,23 +20,16 @@ namespace Convex.Client.Services {
         #region METHODS
 
         private async Task DoWork() {
-            await Client.BeginListenAsync();
-        }
-
-        public int GetMaxIndex() {
-            return Messages.Count <= 0 ? 0 : Messages.Keys.Select(tup => tup.Item1).Max();
+            await IrcClientWrapper.BeginListenAsync();
         }
 
         #endregion
 
         #region MEMBERS
 
-        public IClient Client { get; }
-
+        public IIrcClientWrapper IrcClientWrapper { get; }
         public string Address { get; }
         public int Port { get; }
-
-        public SortedList<Tuple<int, DateTime>, ServerMessage> Messages { get; }
 
         #endregion
 
@@ -64,7 +40,7 @@ namespace Convex.Client.Services {
         }
 
         private async Task InitialiseClient() {
-            await Client.Initialise(Address, Port);
+            await IrcClientWrapper.Initialise(Address, Port);
         }
 
         #endregion
@@ -72,7 +48,7 @@ namespace Convex.Client.Services {
         #region INTERFACE IMPLEMENTATION
 
         public async Task StartAsync(CancellationToken cancellationToken) {
-            if (Client.IsInitialised) {
+            if (IrcClientWrapper.IsInitialised) {
                 return;
             }
 
@@ -87,7 +63,7 @@ namespace Convex.Client.Services {
         }
 
         public void Dispose() {
-            Client.Dispose();
+            IrcClientWrapper.Dispose();
         }
 
         #endregion
