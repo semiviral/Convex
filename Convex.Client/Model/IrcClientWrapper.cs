@@ -1,22 +1,30 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Convex.IRC;
+using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 
 namespace Convex.Client.Model {
     public class IrcClientWrapper {
-        public IrcClientWrapper() {
+        public IrcClientWrapper(Configuration config = null) {
             Channels = new ObservableCollection<Channel>();
+
+            Client = new IrcClient(config);
+
         }
 
         public ObservableCollection<Channel> Channels { get; }
+        public IrcClient Client { get; }
+
+        #region REGISTRARS
 
         private Task NamesReply(ServerMessagedEventArgs e) {
             string channelName = e.Message.SplitArgs[1];
 
             // * SplitArgs [2] is always your nickname
 
-            // in this case, Eve is the only one in the channel
+            // in this case, you is the only one in the channel
             if (e.Message.SplitArgs.Count < 4) {
                 return Task.CompletedTask;
             }
@@ -33,5 +41,7 @@ namespace Convex.Client.Model {
 
             return Task.CompletedTask;
         }
+
+        #endregion
     }
 }
