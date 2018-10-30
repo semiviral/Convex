@@ -33,6 +33,16 @@ namespace Convex.Client.Hubs {
             await _ircHubProxyService.SendMessage(rawMessage);
         }
 
+        /// <summary>
+        /// Updated the text of the MessageInput box
+        /// </summary>
+        /// <param name="increment">whether the operation is incremental or decremental</param>
+        /// <param name="updatedInput"></param>
+        /// <returns></returns>
+        public async Task UpdateMessageInput(bool increment) {
+            await _ircHubProxyService.UpdateMessageInput(Context.ConnectionId, increment);
+        }
+
         #endregion
     }
 }

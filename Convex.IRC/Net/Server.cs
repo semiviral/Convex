@@ -49,7 +49,6 @@ namespace Convex.IRC.Net {
         #region MEMBERS
 
         public IConnection Connection { get; }
-
         public bool Identified { get; set; }
         public bool Initialised { get; private set; }
         public bool Executing => Connection.Executing;
@@ -72,8 +71,8 @@ namespace Convex.IRC.Net {
 
         #region INIT
 
-        public async Task Initialise(string address, int port) {
-            await Connection.Initialise(address, port);
+        public async Task Initialise(IAddress address) {
+            await Connection.Initialise(address);
 
             Initialised = Connection.IsInitialised;
         }

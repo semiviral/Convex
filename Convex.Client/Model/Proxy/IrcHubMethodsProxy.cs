@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
 using Convex.Client.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Convex.Client.Models.Proxy {
     public class IrcHubMethodsProxy : IIrcHubMethodsProxy {
@@ -29,6 +29,10 @@ namespace Convex.Client.Models.Proxy {
             } else {
                 await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveBroadcastMessageBatch", messageBatch);
             }
+        }
+
+        public async Task UpdateMessageInput(string connectionId, string updatedInput) {
+            await _hubContext.Clients.Client(connectionId).SendAsync("UpdateMessageInput", updatedInput);
         }
     }
 }

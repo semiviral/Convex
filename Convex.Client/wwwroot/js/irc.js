@@ -29,6 +29,10 @@ window.addEventListener("DOMContentLoaded",
             rawMessages.forEach(message => { prependMessage(message) });
         });
 
+        connection.on("UpdateMessageInput", function (updatedInput) {
+            document.getElementById("messageInput").value = updatedInput;
+        });
+
         //#endregion
 
         //#region EVENT LISTENERS
@@ -52,8 +56,18 @@ window.addEventListener("DOMContentLoaded",
 
         document.getElementById("messageInput").addEventListener("keyup", function (event) {
             keyMap[event.keyCode] = false;
-        });
 
+            switch (event.keyCode) {
+                case 38:
+                    updateMessageInput(true);
+                    break;
+                case 40:
+                    updateMessageInput(false);
+                    break;
+            }
+
+        });
+        
         //#endregion
 
         //#region METHODS
@@ -65,6 +79,14 @@ window.addEventListener("DOMContentLoaded",
                 return console.error(err.toString());
             });
         }
+
+        function updateMessageInput(isForPreviousMessage) {
+            connection.invoke("updateMessageInput", isForPreviousMessage).catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
+
+
 
         function prependMessage(message) {
             var li = document.createElement("li");

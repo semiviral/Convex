@@ -31,8 +31,8 @@ namespace Convex.Client.Model {
 
         #region INIT
 
-        public async Task Initialise(string address, int port) {
-            await _baseClient.Initialise(address, port);
+        public async Task Initialise(IAddress address) {
+            await _baseClient.Initialise(address);
         }
 
         #endregion

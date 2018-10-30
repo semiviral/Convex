@@ -11,7 +11,7 @@ namespace Convex.IRC.Net {
         event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
 
         void Dispose();
-        Task Initialise(string address, int port);
+        Task Initialise(IAddress address);
         Task SendConnectionInfo(string nickname, string realname);
 
         Task ListenAsync(IIrcClient caller);

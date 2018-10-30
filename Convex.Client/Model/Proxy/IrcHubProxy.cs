@@ -14,12 +14,18 @@ namespace Convex.Client.Proxy {
         public IrcHubProxy(IIrcService ircService, IIrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
             _ircHubMethodsProxy = ircHubMethodsProxy;
+            _previouslySent = new SortedList<int, string>();
+            _currentSentIndex = 0;
+            _hasFirstElement = false;
         }
 
         #region MEMBERS
 
         private IIrcService _ircService;
         private IIrcHubMethodsProxy _ircHubMethodsProxy;
+        private SortedList<int, string> _previouslySent;
+        private int _currentSentIndex;
+        private bool _hasFirstElement;
 
         #endregion
 
@@ -41,6 +47,19 @@ namespace Convex.Client.Proxy {
             if (string.IsNullOrWhiteSpace(rawMessage)) {
                 return;
             }
+
+            int currentMaxIndex = GetMaxPreviouslySentIndex();
+
+            if (currentMaxIndex == 0 && !_hasFirstElement) {
+                _previouslySent.Add(currentMaxIndex, rawMessage);
+                _hasFirstElement = true;
+            } else {
+                currentMaxIndex += 1;
+
+                _previouslySent.Add(currentMaxIndex, rawMessage);
+            }
+
+            _currentSentIndex = currentMaxIndex + 1;
 
             await _ircHubMethodsProxy.BroadcastMessage(StaticLog.Format(Program.Config.Nickname, rawMessage));
             await _ircService.IrcClientWrapper.SendMessageAsync(this, ConvertToCommandArgs(rawMessage));
@@ -89,9 +108,39 @@ namespace Convex.Client.Proxy {
             }
         }
 
+
+        public async Task UpdateMessageInput(string connectionId, bool previousMessage) {
+            string updatedMessage = string.Empty;
+
+            if (previousMessage) {
+                if (_currentSentIndex - 1 < 0) {
+                    return;
+                }
+
+                _currentSentIndex -= 1;
+
+                updatedMessage = _previouslySent[_currentSentIndex];
+            } else {
+                if (_currentSentIndex + 1 > GetMaxPreviouslySentIndex()) {
+                    return;
+                }
+
+                _currentSentIndex += 1;
+
+                updatedMessage = _previouslySent[_currentSentIndex];
+            }
+
+            await _ircHubMethodsProxy.UpdateMessageInput(connectionId, updatedMessage);
+        }
+
+
         #endregion
 
         #region METHODS
+
+        private int GetMaxPreviouslySentIndex() {
+            return _previouslySent.Keys.Max(key => key as int?) ?? 0;
+        }
 
         private IEnumerable<DateTime> GetDatesBetween(IEnumerable<DateTime> dateList, DateTime startDate, DateTime endDate) {
             foreach (DateTime date in dateList) {

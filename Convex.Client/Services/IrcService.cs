@@ -41,7 +41,7 @@ namespace Convex.Client.Services {
         }
 
         private async Task InitialiseClient() {
-            await IrcClientWrapper.Initialise(Address.Hostname, Address.Port);
+            await IrcClientWrapper.Initialise(Address);
         }
 
         #endregion
