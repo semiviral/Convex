@@ -56,7 +56,7 @@ namespace Convex.Client.Model {
         }
 
         public Channel GetChannel(string channelName) {
-            return Channels.Single(channel => channel.Name.Equals(channelName));
+            return Channels.SingleOrDefault(channel => channel.Name.Equals(channelName));
         }
 
         public async Task SendMessageAsync(object sender, IrcCommandEventArgs args) {
@@ -88,23 +88,20 @@ namespace Convex.Client.Model {
         private Task NamesReply(ServerMessagedEventArgs e) {
             string channelName = e.Message.SplitArgs[1];
 
-            // * SplitArgs [2] is always your nickname
+            if (GetChannel(e.Message.SplitArgs[1]) == null) {
+                Channels.Add(new Channel(channelName));
+            }
 
+            // * SplitArgs [2] is always your nickname
             // in this case, you are the only one in the channel
             if (e.Message.SplitArgs.Count < 4) {
                 return Task.CompletedTask;
             }
 
             foreach (string user in e.Message.SplitArgs[3].Split(' ')) {
-                Channel currentChannel = GetChannel(channelName);
-
-                if (currentChannel == null || currentChannel == default(Channel)) {
-                    continue;
-                }
-
                 User newUser = new User(user);
 
-                GetChannel(channelName).Inhabitants.Add(newUser);
+                GetChannel(e.Message.SplitArgs[1]).Inhabitants.Add(newUser);
             }
 
             return Task.CompletedTask;
