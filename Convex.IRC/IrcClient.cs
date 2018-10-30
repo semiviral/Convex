@@ -7,8 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.Component;
-using Convex.IRC.Component.Event;
 using Convex.IRC.Util;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
@@ -65,10 +63,10 @@ namespace Convex.IRC {
         #endregion
 
         #region MEMBERS
-        
+
         public Guid UniqueId { get; }
-        public Server Server { get; }
-        public Configuration Config { get; private set; }
+        public IServer Server { get; }
+        public IConfiguration Config { get; private set; }
         public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
 
         public List<string> IgnoreList => Config.IgnoreList ?? new List<string>();

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC;
-using Convex.IRC.Component;
-using Convex.IRC.Component.Event;
-using Convex.IRC.Component.Reference;
+using Convex.IRC.Net;
+using Convex.IRC.Util;
 using Convex.Plugin.Registrar;
 
 namespace Convex.Client.Model {

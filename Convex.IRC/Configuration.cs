@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #endregion
 
 namespace Convex.IRC {
-    public class Configuration : IDisposable {
+    public class Configuration : IDisposable, IConfiguration {
         private static void WriteConfig(string configString, string path) {
             using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
                 using (StreamWriter writer = new StreamWriter(stream)) {

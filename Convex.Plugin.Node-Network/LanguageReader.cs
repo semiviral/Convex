@@ -2,8 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.Component.Event;
-using Convex.IRC.Component.Reference;
+using Convex.IRC.Util;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
 using NodeNetwork;
@@ -41,10 +40,11 @@ namespace Convex.Plugin.Node_Network {
         }
 
         public async Task Stop() {
-            if (Status.Equals(PluginStatus.Running) || Status.Equals(PluginStatus.Processing))
+            if (Status.Equals(PluginStatus.Running) || Status.Equals(PluginStatus.Processing)) {
                 await Log($"Stop called but process is still running from: {Name}");
-            else
+            } else {
                 await Log($"Plugin stopped: {Name}");
+            }
         }
 
         public async Task CallDie() {
@@ -63,8 +63,9 @@ namespace Convex.Plugin.Node_Network {
         }
 
         private async Task DoCallback(object sender, PluginActionEventArgs args) {
-            if (Callback == null)
+            if (Callback == null) {
                 return;
+            }
 
             args.PluginName = Name;
 

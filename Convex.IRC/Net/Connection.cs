@@ -5,7 +5,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.Irc.Component.Net.Event;
+using Convex.IRC.Net.Event;
 using Serilog.Events;
 
 #endregion

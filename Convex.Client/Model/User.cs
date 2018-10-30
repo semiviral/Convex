@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Convex.Event;
-using Convex.IRC.Component.Reference;
 
 #endregion
 
@@ -15,7 +14,7 @@ namespace Convex.Client.Model {
     public sealed class User : INotifyPropertyChanged {
         public User(string nickname, string realname, int access) {
             Modes = new List<IrcMode>();
-            
+
             Nickname = nickname;
             Realname = realname;
             Access = access;

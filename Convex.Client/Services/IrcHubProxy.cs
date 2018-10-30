@@ -5,9 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Models.Proxy;
 using Convex.Event;
-using Convex.IRC.Component;
-using Convex.IRC.Component.Event;
-using Convex.IRC.Component.Reference;
+using Convex.IRC.Util;
 
 namespace Convex.Client.Services {
     public class IrcHubProxy : IIrcHubProxy {

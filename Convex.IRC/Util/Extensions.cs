@@ -7,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.Component.Event;
 using Microsoft.Data.Sqlite;
 
 #endregion
@@ -27,8 +26,9 @@ namespace Convex.IRC.Util {
                 HttpResponseMessage response = await client.GetAsync(instance);
                 string message = string.Empty;
 
-                if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode) {
                     message = await response.Content.ReadAsStringAsync();
+                }
 
                 return message;
             }
@@ -40,8 +40,9 @@ namespace Convex.IRC.Util {
         /// <param name="instance"></param>
         /// <param name="maxLength">max length of individual strings to split</param>
         public static IEnumerable<string> LengthSplit(this string instance, int maxLength) {
-            for (int i = 0; i < instance.Length; i += maxLength)
+            for (int i = 0; i < instance.Length; i += maxLength) {
                 yield return instance.Substring(i, Math.Min(maxLength, instance.Length - i));
+            }
         }
 
         /// <summary>
@@ -56,8 +57,9 @@ namespace Convex.IRC.Util {
             // using for loop to increased cycle speed
             for (int i = 0; i < str.Length; i++) {
                 if (str[i].Equals(' ')) {
-                    if (isSpace)
+                    if (isSpace) {
                         continue;
+                    }
 
                     isSpace = true;
                 } else {

@@ -1,11 +1,12 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using Convex.IRC;
+using Convex.IRC.Net;
 
 #endregion
 
-namespace Convex.IRC.Component.Event {
+namespace Convex.Event {
     public class ServerMessagedEventArgs : EventArgs {
         public ServerMessagedEventArgs(IIrcClient bot, ServerMessage message) {
             Caller = bot;

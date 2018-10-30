@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Convex.IRC.Component;
+using Convex.IRC;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
@@ -27,7 +27,7 @@ namespace Convex.Client {
 
         public const string DEFAULT_CONFIG = "{\r\n\t\"IgnoreList\": [],\r\n\t\"ApiKeys\": { \"YouTube\": \"\", \"Dictionary\": \"\" },\r\n\t\"Realname\": \"Evealyn\",\r\n\t\"Nickname\": \"Eve\",\r\n\t\"Password\": \"evepass\",\r\n\t\"DatabaseFilePath\": \"\",\r\n\t\"LogFilePath\": \"\"\r\n}\r\n";
 
-        public static Configuration Config { get; private set; }
+        public static IConfiguration Config { get; private set; }
 
         #endregion
     }

@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.Component;
-using Convex.IRC.Component.Event;
 using Convex.Plugin.Registrar;
 
 namespace Convex.IRC {
     public interface IIrcClient {
         string Address { get; }
-        Configuration Config { get; }
+        IConfiguration Config { get; }
         List<string> IgnoreList { get; }
         bool Initialising { get; }
         bool IsInitialised { get; }
         Dictionary<string, Tuple<string, string>> LoadedCommands { get; }
         int Port { get; }
-        Server Server { get; }
+        IServer Server { get; }
         Guid UniqueId { get; }
         Version Version { get; }
 

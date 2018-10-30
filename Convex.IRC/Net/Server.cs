@@ -1,16 +1,14 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.Component.Event;
-using Convex.IRC.Component.Net;
-using Convex.IRC.Component.Reference;
+using Convex.IRC.Util;
 
 #endregion
 
 namespace Convex.IRC.Net {
-    public class Server : IDisposable {
+    public class Server : IDisposable, IServer {
         public Server() {
             Connection = new Connection();
         }

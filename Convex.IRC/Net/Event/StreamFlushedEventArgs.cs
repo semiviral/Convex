@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Convex.Event {
+namespace Convex.IRC.Net.Event {
     public class StreamFlushedEventArgs : EventArgs {
         public StreamFlushedEventArgs(string information) {
             Information = information;
