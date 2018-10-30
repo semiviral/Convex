@@ -29,7 +29,7 @@ namespace Convex.IRC {
         void Dispose();
         string GetApiKey(string type);
         Tuple<string, string> GetCommand(string command);
-        Task<bool> Initialise(string address, int port);
+        Task<bool> Initialise(IAddress address);
         void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar);
     }
 }

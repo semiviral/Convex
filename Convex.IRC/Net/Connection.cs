@@ -38,8 +38,8 @@ namespace Convex.IRC.Net {
 
         #region INIT
 
-        public async Task Initialise(string hostname, int port) {
-            Address = new Address(hostname, port);
+        public async Task Initialise(IAddress address) {
+            Address = address;
 
             Connected += (sender, args) => {
                 IsConnected = true;

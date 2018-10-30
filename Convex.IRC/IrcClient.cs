@@ -137,7 +137,7 @@ namespace Convex.IRC {
             }
         }
 
-        public async Task<bool> Initialise(string address, int port) {
+        public async Task<bool> Initialise(IAddress address) {
             if (IsInitialised || Initialising) {
                 return true;
             }
@@ -148,7 +148,7 @@ namespace Convex.IRC {
 
             RegisterMethods();
 
-            await Server.Initialise(address, port);
+            await Server.Initialise(address);
 
             await OnInitialised(this, new ClassInitialisedEventArgs(this));
 

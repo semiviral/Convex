@@ -15,7 +15,7 @@ namespace Convex.IRC.Net {
         event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
 
         void Dispose();
-        Task Initialise(string address, int port);
+        Task Initialise(IAddress address);
         Task SendDataAsync(object sender, IrcCommandEventArgs args);
         Task<string> ListenAsync();
     }

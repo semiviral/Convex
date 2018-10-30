@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Convex.Client.Model;
 using Convex.Client.Model.Log.Sinks;
 using Convex.Client.Models.Proxy;
+using Convex.IRC.Net;
 using Convex.Util;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -13,8 +14,7 @@ namespace Convex.Client.Services {
             _ircHubMethodsProxy = ircHubMethodsProxy;
             IrcClientWrapper = new IrcClientWrapper(Program.Config);
 
-            Address = "irc.foonetic.net";
-            Port = 6667;
+            Address = new Address("irc.foonetic.net", 6667);
         }
 
         #region METHODS
@@ -30,8 +30,7 @@ namespace Convex.Client.Services {
         private IIrcHubMethodsProxy _ircHubMethodsProxy;
 
         public IIrcClientWrapper IrcClientWrapper { get; }
-        public string Address { get; }
-        public int Port { get; }
+        public IAddress Address { get; }
 
         #endregion
 
@@ -42,7 +41,7 @@ namespace Convex.Client.Services {
         }
 
         private async Task InitialiseClient() {
-            await IrcClientWrapper.Initialise(Address, Port);
+            await IrcClientWrapper.Initialise(Address.Hostname, Address.Port);
         }
 
         #endregion

@@ -18,7 +18,7 @@ namespace Convex.Client.Model {
 
         #region INIT
 
-        Task Initialise(string address, int port);
+        Task Initialise(IAddress address);
 
         #endregion
 
