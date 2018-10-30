@@ -1,7 +1,7 @@
 ﻿#region usings
 
 using System.Collections.Generic;
-using Convex.IRC.Util;
+using Convex.Util;
 
 #endregion
 

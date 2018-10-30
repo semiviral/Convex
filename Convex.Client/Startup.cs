@@ -33,12 +33,12 @@ namespace Convex.Client {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSignalR();
 
+            services.AddSingleton<IrcHubMethodsProxy>();
+            services.AddSingleton<IIrcHubMethodsProxy>(provider => provider.GetRequiredService<IrcHubMethodsProxy>());
+
             services.AddSingleton<IrcService>();
             services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<IrcService>());
             services.AddSingleton<IIrcService>(provider => provider.GetRequiredService<IrcService>());
-
-            services.AddSingleton<IrcHubMethodsProxy>();
-            services.AddSingleton<IIrcHubMethodsProxy>(provider => provider.GetRequiredService<IrcHubMethodsProxy>());
 
             services.AddSingleton<IrcHubProxy>();
             services.AddSingleton<IIrcHubProxy>(provider => provider.GetRequiredService<IrcHubProxy>());

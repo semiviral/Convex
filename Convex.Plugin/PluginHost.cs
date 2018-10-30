@@ -72,6 +72,8 @@ namespace Convex.Plugin {
             } else {
                 DescriptionRegistry.Add(registrar.UniqueId, registrar.Description);
             }
+
+            StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"Loaded plugin: {registrar.UniqueId}"));
         }
 
         private void AddComposition(IAsyncRegistrar<T> registrar) {

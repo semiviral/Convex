@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC;
 using Convex.IRC.Net;
-using Convex.IRC.Util;
 using Convex.Plugin.Registrar;
+using Convex.Util;
 
 namespace Convex.Client.Model {
     public class IrcClientWrapper : IIrcClientWrapper {

@@ -8,9 +8,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.Net;
-using Convex.IRC.Util;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
+using Convex.Util;
 using Newtonsoft.Json;
 
 #endregion
@@ -251,12 +251,12 @@ namespace Convex.IRC {
         }
 
         private async Task OnInvokedMethod(ServerMessagedEventArgs args) {
-            if (!Wrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
-                return;
-            }
-
             if (!args.Message.Command.Equals(Commands.ALL)) {
                 await Wrapper.Host.CompositionHandlers[Commands.ALL].Invoke(this, args);
+            }
+
+            if (!Wrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
+                return;
             }
 
             await Wrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);

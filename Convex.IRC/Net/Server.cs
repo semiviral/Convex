@@ -3,7 +3,7 @@
 using System;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.Util;
+using Convex.Util;
 
 #endregion
 

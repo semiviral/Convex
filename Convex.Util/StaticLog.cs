@@ -7,7 +7,7 @@ namespace Convex.Util {
         public static void Log(LogEventArgs args) {
             switch (args.Level) {
                 case LogEventLevel.Verbose:
-                    Serilog.Log.Verbose(FormatLogAsOutput(args));
+                    Serilog.Log.Verbose(Format(args));
                     break;
                 case LogEventLevel.Debug:
                     Serilog.Log.Debug(args.Information);
@@ -27,11 +27,11 @@ namespace Convex.Util {
             }
         }
 
-        public static string FormatLogAsOutput(LogEventArgs args) {
+        public static string Format(LogEventArgs args) {
             return $"[{nameof(args.Level).ToUpper()} {GetTime()}] {args.Information}\r\n";
         }
 
-        public static string FormatLogAsOutput(string nickname, string message) {
+        public static string Format(string nickname, string message) {
             return $"[IRC {GetTime()}] <{nickname}> {message}";
         }
 

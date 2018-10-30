@@ -2,9 +2,9 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC.Util;
 using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
+using Convex.Util;
 using NodeNetwork;
 
 namespace Convex.Plugin.Node_Network {

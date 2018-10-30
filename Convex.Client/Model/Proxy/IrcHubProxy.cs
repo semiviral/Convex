@@ -3,23 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Convex.Client.Model.Log.Sinks;
 using Convex.Client.Models.Proxy;
 using Convex.Client.Services;
 using Convex.Event;
 using Convex.IRC.Net;
 using Convex.Util;
-using Serilog;
 
 namespace Convex.Client.Proxy {
     public class IrcHubProxy : IIrcHubProxy {
         public IrcHubProxy(IIrcService ircService, IIrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
             _ircHubMethodsProxy = ircHubMethodsProxy;
-            _ircService.IrcClientWrapper.RegisterMethod(new Plugin.Registrar.MethodRegistrar<ServerMessagedEventArgs>(OnIrcServiceServerMessaged, null, Commands.ALL, null));
-            Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Program.Config.LogFilePath).WriteTo.ServerMessageSink(_ircHubMethodsProxy).CreateLogger();
-
-            _ircService.Initialise();
         }
 
         #region MEMBERS
@@ -41,14 +35,6 @@ namespace Convex.Client.Proxy {
 
         #endregion
 
-        #region REGISTRARS
-
-        private async Task OnIrcServiceServerMessaged(ServerMessagedEventArgs args) {
-            await _ircHubMethodsProxy.BroadcastMessage(FormatServerMessage(args.Message));
-        }
-
-        #endregion
-
         #region CLIENT TO SERVER METHODS
 
         public async Task SendMessage(string rawMessage) {
@@ -56,7 +42,7 @@ namespace Convex.Client.Proxy {
                 return;
             }
 
-            await _ircHubMethodsProxy.BroadcastMessage(StaticLog.FormatLogAsOutput(Program.Config.Nickname, rawMessage));
+            await _ircHubMethodsProxy.BroadcastMessage(StaticLog.Format(Program.Config.Nickname, rawMessage));
             await _ircService.IrcClientWrapper.SendMessageAsync(this, ConvertToCommandArgs(rawMessage));
         }
 
@@ -124,7 +110,7 @@ namespace Convex.Client.Proxy {
         }
 
         private string FormatServerMessage(ServerMessage message) {
-            return StaticLog.FormatLogAsOutput(message.Nickname, message.Args);
+            return StaticLog.Format(message.Nickname, message.Args);
         }
 
         private IrcCommandEventArgs ConvertToCommandArgs(string rawMessage) {
