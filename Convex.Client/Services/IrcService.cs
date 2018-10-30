@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Model;
-using Convex.IRC.Component;
 using Microsoft.Extensions.Hosting;
 
 namespace Convex.Client.Services {

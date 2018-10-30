@@ -10,7 +10,6 @@ using Convex.Event;
 using Convex.IRC.Component;
 using Convex.IRC.Component.Event;
 using Convex.IRC.Component.Reference;
-using Convex.IRC.Dependency;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
 using Newtonsoft.Json;
@@ -52,8 +51,6 @@ namespace Convex.IRC {
             Dispose(true).Wait();
         }
 
-        #endregion
-
         private async Task Dispose(bool dispose) {
             if (!dispose || _disposed) {
                 return;
@@ -65,6 +62,8 @@ namespace Convex.IRC {
 
             _disposed = true;
         }
+
+        #endregion
 
         #region MEMBERS
 
@@ -159,7 +158,7 @@ namespace Convex.IRC {
         private async Task InitialisePluginWrapper() {
             await Wrapper.Initialise();
         }
-        
+
         public void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar) {
             Wrapper.Host.RegisterMethod(methodRegistrar);
         }
@@ -221,28 +220,6 @@ namespace Convex.IRC {
         #endregion
 
         #region METHODS
-
-        //public IEnumerable<User> GetAllUsers() {
-        //    return MainDatabase.Users;
-        //}
-
-        ///// <summary>
-        /////     Gets the user entry by their realname
-        /////     note: will return null if user does not exist
-        ///// </summary>
-        ///// <param name="realname">realname of user</param>
-        //public User GetUser(string realname) {
-        //    return MainDatabase.Users.SingleOrDefault(user => user.Realname.Equals(realname));
-        //}
-
-        ///// <summary>
-        /////     Checks whether a user exists in database already
-        ///// </summary>
-        ///// <param name="userName">name of user</param>
-        ///// <returns></returns>
-        //public bool UserExists(string userName) {
-        //    return MainDatabase.Users.Any(user => user.Realname.Equals(userName));
-        //}
 
         /// <summary>
         ///     Returns a specified command from commands list

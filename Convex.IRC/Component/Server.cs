@@ -1,14 +1,11 @@
 ﻿#region usings
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.Component.Event;
 using Convex.IRC.Component.Net;
 using Convex.IRC.Component.Reference;
-using Convex.IRC.Dependency;
 
 #endregion
 
