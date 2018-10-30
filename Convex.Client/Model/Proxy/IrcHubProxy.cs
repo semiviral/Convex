@@ -14,7 +14,7 @@ namespace Convex.Client.Proxy {
         public IrcHubProxy(IIrcService ircService, IIrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
             _ircHubMethodsProxy = ircHubMethodsProxy;
-            _previouslySent = new SortedList<int, string>();
+            _previouslySentInputs = new SortedList<int, string>();
             _currentSentIndex = 0;
             _hasFirstElement = false;
         }
@@ -23,7 +23,7 @@ namespace Convex.Client.Proxy {
 
         private IIrcService _ircService;
         private IIrcHubMethodsProxy _ircHubMethodsProxy;
-        private SortedList<int, string> _previouslySent;
+        private SortedList<int, string> _previouslySentInputs;
         private int _currentSentIndex;
         private bool _hasFirstElement;
 
@@ -51,12 +51,12 @@ namespace Convex.Client.Proxy {
             int currentMaxIndex = GetMaxPreviouslySentIndex();
 
             if (currentMaxIndex == 0 && !_hasFirstElement) {
-                _previouslySent.Add(currentMaxIndex, rawMessage);
+                _previouslySentInputs.Add(currentMaxIndex, rawMessage);
                 _hasFirstElement = true;
             } else {
                 currentMaxIndex += 1;
 
-                _previouslySent.Add(currentMaxIndex, rawMessage);
+                _previouslySentInputs.Add(currentMaxIndex, rawMessage);
             }
 
             _currentSentIndex = currentMaxIndex + 1;
@@ -119,7 +119,7 @@ namespace Convex.Client.Proxy {
 
                 _currentSentIndex -= 1;
 
-                updatedMessage = _previouslySent[_currentSentIndex];
+                updatedMessage = _previouslySentInputs[_currentSentIndex];
             } else {
                 if (_currentSentIndex + 1 > GetMaxPreviouslySentIndex()) {
                     return;
@@ -127,7 +127,7 @@ namespace Convex.Client.Proxy {
 
                 _currentSentIndex += 1;
 
-                updatedMessage = _previouslySent[_currentSentIndex];
+                updatedMessage = _previouslySentInputs[_currentSentIndex];
             }
 
             await _ircHubMethodsProxy.UpdateMessageInput(connectionId, updatedMessage);
@@ -139,7 +139,7 @@ namespace Convex.Client.Proxy {
         #region METHODS
 
         private int GetMaxPreviouslySentIndex() {
-            return _previouslySent.Keys.Max(key => key as int?) ?? 0;
+            return _previouslySentInputs.Keys.Max(key => key as int?) ?? 0;
         }
 
         private IEnumerable<DateTime> GetDatesBetween(IEnumerable<DateTime> dateList, DateTime startDate, DateTime endDate) {
