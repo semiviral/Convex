@@ -34,5 +34,18 @@ namespace Convex.Client.Models.Proxy {
         public async Task UpdateMessageInput(string connectionId, string updatedInput) {
             await _hubContext.Clients.Client(connectionId).SendAsync("UpdateMessageInput", updatedInput);
         }
+
+        public Task AddChannel(string channelName) {
+            _hubContext.Clients.All.SendAsync("AddChannel", channelName);
+
+            return Task.CompletedTask;
+
+        }
+
+        public Task RemoveChannel(string channelName) {
+            _hubContext.Clients.All.SendAsync("RemoveChannel", channelName);
+
+            return Task.CompletedTask;
+        }
     }
 }
