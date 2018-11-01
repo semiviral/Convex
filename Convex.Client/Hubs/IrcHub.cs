@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Convex.Client.Hubs {
     public class IrcHub : Hub<IIrcHub> {
-        public IrcHub(IIrcHubProxy ircHubProxyService) {
+        public IrcHub(IIrcHubProxy ircHubProxy) {
             _isCanceled = new CancellationToken(false);
-            _ircHubProxyService = ircHubProxyService;
+            _ircHubProxy = ircHubProxy;
         }
 
         #region OVERRIDES
@@ -15,14 +15,14 @@ namespace Convex.Client.Hubs {
         public override async Task OnConnectedAsync() {
             await base.OnConnectedAsync();
 
-            await _ircHubProxyService.BroadcastMessageBatch(Context.ConnectionId, false, 0, 200);
+            await _ircHubProxy.BroadcastMessageBatch(Context.ConnectionId, false, 0, 200);
         }
 
         #endregion
 
         #region MEMBERS
 
-        private readonly IIrcHubProxy _ircHubProxyService;
+        private readonly IIrcHubProxy _ircHubProxy;
         private readonly CancellationToken _isCanceled;
 
         #endregion
@@ -30,7 +30,7 @@ namespace Convex.Client.Hubs {
         #region RELAY METHODS
 
         public async Task SendMessage(string rawMessage) {
-            await _ircHubProxyService.SendMessage(rawMessage);
+            await _ircHubProxy.SendMessage(rawMessage);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Convex.Client.Hubs {
         /// <param name="updatedInput"></param>
         /// <returns></returns>
         public async Task UpdateMessageInput(bool increment) {
-            await _ircHubProxyService.UpdateMessageInput(Context.ConnectionId, increment);
+            await _ircHubProxy.UpdateMessageInput(Context.ConnectionId, increment);
         }
 
         #endregion
