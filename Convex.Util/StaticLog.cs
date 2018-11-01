@@ -3,7 +3,7 @@ using Convex.Event;
 using Serilog.Events;
 
 namespace Convex.Util {
-    public class StaticLog {
+    public static class StaticLog {
         public static void Log(LogEventArgs args) {
             switch (args.Level) {
                 case LogEventLevel.Verbose:
