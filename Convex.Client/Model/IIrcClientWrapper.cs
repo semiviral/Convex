@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.Net;
@@ -11,8 +12,8 @@ namespace Convex.Client.Model {
 
         bool IsInitialised { get; }
 
-        List<Channel> Channels { get; }
-        SortedList<Tuple<int, DateTime>, ServerMessage> Messages { get; }
+        ObservableCollection<Channel> Channels { get; }
+        SortedList<Tuple<int, DateTime, Channel>, ServerMessage> Messages { get; }
 
         #endregion
 

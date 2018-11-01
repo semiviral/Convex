@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
@@ -11,8 +12,8 @@ using Convex.Util;
 namespace Convex.Client.Model {
     public class IrcClientWrapper : IIrcClientWrapper {
         public IrcClientWrapper(IConfiguration config = null) {
-            Channels = new List<Channel>();
-            Messages = new SortedList<Tuple<int, DateTime>, ServerMessage>();
+            Channels = new ObservableCollection<Channel>();
+            Messages = new SortedList<Tuple<int, DateTime, Channel>, ServerMessage>();
             _baseClient = new IrcClient(config);
 
             RegisterMethods();
@@ -22,8 +23,8 @@ namespace Convex.Client.Model {
 
         public bool IsInitialised => _baseClient.IsInitialised;
 
-        public List<Channel> Channels { get; }
-        public SortedList<Tuple<int, DateTime>, ServerMessage> Messages { get; }
+        public ObservableCollection<Channel> Channels { get; }
+        public SortedList<Tuple<int, DateTime, Channel>, ServerMessage> Messages { get; }
 
         private IrcClient _baseClient;
 
@@ -80,7 +81,11 @@ namespace Convex.Client.Model {
         /// The default registrar should be registered first, as it will handle all message types.
         /// </summary>
         private Task Default(ServerMessagedEventArgs args) {
-            Messages.Add(new Tuple<int, DateTime>(GetMaxIndex(), args.Message.Timestamp), args.Message);
+            if (GetChannel(args.Message.Origin) == null) {
+                Channels.Add(new Channel(args.Message.Origin));
+            }
+
+            Messages.Add(new Tuple<int, DateTime, Channel>(GetMaxIndex(), args.Message.Timestamp, GetChannel(args.Message.Origin)), args.Message);
 
             return Task.CompletedTask;
         }
