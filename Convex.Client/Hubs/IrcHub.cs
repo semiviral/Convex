@@ -10,16 +10,6 @@ namespace Convex.Client.Hubs {
             _ircHubProxy = ircHubProxy;
         }
 
-        #region OVERRIDES
-
-        public override async Task OnConnectedAsync() {
-            await base.OnConnectedAsync();
-
-            await _ircHubProxy.BroadcastMessageBatch(Context.ConnectionId, false, 0, 200);
-        }
-
-        #endregion
-
         #region MEMBERS
 
         private readonly IIrcHubProxy _ircHubProxy;
@@ -28,15 +18,13 @@ namespace Convex.Client.Hubs {
         #endregion
 
         #region RELAY METHODS
+        
+        public Task Initialise() {
 
-        public Task UpdateSelectedChannel(string channelName) {
-            _ircHubProxy.UpdateSelectedChannel(channelName);
-
-            return Task.CompletedTask;
         }
 
-        public Task GetMessageBatchByChannel(string channelName, int startIndex, int endIndex) {
-            _ircHubProxy.GetMessageBatchByChannel(Context.ConnectionId, channelName, startIndex, endIndex);
+        public Task RequestBroadcastBatchMessage(string channelName, bool isPrepend, int startIndex, int endIndex) {
+            _ircHubProxy.BroadcastMessageBatch(Context.ConnectionId, isPrepend, channelName, startIndex, endIndex);
 
             return Task.CompletedTask;
         }

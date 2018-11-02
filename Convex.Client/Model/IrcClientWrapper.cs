@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Convex.Client.Model.Collections;
 using Convex.Event;
 using Convex.IRC;
 using Convex.IRC.Net;

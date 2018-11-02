@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Convex.Client.Model.Collections;
 using Convex.Event;
 using Convex.IRC.Net;
 using Convex.Plugin.Registrar;

@@ -22,7 +22,6 @@ namespace Convex.Client.Proxy {
             _previouslySentInputs = new SortedList<int, string>();
             _currentSentIndex = 0;
             _hasFirstElement = false;
-            _selectedChannelName = string.Empty;
         }
 
         #region MEMBERS
@@ -32,7 +31,6 @@ namespace Convex.Client.Proxy {
         private SortedList<int, string> _previouslySentInputs;
         private int _currentSentIndex;
         private bool _hasFirstElement;
-        private string _selectedChannelName;
 
         #endregion
 
@@ -73,16 +71,6 @@ namespace Convex.Client.Proxy {
 
         #region CLIENT TO SERVER METHODS
 
-        public Task UpdateSelectedChannel(string channelName) {
-            _selectedChannelName = channelName;
-
-            return Task.CompletedTask;
-        }
-
-        public async Task GetMessageBatchByChannel(string connectionId, string channelName, int startIndex, int endIndex) {
-            _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, _ircService.IrcClientWrapper.Messages.Select(message => message.Key.ChannelName.Equals(channelName)), false);
-        }
-
         public async Task SendMessage(string rawMessage) {
             if (string.IsNullOrWhiteSpace(rawMessage)) {
                 return;
@@ -113,38 +101,38 @@ namespace Convex.Client.Proxy {
         ///     Broadcasts a batch of messages.
         /// </summary>
         /// <param name="connectionId">Connection ID of client.</param>
-        /// <param name="startIndex">Start index. Cannot be negative.</param>
-        /// <param name="endIndex">Start index. Cannot be negative.</param>
+        /// <param name="startDate">Start index. Cannot be negative.</param>
+        /// <param name="endDate">Start index. Cannot be negative.</param>
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
-        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, DateTime startIndex, DateTime endIndex) {
+        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, DateTime startDate, DateTime endDate) {
             if (_ircService.IrcClientWrapper.Messages.Count <= 0) {
                 return;
             }
 
-            if (startIndex >= endIndex || endIndex <= DateTime.Now) {
+            if (startDate >= endDate || endDate <= DateTime.Now) {
                 return;
             }
-            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.IrcClientWrapper.Messages.Where(kvp => IsDateBetween(kvp.Key.Timestamp, startIndex, endIndex)).Select(kvp => kvp.Value));
+            await BroadcastMessageBatch(connectionId, isPrepend, GetMessagesFromChannel(channelName).Where(kvp => IsDateBetween(kvp.Key.Timestamp, startDate, endDate)).Select(kvp => kvp.Value));
         }
 
-        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex) {
+        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, int startIndex, int length) {
             if (_ircService.IrcClientWrapper.Messages.Count <= 0) {
                 return;
             }
 
-            if (startIndex >= endIndex || endIndex <= 0) {
+            if (startIndex >= length || length <= 0) {
                 return;
             }
 
-            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.IrcClientWrapper.Messages.Where(kvp => IsIntBetween(kvp.Key.Item1, startIndex, endIndex)).Select(kvp => kvp.Value));
+            await BroadcastMessageBatch(connectionId, isPrepend, GetMessagesFromChannel(channelName).Select(message => message.Value).Skip(startIndex).Take(length));
         }
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch) {
             if (isPrepend) {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => FormatServerMessage(message)), true);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(FormatServerMessage), true);
             } else {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(message => FormatServerMessage(message)), false);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(FormatServerMessage), false);
             }
         }
 
@@ -178,16 +166,12 @@ namespace Convex.Client.Proxy {
 
         #region METHODS
 
-        private int GetMaxPreviouslySentIndex() {
-            return _previouslySentInputs.Keys.Max(key => key as int?) ?? 0;
+        private IEnumerable<KeyValuePair<MessagesIndex, ServerMessage>> GetMessagesFromChannel(string channelName) {
+            return _ircService.IrcClientWrapper.Messages.Where(message => message.Key.ChannelName.Equals(channelName));
         }
 
-        private IEnumerable<DateTime> GetDatesBetween(IEnumerable<DateTime> dateList, DateTime startDate, DateTime endDate) {
-            foreach (DateTime date in dateList) {
-                if (IsDateBetween(date, startDate, endDate)) {
-                    yield return date;
-                }
-            }
+        private int GetMaxPreviouslySentIndex() {
+            return _previouslySentInputs.Keys.Max(key => key as int?) ?? 0;
         }
 
         private bool IsDateBetween(DateTime date, DateTime startDate, DateTime endDate) {
