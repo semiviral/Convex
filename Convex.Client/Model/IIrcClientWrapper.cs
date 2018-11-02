@@ -13,7 +13,7 @@ namespace Convex.Client.Model {
         bool IsInitialised { get; }
 
         ObservableCollection<Channel> Channels { get; }
-        SortedList<Tuple<int, DateTime, Channel>, ServerMessage> Messages { get; }
+        SortedList<MessagesIndex, ServerMessage> Messages { get; }
 
         #endregion
 

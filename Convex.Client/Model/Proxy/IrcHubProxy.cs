@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Model;
+using Convex.Client.Model.Collections;
 using Convex.Client.Models.Proxy;
 using Convex.Client.Services;
 using Convex.Event;
@@ -78,6 +79,10 @@ namespace Convex.Client.Proxy {
             return Task.CompletedTask;
         }
 
+        public async Task GetMessageBatchByChannel(string connectionId, string channelName, int startIndex, int endIndex) {
+            _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, _ircService.IrcClientWrapper.Messages.Select(message => message.Key.ChannelName.Equals(channelName)), false);
+        }
+
         public async Task SendMessage(string rawMessage) {
             if (string.IsNullOrWhiteSpace(rawMessage)) {
                 return;
@@ -120,7 +125,7 @@ namespace Convex.Client.Proxy {
             if (startIndex >= endIndex || endIndex <= DateTime.Now) {
                 return;
             }
-            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.IrcClientWrapper.Messages.Where(kvp => IsDateBetween(kvp.Key.Item2, startIndex, endIndex)).Select(kvp => kvp.Value));
+            await BroadcastMessageBatch(connectionId, isPrepend, _ircService.IrcClientWrapper.Messages.Where(kvp => IsDateBetween(kvp.Key.Timestamp, startIndex, endIndex)).Select(kvp => kvp.Value));
         }
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, int startIndex, int endIndex) {

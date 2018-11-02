@@ -13,7 +13,7 @@ namespace Convex.Client.Model {
     public class IrcClientWrapper : IIrcClientWrapper {
         public IrcClientWrapper(IConfiguration config = null) {
             Channels = new ObservableCollection<Channel>();
-            Messages = new SortedList<Tuple<int, DateTime, Channel>, ServerMessage>();
+            Messages = new SortedList<MessagesIndex, ServerMessage>();
             _baseClient = new IrcClient(config);
 
             RegisterMethods();
@@ -24,7 +24,7 @@ namespace Convex.Client.Model {
         public bool IsInitialised => _baseClient.IsInitialised;
 
         public ObservableCollection<Channel> Channels { get; }
-        public SortedList<Tuple<int, DateTime, Channel>, ServerMessage> Messages { get; }
+        public SortedList<MessagesIndex, ServerMessage> Messages { get; }
 
         private IrcClient _baseClient;
 
@@ -53,7 +53,7 @@ namespace Convex.Client.Model {
         }
 
         public int GetMaxIndex() {
-            return Messages.Count <= 0 ? 0 : Messages.Keys.Select(tup => tup.Item1).Max();
+            return Messages.Count <= 0 ? 0 : Messages.Keys.Select(index => index.Index).Max();
         }
 
         public Channel GetChannel(string channelName) {
@@ -85,7 +85,7 @@ namespace Convex.Client.Model {
                 Channels.Add(new Channel(args.Message.Origin));
             }
 
-            Messages.Add(new Tuple<int, DateTime, Channel>(GetMaxIndex(), args.Message.Timestamp, GetChannel(args.Message.Origin)), args.Message);
+            Messages.Add(new MessagesIndex(GetMaxIndex(), args.Message.Timestamp, args.Message.Origin), args.Message);
 
             return Task.CompletedTask;
         }
