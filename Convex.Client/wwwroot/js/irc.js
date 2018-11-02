@@ -5,7 +5,8 @@ window.addEventListener("DOMContentLoaded",
         //#region MEMBERS
 
         var connection = new signalR.HubConnectionBuilder().withUrl("/IrcHub").build();
-        var keyMap = {}
+        var keyMap = {};
+        var selectedChannelName = "";
 
         //#endregion
 
@@ -16,10 +17,9 @@ window.addEventListener("DOMContentLoaded",
             return console.error(err.toString());
         });
 
-        connection.on("ReceiveBroadcastMessage",
-            function (rawMessage) {
-                appendMessage(rawMessage);
-            });
+        connection.on("ReceiveBroadcastMessage", function (rawMessage) {
+            appendMessage(rawMessage);
+        });
 
         connection.on("ReceiveBroadcastMessageBatch", function (rawMessages) {
             rawMessages.forEach(message => { appendMessage(message) });
@@ -31,6 +31,14 @@ window.addEventListener("DOMContentLoaded",
 
         connection.on("UpdateMessageInput", function (updatedInput) {
             document.getElementById("messageInput").value = updatedInput;
+        });
+
+        connection.on("AddChannel", function (channelName) {
+
+        });
+
+        connection.on("RemoveChannel", function (channelName) {
+
         });
 
         //#endregion
@@ -67,10 +75,16 @@ window.addEventListener("DOMContentLoaded",
             }
 
         });
-        
+
         //#endregion
 
-        //#region METHODS
+        //#region CLIENT TO SERVER METHODS
+
+        function getMessageBatchByChannel(channelName, startIndex, endIndex) {
+            connection.invoke("getMessageBatchByChannel").catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
 
         function sendMessage(rawMessage) {
             var rawMessage = document.getElementById("messageInput").value;
@@ -86,16 +100,22 @@ window.addEventListener("DOMContentLoaded",
             });
         }
 
+        //#endregion 
 
+        //#region GENERAL METHODS
 
-        function prependMessage(message) {
+        function prependMessage(channelName, message) {
+            checkCreateChannel(channelName);
+
             var li = document.createElement("li");
             li.textContent = message;
 
             document.getElementById("messageList").insertBefore(li, document.getElementById("messageList").childNodes[0]);
         }
 
-        function appendMessage(message) {
+        function appendMessage(channelName, message) {
+            checkCreateChannel(channelName);
+
             var li = document.createElement("li");
             li.textContent = message;
 
