@@ -80,6 +80,12 @@ window.addEventListener("DOMContentLoaded",
 
         //#region CLIENT TO SERVER METHODS
 
+        function updateSelectedChannel(channelName) {
+            connection.invoke("updateSelectedChannel").catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
+
         function getMessageBatchByChannel(channelName, startIndex, endIndex) {
             connection.invoke("getMessageBatchByChannel").catch(function (err) {
                 return console.error(err.toString());

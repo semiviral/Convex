@@ -29,6 +29,18 @@ namespace Convex.Client.Hubs {
 
         #region RELAY METHODS
 
+        public Task UpdateSelectedChannel(string channelName) {
+            _ircHubProxy.UpdateSelectedChannel(channelName);
+
+            return Task.CompletedTask;
+        }
+
+        public Task GetMessageBatchByChannel(string channelName, int startIndex, int endIndex) {
+            _ircHubProxy.GetMessageBatchByChannel(Context.ConnectionId, channelName, startIndex, endIndex);
+
+            return Task.CompletedTask;
+        }
+
         public async Task SendMessage(string rawMessage) {
             await _ircHubProxy.SendMessage(rawMessage);
         }

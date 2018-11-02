@@ -21,6 +21,7 @@ namespace Convex.Client.Proxy {
             _previouslySentInputs = new SortedList<int, string>();
             _currentSentIndex = 0;
             _hasFirstElement = false;
+            _selectedChannelName = string.Empty;
         }
 
         #region MEMBERS
@@ -30,6 +31,7 @@ namespace Convex.Client.Proxy {
         private SortedList<int, string> _previouslySentInputs;
         private int _currentSentIndex;
         private bool _hasFirstElement;
+        private string _selectedChannelName;
 
         #endregion
 
@@ -69,6 +71,12 @@ namespace Convex.Client.Proxy {
         #endregion
 
         #region CLIENT TO SERVER METHODS
+
+        public Task UpdateSelectedChannel(string channelName) {
+            _selectedChannelName = channelName;
+
+            return Task.CompletedTask;
+        }
 
         public async Task SendMessage(string rawMessage) {
             if (string.IsNullOrWhiteSpace(rawMessage)) {
