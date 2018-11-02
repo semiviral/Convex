@@ -16,9 +16,9 @@ namespace Convex.Client.Model.Collections {
             MessagesIndex objIndex = (MessagesIndex)obj;
 
             if (Index > objIndex.Index) {
-                return 1;
-            } else if (Index < objIndex.Index) {
                 return -1;
+            } else if (Index < objIndex.Index) {
+                return 1;
             } else {
                 return 0;
             }
