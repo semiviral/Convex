@@ -18,15 +18,13 @@ namespace Convex.Client.Hubs {
         #endregion
 
         #region RELAY METHODS
-        
-        public Task Initialise() {
 
+        public async Task Initialise() {
+            await _ircHubProxy.InitialiseIrcHub(Context.ConnectionId);
         }
 
-        public Task RequestBroadcastBatchMessage(string channelName, bool isPrepend, int startIndex, int endIndex) {
-            _ircHubProxy.BroadcastMessageBatch(Context.ConnectionId, isPrepend, channelName, startIndex, endIndex);
-
-            return Task.CompletedTask;
+        public async Task RequestBroadcastMessageBatch(string channelName, bool isPrepend, int startIndex, int endIndex) {
+            await _ircHubProxy.BroadcastMessageBatch(Context.ConnectionId, isPrepend, channelName, startIndex, endIndex);
         }
 
         public async Task SendMessage(string rawMessage) {

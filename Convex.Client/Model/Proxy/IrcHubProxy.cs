@@ -97,6 +97,12 @@ namespace Convex.Client.Proxy {
 
         #region SERVER TO CLIENT METHODS
 
+        public async Task InitialiseIrcHub(string connectionId) {
+            foreach (Channel channel in _ircService.IrcClientWrapper.Channels) {
+                await BroadcastMessageBatch(connectionId, false, channel.Name, 0, 200);
+            }
+        }
+
         /// <summary>
         ///     Broadcasts a batch of messages.
         /// </summary>
@@ -106,6 +112,10 @@ namespace Convex.Client.Proxy {
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, DateTime startDate, DateTime endDate) {
+            if (string.IsNullOrWhiteSpace(channelName)) {
+                return;
+            }
+
             if (_ircService.IrcClientWrapper.Messages.Count <= 0) {
                 return;
             }
@@ -117,6 +127,10 @@ namespace Convex.Client.Proxy {
         }
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, int startIndex, int length) {
+            if (string.IsNullOrWhiteSpace(channelName)) {
+                return;
+            }
+
             if (_ircService.IrcClientWrapper.Messages.Count <= 0) {
                 return;
             }

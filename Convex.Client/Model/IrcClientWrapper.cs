@@ -29,6 +29,8 @@ namespace Convex.Client.Model {
 
         private IrcClient _baseClient;
 
+        private bool firstMessageAdded = false;
+
         #endregion
 
         #region INIT
@@ -86,7 +88,13 @@ namespace Convex.Client.Model {
                 Channels.Add(new Channel(args.Message.Origin));
             }
 
-            Messages.Add(new MessagesIndex(GetMaxIndex(), args.Message.Timestamp, args.Message.Origin), args.Message);
+            if (firstMessageAdded) {
+                Messages.Add(new MessagesIndex(GetMaxIndex() + 1, args.Message.Timestamp, args.Message.Origin), args.Message);
+            } else {
+                firstMessageAdded = true;
+
+                Messages.Add(new MessagesIndex(0, args.Message.Timestamp, args.Message.Origin), args.Message);
+            }
 
             return Task.CompletedTask;
         }

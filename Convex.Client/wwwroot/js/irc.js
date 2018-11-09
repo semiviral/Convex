@@ -33,7 +33,14 @@ window.addEventListener("DOMContentLoaded", function () {
     });
 
     connection.on("AddChannel", function (channelName) {
+        var newChannelText = new document.createElement("p");
+        newChannelText.innerHTML = channelName;
+        newChannelText.style.verticalAlignment = "middle";
+        
+        var newChannel = new document.createElement("div");
+        newChannel.appendChild(newChannelText);
 
+        document.getElementById("#channelsContainer").appendChild(newChannel);
     });
 
     connection.on("RemoveChannel", function (channelName) {
@@ -45,7 +52,9 @@ window.addEventListener("DOMContentLoaded", function () {
     //#region EVENT LISTENERS
 
     document.getElementById("messageList").addEventListener("DOMContentLoaded", function () {
-        connection.invoke("RequestMessageBatch", "", false, 0, 200);
+        connection.invoke("initialise").catch(function (err) {
+            return console.error(err.toString());
+        });
     });
 
     document.getElementById("messageInput").addEventListener("keydown", function (event) {
