@@ -53,10 +53,10 @@ namespace Convex.Client {
                 app.UseHsts();
             }
 
-            app.UseStaticFiles();
+            app.UseFileServer();
             app.UseCookiePolicy();
-            app.UseSignalR(routes => { routes.MapHub<IrcHub>("/IrcHub"); });
             app.UseMvc();
+            app.UseSignalR(routes => routes.MapHub<IrcHub>("/IrcHub"));
         }
     }
 }

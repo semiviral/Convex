@@ -1,7 +1,25 @@
-﻿@page
-
-@{ 
-    Layout = "_Layout";
+﻿@{
+    ViewBag.Title = "Index";
 }
 
-<IrcChat />
+@using Convex.IRC.Net
+@using Convex.Client.Component.Collections
+
+<div class="container">
+    <div id="messageContainer" class="noPushing">
+        <ul id="messageList" class="font ">
+            @foreach (KeyValuePair<MessagesIndex, ServerMessage> message in @Model.Messages) {
+                <li>@message.Value.Formatted</li>
+            }
+        </ul>
+    </div>
+
+    <div id="channelsContainer">
+
+    </div>
+
+    <div class="inputContainer">
+        <span class="font">:></span>
+        <input id="messageInput" class="font nakedInput" type="text" value="@Model.Message" />
+    </div>
+</div>
