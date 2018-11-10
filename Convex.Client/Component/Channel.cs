@@ -5,7 +5,7 @@ using Convex.Util;
 
 #endregion
 
-namespace Convex.Client.Model {
+namespace Convex.Client.Component {
     public class Channel {
         public Channel(string name) {
             Name = name;

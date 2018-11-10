@@ -5,7 +5,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
     var connection = new signalR.HubConnectionBuilder().withUrl("/IrcHub").build();
     var keyMap = {};
-    var selectedChannelName = "";
+    var selectedChannel = "";
 
     //#endregion
 
@@ -16,16 +16,16 @@ window.addEventListener("DOMContentLoaded", function () {
         return console.error(err.toString());
     });
 
-    connection.on("ReceiveBroadcastMessage", function (rawMessage) {
-        appendMessage(rawMessage);
+    connection.on("ReceiveBroadcastMessage", function (message) {
+        appendMessage(message);
     });
 
-    connection.on("ReceiveBroadcastMessageBatch", function (rawMessages) {
-        rawMessages.forEach(message => { appendMessage(message) });
+    connection.on("ReceiveBroadcastMessageBatch", function (message) {
+        message.forEach(message => { appendMessage(message) });
     });
 
-    connection.on("ReceiveBroadcastMessageBatchPrepend", function (rawMessages) {
-        rawMessages.forEach(message => { prependMessage(message) });
+    connection.on("ReceiveBroadcastMessageBatchPrepend", function (message) {
+        message.forEach(message => { prependMessage(message) });
     });
 
     connection.on("UpdateMessageInput", function (updatedInput) {
@@ -33,11 +33,11 @@ window.addEventListener("DOMContentLoaded", function () {
     });
 
     connection.on("AddChannel", function (channelName) {
-        var newChannelText = new document.createElement("p");
+        var newChannelText = document.createElement("p");
         newChannelText.innerHTML = channelName;
         newChannelText.style.verticalAlignment = "middle";
         
-        var newChannel = new document.createElement("div");
+        var newChannel = document.createElement("div");
         newChannel.appendChild(newChannelText);
 
         document.getElementById("#channelsContainer").appendChild(newChannel);
@@ -92,12 +92,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
     //#region CLIENT TO SERVER METHODS
 
-    function updateSelectedChannel(channelName) {
-        connection.invoke("updateSelectedChannel").catch(function (err) {
-            return console.error(err.toString());
-        });
-    }
-
     function getMessageBatchByChannel(channelName, startIndex, endIndex) {
         connection.invoke("getMessageBatchByChannel").catch(function (err) {
             return console.error(err.toString());
@@ -122,18 +116,15 @@ window.addEventListener("DOMContentLoaded", function () {
 
     //#region GENERAL METHODS
 
-    function prependMessage(channelName, message) {
-        checkCreateChannel(channelName);
-
+    function prependMessage(message) {
         var li = document.createElement("li");
-        li.textContent = message;
+        li.textContent = message.RawMessage;
 
         document.getElementById("messageList").insertBefore(li, document.getElementById("messageList").childNodes[0]);
     }
 
-    function appendMessage(channelName, message) {
-        checkCreateChannel(channelName);
-
+    function appendMessage(
+        message) {
         var li = document.createElement("li");
         li.textContent = message;
 

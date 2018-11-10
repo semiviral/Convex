@@ -9,9 +9,10 @@ using Convex.Util;
 #endregion
 
 namespace Convex.IRC.Net {
-    public class ServerMessage : IServerMessage {
-        public ServerMessage(string rawData) {
+    public class ServerMessage {
+        public ServerMessage(string rawData, ref Func<ServerMessage, string> formatter) {
             RawMessage = rawData;
+            _formatter = formatter;
 
             if (rawData.StartsWith("ERROR")) {
                 Command = Commands.ERROR;
@@ -87,12 +88,13 @@ namespace Convex.IRC.Net {
 
         // Regex for parsing RawMessage messages
         private static readonly Regex _MessageRegex = new Regex(@"^:(?<Sender>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)", RegexOptions.Compiled);
-
         private static readonly Regex _SenderRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
+        private readonly Func<ServerMessage, string> _formatter;
 
         public bool IsIrCv3Message { get; private set; }
 
         public string RawMessage { get; }
+        public string Formatted => _formatter.Invoke(this);
 
         public string Nickname { get; private set; }
         public string Realname { get; private set; }

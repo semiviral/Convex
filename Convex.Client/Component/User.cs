@@ -11,7 +11,7 @@ using Convex.Util;
 
 #endregion
 
-namespace Convex.Client.Model {
+namespace Convex.Client.Component {
     public sealed class User : INotifyPropertyChanged {
         public User(string nickname, string realname, int access) {
             Modes = new List<IrcMode>();

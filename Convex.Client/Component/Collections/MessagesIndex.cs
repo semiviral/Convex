@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Convex.Client.Model.Collections {
+namespace Convex.Client.Component.Collections {
     public class MessagesIndex : IComparable<MessagesIndex> {
         public int Index { get; }
         public DateTime Timestamp { get; }
@@ -12,14 +12,14 @@ namespace Convex.Client.Model.Collections {
             ChannelName = channelName;
         }
 
-        public int CompareTo(MessagesIndex mIndex) {
-            if (mIndex == null) {
+        public int CompareTo(MessagesIndex other) {
+            if (other == null) {
                 return 0;
             }
 
-            if (Index > mIndex.Index) {
+            if (Index > other.Index) {
                 return -1;
-            } else if (Index < mIndex.Index) {
+            } else if (Index < other.Index) {
                 return 1;
             }
 

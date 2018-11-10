@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Convex.Client.Model;
-using Convex.Client.Model.Log.Sinks;
+using Convex.Client.Component;
+using Convex.Client.Component.Log.Sinks;
 using Convex.Client.Models.Proxy;
 using Convex.IRC.Net;
 using Convex.Util;
@@ -29,7 +29,7 @@ namespace Convex.Client.Services {
 
         private IIrcHubMethodsProxy _ircHubMethodsProxy;
 
-        public IIrcClientWrapper IrcClientWrapper { get; }
+        public IrcClientWrapper IrcClientWrapper { get; }
         public IAddress Address { get; }
 
         #endregion

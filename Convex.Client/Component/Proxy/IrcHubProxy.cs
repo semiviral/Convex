@@ -4,8 +4,8 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Convex.Client.Model;
-using Convex.Client.Model.Collections;
+using Convex.Client.Component;
+using Convex.Client.Component.Collections;
 using Convex.Client.Models.Proxy;
 using Convex.Client.Services;
 using Convex.Event;
@@ -16,7 +16,6 @@ namespace Convex.Client.Proxy {
     public class IrcHubProxy : IIrcHubProxy {
         public IrcHubProxy(IIrcService ircService, IIrcHubMethodsProxy ircHubMethodsProxy) {
             _ircService = ircService;
-            _ircService.IrcClientWrapper.Channels.CollectionChanged += OnChannelsChanged;
 
             _ircHubMethodsProxy = ircHubMethodsProxy;
             _previouslySentInputs = new SortedList<int, string>();
@@ -42,29 +41,6 @@ namespace Convex.Client.Proxy {
 
         public Task StopAsync(CancellationToken cancellationToken) {
             return Task.CompletedTask;
-        }
-
-        #endregion
-
-        #region EVENTS
-
-        private void OnChannelsChanged(object source, NotifyCollectionChangedEventArgs args) {
-            foreach (Channel channel in args.NewItems) {
-                switch (args.Action) {
-                    case NotifyCollectionChangedAction.Add:
-                        _ircHubMethodsProxy.AddChannel(channel.Name);
-                        break;
-                    case NotifyCollectionChangedAction.Move:
-                        break;
-                    case NotifyCollectionChangedAction.Remove:
-                        _ircHubMethodsProxy.RemoveChannel(channel.Name);
-                        break;
-                    case NotifyCollectionChangedAction.Replace:
-                        break;
-                    case NotifyCollectionChangedAction.Reset:
-                        break;
-                }
-            }
         }
 
         #endregion
@@ -144,9 +120,9 @@ namespace Convex.Client.Proxy {
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch) {
             if (isPrepend) {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(FormatServerMessage), true);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, true);
             } else {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch.Select(FormatServerMessage), false);
+                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, false);
             }
         }
 

@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Convex.Client.Model.Collections;
+using Convex.Client.Component.Collections;
 using Convex.Event;
 using Convex.IRC;
 using Convex.IRC.Net;
 using Convex.Plugin.Registrar;
 using Convex.Util;
 
-namespace Convex.Client.Model {
-    public class IrcClientWrapper : IIrcClientWrapper {
+namespace Convex.Client.Component {
+    public class IrcClientWrapper {
         public IrcClientWrapper(IConfiguration config = null) {
             Channels = new ObservableCollection<Channel>();
             Messages = new SortedList<MessagesIndex, ServerMessage>();
-            _baseClient = new IrcClient(config);
+            _baseClient = new IrcClient(FormatServerMessage, config);
 
             RegisterMethods();
         }
@@ -50,6 +49,10 @@ namespace Convex.Client.Model {
         #endregion
 
         #region METHODS
+
+        private string FormatServerMessage(ServerMessage message) {
+            return StaticLog.Format(message.Origin, message.Args);
+        }
 
         public void RegisterMethod(MethodRegistrar<ServerMessagedEventArgs> args) {
             _baseClient.RegisterMethod(args);

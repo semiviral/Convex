@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convex.Client.Hubs;
+using Convex.IRC.Net;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Convex.Client.Models.Proxy {
@@ -23,7 +24,7 @@ namespace Convex.Client.Models.Proxy {
         /// <param name="endIndex">Start index. Cannot be negative.</param>
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
-        public async Task BroadcastMessageBatch(string connectionId, IEnumerable<string> messageBatch, bool isPrepended) {
+        public async Task BroadcastMessageBatch(string connectionId, IEnumerable<ServerMessage> messageBatch, bool isPrepended) {
             if (isPrepended) {
                 await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveBroadcastMessageBatchPrepend", messageBatch);
             } else {
@@ -33,19 +34,6 @@ namespace Convex.Client.Models.Proxy {
 
         public async Task UpdateMessageInput(string connectionId, string updatedInput) {
             await _hubContext.Clients.Client(connectionId).SendAsync("UpdateMessageInput", updatedInput);
-        }
-
-        public Task AddChannel(string channelName) {
-            _hubContext.Clients.All.SendAsync("AddChannel", channelName);
-
-            return Task.CompletedTask;
-
-        }
-
-        public Task RemoveChannel(string channelName) {
-            _hubContext.Clients.All.SendAsync("RemoveChannel", channelName);
-
-            return Task.CompletedTask;
         }
     }
 }
