@@ -13,7 +13,7 @@ namespace Convex.Client.Models.Proxy {
             _hubContext = hubContext;
         }
 
-        public async Task BroadcastMessage(string message) {
+        public async Task BroadcastMessage(IMessage message) {
             await _hubContext.Clients.All.SendAsync("ReceiveBroadcastMessage", message);
         }
 

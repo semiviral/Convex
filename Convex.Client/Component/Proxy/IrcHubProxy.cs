@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Component;
 using Convex.Client.Component.Collections;
@@ -17,6 +16,7 @@ namespace Convex.Client.Proxy {
         public IrcHubProxy(IIrcService ircService, IIrcHubContext ircHubMethodsProxy) {
             _ircService = ircService;
             _ircService.IrcClientWrapper.Channels.CollectionChanged += ChannelsListChanged;
+            _ircService.IrcClientWrapper.ServerMessaged += 
 
             _ircHubContext = ircHubMethodsProxy;
             _previouslySentInputs = new SortedList<int, string>();
@@ -31,18 +31,6 @@ namespace Convex.Client.Proxy {
         private SortedList<int, string> _previouslySentInputs;
         private int _currentSentIndex;
         private bool _hasFirstElement;
-
-        #endregion
-
-        #region INTERFACE IMPLEMENTATION
-
-        public Task StartAsync(CancellationToken cancellationToken) {
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken) {
-            return Task.CompletedTask;
-        }
 
         #endregion
 
@@ -70,6 +58,10 @@ namespace Convex.Client.Proxy {
                 default:
                     break;
             }
+        }
+
+        private async Task OnServerMessaged(object sender, ServerMessagedEventArgs args) {
+            await _ircHubContext.BroadcastMessage(args.Message);
         }
 
         #endregion
@@ -206,10 +198,6 @@ namespace Convex.Client.Proxy {
 
         private bool IsIntBetween(int value, int int1, int int2) {
             return value >= int1 && value <= int2;
-        }
-
-        private string FormatServerMessage(ServerMessage message) {
-            return StaticLog.Format(message.Nickname, message.Args);
         }
 
         private IrcCommandEventArgs ConvertToCommandArgs(string rawMessage) {

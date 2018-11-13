@@ -5,7 +5,7 @@ using Convex.IRC.Net;
 
 namespace Convex.Client.Models.Proxy {
     public interface IIrcHubContext {
-        Task BroadcastMessage(string message);
+        Task BroadcastMessage(IMessage message);
         Task BroadcastMessageBatch(string connectionId, IEnumerable<IMessage> messageBatch, bool isPrepended);
         Task AddChannel(Channel channel);
         Task RemoveChannel(Channel channel);

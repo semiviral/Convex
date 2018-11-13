@@ -37,7 +37,7 @@ window.addEventListener("DOMContentLoaded", function () {
         var newChannelText = document.createElement("p");
         newChannelText.innerHTML = channelName;
         newChannelText.style.verticalAlignment = "middle";
-        
+
         var newChannel = document.createElement("div");
         newChannel.appendChild(newChannelText);
 
@@ -119,15 +119,14 @@ window.addEventListener("DOMContentLoaded", function () {
 
     function prependMessage(message) {
         var li = document.createElement("li");
-        li.textContent = message.RawMessage;
+        li.textContent = message.Formatted;
 
         document.getElementById("messageList").insertBefore(li, document.getElementById("messageList").childNodes[0]);
     }
 
-    function appendMessage(
-        message) {
+    function appendMessage(message) {
         var li = document.createElement("li");
-        li.textContent = message;
+        li.textContent = message.Formatted;
 
         document.getElementById("messageList").appendChild(li);
         document.getElementById("messageContainer").scrollTop = document.getElementById("messageContainer").scrollHeight;

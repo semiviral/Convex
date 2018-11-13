@@ -32,6 +32,12 @@ namespace Convex.Client.Component {
 
         #endregion
 
+        #region EVENTS
+
+        public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
+
+        #endregion
+
         #region INIT
 
         public async Task Initialise(IAddress address) {
