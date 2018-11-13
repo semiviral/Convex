@@ -11,7 +11,7 @@ namespace Convex.Client.Proxy {
         
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, DateTime startDate, DateTime endDate);
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, int startIndex, int length);
-        Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch);
+        Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<IMessage> messageBatch);
         Task UpdateMessageInput(string connectionId, bool previousMessage);
 
         Task StartAsync(CancellationToken cancellationToken);

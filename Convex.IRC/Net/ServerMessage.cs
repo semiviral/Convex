@@ -9,7 +9,7 @@ using Convex.Util;
 #endregion
 
 namespace Convex.IRC.Net {
-    public class ServerMessage {
+    public class ServerMessage : IMessage {
         public ServerMessage(string rawData, ref Func<ServerMessage, string> formatter) {
             RawMessage = rawData;
             _formatter = formatter;

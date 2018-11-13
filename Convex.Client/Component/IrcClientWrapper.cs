@@ -13,7 +13,7 @@ namespace Convex.Client.Component {
     public class IrcClientWrapper {
         public IrcClientWrapper(IConfiguration config = null) {
             Channels = new ObservableCollection<Channel>();
-            Messages = new SortedList<MessagesIndex, ServerMessage>();
+            Messages = new SortedList<MessagesIndex, IMessage>();
             _client = new IrcClient(FormatServerMessage, config);
 
             RegisterMethods();
@@ -24,7 +24,7 @@ namespace Convex.Client.Component {
         public bool IsInitialised => _client.IsInitialised;
 
         public ObservableCollection<Channel> Channels { get; }
-        public SortedList<MessagesIndex, ServerMessage> Messages { get; }
+        public SortedList<MessagesIndex, IMessage> Messages { get; }
 
         private IrcClient _client;
 

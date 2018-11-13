@@ -147,7 +147,7 @@ namespace Convex.Client.Proxy {
             await BroadcastMessageBatch(connectionId, isPrepend, GetMessagesFromChannel(channelName).Select(message => message.Value).Skip(startIndex).Take(length));
         }
 
-        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch) {
+        public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<IMessage> messageBatch) {
             if (isPrepend) {
                 await _ircHubContext.BroadcastMessageBatch(connectionId, messageBatch, true);
             } else {
@@ -192,7 +192,7 @@ namespace Convex.Client.Proxy {
 
         #region METHODS
 
-        private IEnumerable<KeyValuePair<MessagesIndex, ServerMessage>> GetMessagesFromChannel(string channelName) {
+        private IEnumerable<KeyValuePair<MessagesIndex, IMessage>> GetMessagesFromChannel(string channelName) {
             return _ircService.IrcClientWrapper.Messages.Where(message => message.Key.ChannelName.Equals(channelName));
         }
 

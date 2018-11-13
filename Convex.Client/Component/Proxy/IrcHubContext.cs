@@ -25,7 +25,7 @@ namespace Convex.Client.Models.Proxy {
         /// <param name="endIndex">Start index. Cannot be negative.</param>
         /// <param name="isPrepended">Defines if the batch needs to be sent as a prepend list.</param>
         /// <returns></returns>
-        public async Task BroadcastMessageBatch(string connectionId, IEnumerable<ServerMessage> messageBatch, bool isPrepended) {
+        public async Task BroadcastMessageBatch(string connectionId, IEnumerable<IMessage> messageBatch, bool isPrepended) {
             if (isPrepended) {
                 await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveBroadcastMessageBatchPrepend", messageBatch);
             } else {
