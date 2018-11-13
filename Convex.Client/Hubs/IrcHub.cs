@@ -19,10 +19,6 @@ namespace Convex.Client.Hubs {
 
         #region RELAY METHODS
 
-        public async Task Initialise() {
-            await _ircHubProxy.InitialiseIrcHub(Context.ConnectionId);
-        }
-
         public async Task RequestBroadcastMessageBatch(string channelName, bool isPrepend, int startIndex, int endIndex) {
             await _ircHubProxy.BroadcastMessageBatch(Context.ConnectionId, isPrepend, channelName, startIndex, endIndex);
         }

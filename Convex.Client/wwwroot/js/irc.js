@@ -13,9 +13,6 @@ window.addEventListener("DOMContentLoaded", function () {
     //#region CONNECTION
 
     connection.logging = true;
-    connection.start().catch(function (err) {
-        return console.error(err.toString());
-    });
 
     connection.on("ReceiveBroadcastMessage", function (message) {
         appendMessage(message);
@@ -48,15 +45,13 @@ window.addEventListener("DOMContentLoaded", function () {
 
     });
 
+    connection.start().then(connected).catch(function (err) {
+        return console.error(err.toString());
+    });
+
     //#endregion
 
     //#region EVENT LISTENERS
-
-    document.getElementById("messageList").addEventListener("DOMContentLoaded", function () {
-        connection.invoke("initialise").catch(function (err) {
-            return console.error(err.toString());
-        });
-    });
 
     document.getElementById("messageInput").addEventListener("keydown", function (event) {
         keyMap[event.keyCode] = true;
@@ -94,7 +89,7 @@ window.addEventListener("DOMContentLoaded", function () {
     //#region CLIENT TO SERVER METHODS
 
     function getMessageBatchByChannel(channelName, startIndex, endIndex) {
-        connection.invoke("getMessageBatchByChannel").catch(function (err) {
+        connection.invoke("requestBroadcastMessageBatch", channelName, false, startIndex, endIndex).catch(function (err) {
             return console.error(err.toString());
         });
     }
@@ -116,6 +111,9 @@ window.addEventListener("DOMContentLoaded", function () {
     //#endregion 
 
     //#region GENERAL METHODS
+    function connected() {
+        getMessageBatchByChannel("", 0, 400);
+    }
 
     function prependMessage(message) {
         var li = document.createElement("li");

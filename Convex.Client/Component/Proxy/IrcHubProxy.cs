@@ -16,7 +16,6 @@ namespace Convex.Client.Proxy {
         public IrcHubProxy(IIrcService ircService, IIrcHubContext ircHubMethodsProxy) {
             _ircService = ircService;
             _ircService.IrcClientWrapper.Channels.CollectionChanged += ChannelsListChanged;
-            _ircService.IrcClientWrapper.ServerMessaged += 
 
             _ircHubContext = ircHubMethodsProxy;
             _previouslySentInputs = new SortedList<int, string>();
@@ -60,10 +59,6 @@ namespace Convex.Client.Proxy {
             }
         }
 
-        private async Task OnServerMessaged(object sender, ServerMessagedEventArgs args) {
-            await _ircHubContext.BroadcastMessage(args.Message);
-        }
-
         #endregion
 
         #region CLIENT TO SERVER METHODS
@@ -86,19 +81,13 @@ namespace Convex.Client.Proxy {
 
             _currentSentIndex = currentMaxIndex + 1;
 
-            await _ircHubContext.BroadcastMessage(StaticLog.Format(Program.Config.Nickname, rawMessage));
+            await _ircHubContext.BroadcastMessage(new Message(rawMessage, Program.Config.Nickname, Program.Config.Nickname));
             await _ircService.IrcClientWrapper.SendMessageAsync(this, ConvertToCommandArgs(rawMessage));
         }
 
         #endregion
 
         #region SERVER TO CLIENT METHODS
-
-        public async Task InitialiseIrcHub(string connectionId) {
-            foreach (Channel channel in _ircService.IrcClientWrapper.Channels) {
-                await BroadcastMessageBatch(connectionId, false, channel.Name, 0, 200);
-            }
-        }
 
         /// <summary>
         ///     Broadcasts a batch of messages.
@@ -124,10 +113,6 @@ namespace Convex.Client.Proxy {
         }
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, int startIndex, int length) {
-            if (string.IsNullOrWhiteSpace(channelName)) {
-                return;
-            }
-
             if (_ircService.IrcClientWrapper.Messages.Count <= 0) {
                 return;
             }
@@ -136,7 +121,11 @@ namespace Convex.Client.Proxy {
                 return;
             }
 
-            await BroadcastMessageBatch(connectionId, isPrepend, GetMessagesFromChannel(channelName).Select(message => message.Value).Skip(startIndex).Take(length));
+            if (string.IsNullOrWhiteSpace(channelName)) {
+                await BroadcastMessageBatch(connectionId, isPrepend, _ircService.IrcClientWrapper.Messages.Select(kvp => kvp.Value).Skip(startIndex).Take(length));
+            } else {
+                await BroadcastMessageBatch(connectionId, isPrepend, GetMessagesFromChannel(channelName).Select(message => message.Value).Skip(startIndex).Take(length));
+            }
         }
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<IMessage> messageBatch) {

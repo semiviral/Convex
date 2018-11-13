@@ -52,7 +52,8 @@ namespace Convex.Client.Services {
             Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Program.Config.LogFilePath).WriteTo.ServerMessageSink(_ircHubMethodsProxy).CreateLogger();
 
             IrcClientWrapper.RegisterMethod(new Plugin.Registrar.MethodRegistrar<Event.ServerMessagedEventArgs>((args) => {
-                _ircHubMethodsProxy.BroadcastMessage(StaticLog.Format(args.Message.Nickname, args.Message.Args));
+                _ircHubMethodsProxy.BroadcastMessage(args.Message);
+
                 return Task.CompletedTask;
             }, null, Commands.ALL, null));
 

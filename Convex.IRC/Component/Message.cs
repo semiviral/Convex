@@ -5,22 +5,26 @@ namespace Convex.Client.Component {
     public class Message : IMessage {
         public Message(string rawData) {
             Timestamp = DateTime.UtcNow;
-            RawMessage = rawData;
+            RawMessage = Formatted = rawData;
             Origin = Nickname = "System";
         }
 
+        public Message(string rawData, string origin = "System", string nickname = "System") : this(rawData) {
+            Origin = origin;
+            Nickname = nickname;
+        }
 
-        public Message(string rawData, ref Func<IMessage, string> formatter) : this(rawData) {
+        public Message(string rawData, ref Func<IMessage, string> formatter, string origin = "System", string nickname = "System") : this(rawData, origin, nickname) {
             Formatted = formatter.Invoke(this);
         }
 
         #region MEMBERS
 
-        public DateTime Timestamp { get; }
-        public string RawMessage { get; }
-        public string Formatted { get; }
-        public string Origin { get; }
-        public string Nickname { get; }
+        public DateTime Timestamp { get; protected set; }
+        public string RawMessage { get; protected set; }
+        public string Formatted { get; protected set; }
+        public string Origin { get; protected set; }
+        public string Nickname { get; protected set; }
 
         #endregion
     }

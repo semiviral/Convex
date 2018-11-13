@@ -32,12 +32,6 @@ namespace Convex.Client.Component {
 
         #endregion
 
-        #region EVENTS
-
-        public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
-
-        #endregion
-
         #region INIT
 
         public async Task Initialise(IAddress address) {
@@ -56,8 +50,12 @@ namespace Convex.Client.Component {
 
         #region METHODS
 
-        private string FormatServerMessage(ServerMessage message) {
-            return StaticLog.Format(message.Origin, message.Args);
+        private string FormatServerMessage(IMessage message) {
+            if (!(message is ServerMessage castMessage)) {
+                return message.RawMessage;
+            }
+
+            return StaticLog.Format(castMessage.Origin, castMessage.Args);
         }
 
         public void RegisterMethod(MethodRegistrar<ServerMessagedEventArgs> args) {
@@ -98,11 +96,11 @@ namespace Convex.Client.Component {
             }
 
             if (firstMessageAdded) {
-                Messages.Add(new MessagesIndex(GetMaxIndex() + 1, args.Message.Timestamp, args.Message.Origin), args.Message);
+                Messages.Add(new MessagesIndex(GetMaxIndex() + 1, args.Message.Timestamp, args.Message.Origin, true), args.Message);
             } else {
                 firstMessageAdded = true;
 
-                Messages.Add(new MessagesIndex(0, args.Message.Timestamp, args.Message.Origin), args.Message);
+                Messages.Add(new MessagesIndex(0, args.Message.Timestamp, args.Message.Origin, true), args.Message);
             }
 
             return Task.CompletedTask;
