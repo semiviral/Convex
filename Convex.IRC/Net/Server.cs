@@ -9,7 +9,7 @@ using Convex.Util;
 
 namespace Convex.IRC.Net {
     public class Server : IDisposable, IServer {
-        public Server(Func<ServerMessage, string> formatter) {
+        public Server(Func<IMessage, string> formatter) {
             Connection = new Connection();
             _formatter = formatter;
         }
@@ -49,7 +49,7 @@ namespace Convex.IRC.Net {
 
         #region MEMBERS
 
-        private Func<ServerMessage, string> _formatter;
+        private Func<IMessage, string> _formatter;
 
         public IConnection Connection { get; }
         public bool Identified { get; set; }

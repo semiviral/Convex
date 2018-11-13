@@ -1,31 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Convex.IRC.Net;
 
 namespace Convex.Client.Component {
     public class Message : IMessage {
-        public Message(string rawData, ref Func<ServerMessage, string> formatter) {
+        public Message(string rawData) {
+            Timestamp = DateTime.UtcNow;
             RawMessage = rawData;
-            Formatted = formatter.Invoke(this);
-
-            if (rawData.StartsWith("ERROR")) {
-                Command = Commands.ERROR;
-                Args = rawData.Substring(rawData.IndexOf(' ') + 1);
-                return;
-            }
-
-            Parse();
+            Origin = Nickname = "System";
         }
-        public string Formatted => throw new NotImplementedException();
 
-        public string Nickname => throw new NotImplementedException();
 
-        public string Origin => throw new NotImplementedException();
+        public Message(string rawData, ref Func<IMessage, string> formatter) : this(rawData) {
+            Formatted = formatter.Invoke(this);
+        }
 
+        #region MEMBERS
+
+        public DateTime Timestamp { get; }
         public string RawMessage { get; }
+        public string Formatted { get; }
+        public string Origin { get; }
+        public string Nickname { get; }
 
-        public DateTime Timestamp => throw new NotImplementedException();
+        #endregion
     }
 }

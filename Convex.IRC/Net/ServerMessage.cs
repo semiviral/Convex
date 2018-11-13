@@ -11,10 +11,7 @@ using Convex.Util;
 
 namespace Convex.IRC.Net {
     public class ServerMessage : Message {
-        public ServerMessage(string rawData, ref Func<ServerMessage, string> formatter) {
-            RawMessage = rawData;
-            Formatted = formatter.Invoke(this);
-
+        public ServerMessage(string rawData, ref Func<IMessage, string> formatter) : base(rawData, ref formatter) {
             if (rawData.StartsWith("ERROR")) {
                 Command = Commands.ERROR;
                 Args = rawData.Substring(rawData.IndexOf(' ') + 1);
