@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Convex.Client.Component.Collections;
@@ -15,6 +16,7 @@ namespace Convex.Client.Component {
             Channels = new ObservableCollection<Channel>();
             Messages = new SortedList<MessagesIndex, IMessage>();
             _client = new IrcClient(FormatServerMessage, config);
+            firstMessageAdded = false;
 
             RegisterMethods();
         }
@@ -28,7 +30,7 @@ namespace Convex.Client.Component {
 
         private IrcClient _client;
 
-        private bool firstMessageAdded = false;
+        private bool firstMessageAdded;
 
         #endregion
 
@@ -50,12 +52,8 @@ namespace Convex.Client.Component {
 
         #region METHODS
 
-        private string FormatServerMessage(IMessage message) {
-            if (!(message is ServerMessage castMessage)) {
-                return message.RawMessage;
-            }
-
-            return StaticLog.Format(castMessage.Origin, castMessage.Args);
+        private string FormatServerMessage(ServerMessage message) {
+            return StaticLog.Format(message.Nickname, message.Args);
         }
 
         public void RegisterMethod(MethodRegistrar<ServerMessagedEventArgs> args) {
@@ -91,6 +89,10 @@ namespace Convex.Client.Component {
         /// The default registrar should be registered first, as it will handle all message types.
         /// </summary>
         private Task Default(ServerMessagedEventArgs args) {
+#if DEBUG
+            Debug.WriteLine(args.Message.RawMessage);
+#endif
+
             if (GetChannel(args.Message.Origin) == null) {
                 Channels.Add(new Channel(args.Message.Origin));
             }

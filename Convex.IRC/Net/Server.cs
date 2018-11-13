@@ -9,7 +9,7 @@ using Convex.Util;
 
 namespace Convex.IRC.Net {
     public class Server : IDisposable, IServer {
-        public Server(Func<IMessage, string> formatter) {
+        public Server(Func<ServerMessage, string> formatter) {
             Connection = new Connection();
             _formatter = formatter;
         }
@@ -42,14 +42,14 @@ namespace Convex.IRC.Net {
                 return;
             }
 
-            await OnChannelMessaged(this, new ServerMessagedEventArgs(caller, new ServerMessage(rawData, ref _formatter)));
+            await OnChannelMessaged(this, new ServerMessagedEventArgs(caller, new ServerMessage(rawData, _formatter)));
         }
 
         #endregion
 
         #region MEMBERS
 
-        private Func<IMessage, string> _formatter;
+        private Func<ServerMessage, string> _formatter;
 
         public IConnection Connection { get; }
         public bool Identified { get; set; }

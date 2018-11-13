@@ -14,10 +14,6 @@ namespace Convex.Client.Component {
             Nickname = nickname;
         }
 
-        public Message(string rawData, ref Func<IMessage, string> formatter, string origin = "System", string nickname = "System") : this(rawData, origin, nickname) {
-            Formatted = formatter.Invoke(this);
-        }
-
         #region MEMBERS
 
         public DateTime Timestamp { get; protected set; }

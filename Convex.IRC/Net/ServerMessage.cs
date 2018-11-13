@@ -11,7 +11,7 @@ using Convex.Util;
 
 namespace Convex.IRC.Net {
     public class ServerMessage : Message {
-        public ServerMessage(string rawData, ref Func<IMessage, string> formatter) : base(rawData, ref formatter) {
+        public ServerMessage(string rawData, Func<ServerMessage, string> formatter) : base(rawData) {
             if (rawData.StartsWith("ERROR")) {
                 Command = Commands.ERROR;
                 Args = rawData.Substring(rawData.IndexOf(' ') + 1);
@@ -19,6 +19,8 @@ namespace Convex.IRC.Net {
             }
 
             Parse();
+
+            Formatted = formatter.Invoke(this);
         }
 
         #region METHODS
@@ -89,13 +91,13 @@ namespace Convex.IRC.Net {
         private static readonly Regex _SenderRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
 
         public bool IsIrCv3Message { get; private set; }
-        
+
         public string Realname { get; private set; }
         public string Hostname { get; private set; }
         public string Command { get; private set; }
         public string Args { get; private set; }
         public List<string> SplitArgs { get; private set; }
-        
+
         public string InputCommand { get; set; } = string.Empty;
 
         public readonly Dictionary<string, string> Tags = new Dictionary<string, string>();

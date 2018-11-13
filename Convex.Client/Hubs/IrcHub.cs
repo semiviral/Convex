@@ -10,6 +10,12 @@ namespace Convex.Client.Hubs {
             _ircHubProxy = ircHubProxy;
         }
 
+        public override async Task OnConnectedAsync() {
+            await base.OnConnectedAsync();
+
+            await RequestBroadcastMessageBatch(string.Empty, false, 0, 400);
+        }
+
         #region MEMBERS
 
         private readonly IIrcHubProxy _ircHubProxy;

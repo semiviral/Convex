@@ -38,14 +38,14 @@ window.addEventListener("DOMContentLoaded", function () {
         var newChannel = document.createElement("div");
         newChannel.appendChild(newChannelText);
 
-        document.getElementById("#channelsContainer").appendChild(newChannel);
+        document.getElementById("channelsContainer").appendChild(newChannel);
     });
 
     connection.on("RemoveChannel", function (channelName) {
 
     });
 
-    connection.start().then(connected).catch(function (err) {
+    connection.start().catch(function (err) {
         return console.error(err.toString());
     });
 
@@ -111,9 +111,6 @@ window.addEventListener("DOMContentLoaded", function () {
     //#endregion 
 
     //#region GENERAL METHODS
-    function connected() {
-        getMessageBatchByChannel("", 0, 400);
-    }
 
     function prependMessage(message) {
         var li = document.createElement("li");
@@ -124,7 +121,9 @@ window.addEventListener("DOMContentLoaded", function () {
 
     function appendMessage(message) {
         var li = document.createElement("li");
-        li.textContent = message.Formatted;
+        li.textContent = message["formatted"];
+        console.log(message);
+        console.log(message["formatted"]);
 
         document.getElementById("messageList").appendChild(li);
         document.getElementById("messageContainer").scrollTop = document.getElementById("messageContainer").scrollHeight;

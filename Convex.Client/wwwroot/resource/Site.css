@@ -63,6 +63,16 @@ body {
 
 /*#endregion*/
 
+/*#region CHANNEL CONTAINER*/
+
+#channelContainer {
+    display: flex;
+    padding: 0;
+    width: 100%;
+}
+
+/*#endregion*/
+
 /*#region INPUT CONTAINER*/
 
 .inputContainer {
