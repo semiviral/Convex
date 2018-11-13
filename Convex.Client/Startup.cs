@@ -26,15 +26,15 @@ namespace Convex.Client {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.Configure<CookiePolicyOptions>(options => {
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = httpContext => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSignalR();
 
-            services.AddSingleton<IrcHubMethodsProxy>();
-            services.AddSingleton<IIrcHubMethodsProxy>(provider => provider.GetRequiredService<IrcHubMethodsProxy>());
+            services.AddSingleton<IrcHubContext>();
+            services.AddSingleton<IIrcHubMethodsProxy>(provider => provider.GetRequiredService<IrcHubContext>());
 
             services.AddSingleton<IrcService>();
             services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<IrcService>());
@@ -55,7 +55,7 @@ namespace Convex.Client {
 
             app.UseFileServer();
             app.UseCookiePolicy();
-            app.UseMvc();
+            app.UseMvc(routes => routes.MapRoute("default", "{controller=Home}/{action=Index}/"));
             app.UseSignalR(routes => routes.MapHub<IrcHub>("/IrcHub"));
         }
     }

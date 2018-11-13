@@ -5,10 +5,10 @@ using Convex.IRC.Net;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Convex.Client.Models.Proxy {
-    public class IrcHubMethodsProxy : IIrcHubMethodsProxy {
+    public class IrcHubContext : IIrcHubContext {
         private IHubContext<IrcHub> _hubContext;
 
-        public IrcHubMethodsProxy(IHubContext<IrcHub> hubContext) {
+        public IrcHubContext(IHubContext<IrcHub> hubContext) {
             _hubContext = hubContext;
         }
 

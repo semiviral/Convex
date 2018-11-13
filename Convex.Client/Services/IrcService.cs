@@ -10,7 +10,7 @@ using Serilog;
 
 namespace Convex.Client.Services {
     public class IrcService : IHostedService, IIrcService {
-        public IrcService(IIrcHubMethodsProxy ircHubMethodsProxy) {
+        public IrcService(IIrcHubContext ircHubMethodsProxy) {
             _ircHubMethodsProxy = ircHubMethodsProxy;
             IrcClientWrapper = new IrcClientWrapper(Program.Config);
 
@@ -27,7 +27,7 @@ namespace Convex.Client.Services {
 
         #region MEMBERS
 
-        private IIrcHubMethodsProxy _ircHubMethodsProxy;
+        private IIrcHubContext _ircHubMethodsProxy;
 
         public IrcClientWrapper IrcClientWrapper { get; }
         public IAddress Address { get; }
