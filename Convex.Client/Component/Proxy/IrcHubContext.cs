@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Convex.Client.Component;
 using Convex.Client.Hubs;
 using Convex.IRC.Net;
 using Microsoft.AspNetCore.SignalR;
@@ -30,6 +31,15 @@ namespace Convex.Client.Models.Proxy {
             } else {
                 await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveBroadcastMessageBatch", messageBatch);
             }
+        }
+
+        public async Task AddChannel(Channel channel) {
+            await _hubContext.Clients.All.SendAsync("AddChannel", channel);
+        }
+
+        public async Task RemoveChannel(Channel channel) {
+            await _hubContext.Clients.All.SendAsync("RemoveChannel", channel);
+
         }
 
         public async Task UpdateMessageInput(string connectionId, string updatedInput) {

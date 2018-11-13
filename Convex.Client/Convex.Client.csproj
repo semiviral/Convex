@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Component\Proxy\IrcHubProxy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BlazorSignalR" Version="0.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.0.4" />

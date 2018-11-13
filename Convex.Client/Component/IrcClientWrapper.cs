@@ -14,19 +14,19 @@ namespace Convex.Client.Component {
         public IrcClientWrapper(IConfiguration config = null) {
             Channels = new ObservableCollection<Channel>();
             Messages = new SortedList<MessagesIndex, ServerMessage>();
-            _baseClient = new IrcClient(FormatServerMessage, config);
+            _client = new IrcClient(FormatServerMessage, config);
 
             RegisterMethods();
         }
 
         #region MEMBERS
 
-        public bool IsInitialised => _baseClient.IsInitialised;
+        public bool IsInitialised => _client.IsInitialised;
 
         public ObservableCollection<Channel> Channels { get; }
         public SortedList<MessagesIndex, ServerMessage> Messages { get; }
 
-        private IrcClient _baseClient;
+        private IrcClient _client;
 
         private bool firstMessageAdded = false;
 
@@ -35,7 +35,7 @@ namespace Convex.Client.Component {
         #region INIT
 
         public async Task Initialise(IAddress address) {
-            await _baseClient.Initialise(address);
+            await _client.Initialise(address);
         }
 
         #endregion
@@ -43,7 +43,7 @@ namespace Convex.Client.Component {
         #region RUNTIME
 
         public async Task BeginListenAsync() {
-            await _baseClient.BeginListenAsync();
+            await _client.BeginListenAsync();
         }
 
         #endregion
@@ -55,7 +55,7 @@ namespace Convex.Client.Component {
         }
 
         public void RegisterMethod(MethodRegistrar<ServerMessagedEventArgs> args) {
-            _baseClient.RegisterMethod(args);
+            _client.RegisterMethod(args);
         }
 
         public int GetMaxIndex() {
@@ -67,7 +67,7 @@ namespace Convex.Client.Component {
         }
 
         public async Task SendMessageAsync(object sender, IrcCommandEventArgs args) {
-            await _baseClient.Server.Connection.SendDataAsync(sender, args);
+            await _client.Server.Connection.SendDataAsync(sender, args);
         }
 
         #endregion
@@ -159,7 +159,7 @@ namespace Convex.Client.Component {
         #region INTERFACE IMPLEMENTATION
 
         public void Dispose() {
-            _baseClient.Dispose();
+            _client.Dispose();
         }
 
         #endregion

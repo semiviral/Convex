@@ -14,10 +14,11 @@ using Convex.Util;
 
 namespace Convex.Client.Proxy {
     public class IrcHubProxy : IIrcHubProxy {
-        public IrcHubProxy(IIrcService ircService, IIrcHubMethodsProxy ircHubMethodsProxy) {
+        public IrcHubProxy(IIrcService ircService, IIrcHubContext ircHubMethodsProxy) {
             _ircService = ircService;
+            _ircService.IrcClientWrapper.Channels.CollectionChanged += ChannelsListChanged;
 
-            _ircHubMethodsProxy = ircHubMethodsProxy;
+            _ircHubContext = ircHubMethodsProxy;
             _previouslySentInputs = new SortedList<int, string>();
             _currentSentIndex = 0;
             _hasFirstElement = false;
@@ -26,7 +27,7 @@ namespace Convex.Client.Proxy {
         #region MEMBERS
 
         private IIrcService _ircService;
-        private IIrcHubMethodsProxy _ircHubMethodsProxy;
+        private IIrcHubContext _ircHubContext;
         private SortedList<int, string> _previouslySentInputs;
         private int _currentSentIndex;
         private bool _hasFirstElement;
@@ -41,6 +42,34 @@ namespace Convex.Client.Proxy {
 
         public Task StopAsync(CancellationToken cancellationToken) {
             return Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region EVENTS
+
+        private void ChannelsListChanged(object sender, NotifyCollectionChangedEventArgs args) {
+            switch (args.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (Channel channel in args.NewItems) {
+                        AddChannel(channel).ConfigureAwait(false);
+                    }
+
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (Channel channel in args.NewItems) {
+                        RemoveChannel(channel).ConfigureAwait(false);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    break;
+                default:
+                    break;
+            }
         }
 
         #endregion
@@ -65,7 +94,7 @@ namespace Convex.Client.Proxy {
 
             _currentSentIndex = currentMaxIndex + 1;
 
-            await _ircHubMethodsProxy.BroadcastMessage(StaticLog.Format(Program.Config.Nickname, rawMessage));
+            await _ircHubContext.BroadcastMessage(StaticLog.Format(Program.Config.Nickname, rawMessage));
             await _ircService.IrcClientWrapper.SendMessageAsync(this, ConvertToCommandArgs(rawMessage));
         }
 
@@ -120,12 +149,19 @@ namespace Convex.Client.Proxy {
 
         public async Task BroadcastMessageBatch(string connectionId, bool isPrepend, IEnumerable<ServerMessage> messageBatch) {
             if (isPrepend) {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, true);
+                await _ircHubContext.BroadcastMessageBatch(connectionId, messageBatch, true);
             } else {
-                await _ircHubMethodsProxy.BroadcastMessageBatch(connectionId, messageBatch, false);
+                await _ircHubContext.BroadcastMessageBatch(connectionId, messageBatch, false);
             }
         }
 
+        private async Task AddChannel(Channel channel) {
+            await _ircHubContext.AddChannel(channel);
+        }
+
+        public async Task RemoveChannel(Channel channel) {
+            await _ircHubContext.RemoveChannel(channel);
+        }
 
         public async Task UpdateMessageInput(string connectionId, bool previousMessage) {
             string updatedMessage = string.Empty;
@@ -148,7 +184,7 @@ namespace Convex.Client.Proxy {
                 updatedMessage = _previouslySentInputs[_currentSentIndex];
             }
 
-            await _ircHubMethodsProxy.UpdateMessageInput(connectionId, updatedMessage);
+            await _ircHubContext.UpdateMessageInput(connectionId, updatedMessage);
         }
 
 

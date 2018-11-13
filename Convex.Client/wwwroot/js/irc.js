@@ -6,6 +6,7 @@ window.addEventListener("DOMContentLoaded", function () {
     var connection = new signalR.HubConnectionBuilder().withUrl("/IrcHub").build();
     var keyMap = {};
     var selectedChannel = "";
+    var channels = {}
 
     //#endregion
 
