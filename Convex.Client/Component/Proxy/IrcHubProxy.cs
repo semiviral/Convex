@@ -63,6 +63,10 @@ namespace Convex.Client.Proxy {
 
         #region CLIENT TO SERVER METHODS
 
+        public async Task RequestBroadcastChannels(string connectionId) {
+            await _ircHubContext.BroadcastChannels(connectionId, _ircService.IrcClientWrapper.Channels);
+        }
+
         public async Task SendMessage(string rawMessage) {
             if (string.IsNullOrWhiteSpace(rawMessage)) {
                 return;

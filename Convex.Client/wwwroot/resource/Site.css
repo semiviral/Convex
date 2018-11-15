@@ -71,6 +71,10 @@ body {
     width: 100%;
 }
 
+    #channelContainer > ul > li {
+        padding: 0.25em 0.5em;
+    }
+
 /*#endregion*/
 
 /*#region INPUT CONTAINER*/

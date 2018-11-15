@@ -33,6 +33,10 @@ namespace Convex.Client.Models.Proxy {
             }
         }
 
+        public async Task BroadcastChannels(string connectionId, IEnumerable<Channel> channels) {
+            await _hubContext.Clients.Client(connectionId).SendAsync("BroadcastChannels", channels);
+        }
+
         public async Task AddChannel(Channel channel) {
             await _hubContext.Clients.All.SendAsync("AddChannel", channel);
         }

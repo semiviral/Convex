@@ -13,6 +13,7 @@ namespace Convex.Client.Hubs {
         public override async Task OnConnectedAsync() {
             await base.OnConnectedAsync();
 
+            await RequestBroadcastChannels();
             await RequestBroadcastMessageBatch(string.Empty, false, 0, 400);
         }
 
@@ -27,6 +28,10 @@ namespace Convex.Client.Hubs {
 
         public async Task RequestBroadcastMessageBatch(string channelName, bool isPrepend, int startIndex, int endIndex) {
             await _ircHubProxy.BroadcastMessageBatch(Context.ConnectionId, isPrepend, channelName, startIndex, endIndex);
+        }
+
+        public async Task RequestBroadcastChannels() {
+            await _ircHubProxy.RequestBroadcastChannels(Context.ConnectionId);
         }
 
         public async Task SendMessage(string rawMessage) {

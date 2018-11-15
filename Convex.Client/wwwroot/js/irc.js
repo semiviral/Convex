@@ -30,15 +30,12 @@ window.addEventListener("DOMContentLoaded", function () {
         document.getElementById("messageInput").value = updatedInput;
     });
 
-    connection.on("AddChannel", function (channelName) {
-        var newChannelText = document.createElement("p");
-        newChannelText.innerHTML = channelName;
-        newChannelText.style.verticalAlignment = "middle";
+    connection.on("BroadcastChannels", function (channels) {
+        channels.forEach(channel => { addChannel(channel) });
+    });
 
-        var newChannel = document.createElement("div");
-        newChannel.appendChild(newChannelText);
-
-        document.getElementById("channelsContainer").appendChild(newChannel);
+    connection.on("AddChannel", function (channel) {
+        addChannel(channel);
     });
 
     connection.on("RemoveChannel", function (channelName) {
@@ -112,6 +109,15 @@ window.addEventListener("DOMContentLoaded", function () {
 
     //#region GENERAL METHODS
 
+    function addChannel(channel) {
+        var newChannel = document.createElement("li");
+        newChannel.innerHTML = channel["name"];
+
+        console.log(channel);
+
+        document.getElementById("channelList").appendChild(newChannel);
+    }
+
     function prependMessage(message) {
         var li = document.createElement("li");
         li.textContent = message.Formatted;
@@ -120,10 +126,10 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     function appendMessage(message) {
+        console.log(message["origin"]);
+
         var li = document.createElement("li");
         li.textContent = message["formatted"];
-        console.log(message);
-        console.log(message["formatted"]);
 
         document.getElementById("messageList").appendChild(li);
         document.getElementById("messageContainer").scrollTop = document.getElementById("messageContainer").scrollHeight;
