@@ -63,7 +63,7 @@ namespace Convex.IRC.Net {
             Command = mVal.Groups["Type"].Value;
             Origin = mVal.Groups["Recipient"].Value.StartsWith(":") ? mVal.Groups["Recipient"].Value.Substring(1) : mVal.Groups["Recipient"].Value;
 
-            Args = mVal.Groups["Args"].Value.DeliminateSpaces();
+            Args = mVal.Groups["Args"].Value;
 
             // splits the first 5 sections of the message for parsing
             SplitArgs = Args.Split(new[] { ' ' }, 4).Select(arg => arg.Trim()).ToList();
@@ -91,7 +91,7 @@ namespace Convex.IRC.Net {
         private static readonly Regex _SenderRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
         private readonly Func<ServerMessage, string> _formatter;
 
-        new public string Formatted => _formatter.Invoke(this);
+        public new string Formatted => _formatter.Invoke(this);
 
         public bool IsIrCv3Message { get; private set; }
 

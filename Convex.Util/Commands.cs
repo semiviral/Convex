@@ -306,7 +306,7 @@ namespace Convex.Util {
         /// <summary>
         ///     ( "=" / "*" / "@" ) [channel] :[ "@" / "+" ] [nick] *( " " [ "@" / "+" ] [nick] )
         /// </summary>
-        public const string RPL_NAMESREPLY = "353";
+        public const string RPL_NAMES = "353";
 
         /// <summary>
         ///     [mask] [server] :[hopcount] [serverinfo]

@@ -61,17 +61,16 @@ namespace Convex.Client.Component {
             return true;
         }
 
-        private void ParseMessage(ServerMessage message) {
+        private void FixMessageOrigin(ServerMessage message) {
             switch (message.Command) {
-                case Commands.NOTICE:
+                case Commands.PRIVMSG:
+                    break;
+                case Commands.RPL_TOPIC:
+                    message.Origin = message.SplitArgs[0].Substring(2, message.SplitArgs[0].Length - 1);
+                    break;
+                default:
                     message.Origin = message.Nickname;
                     break;
-                case Commands.RPL_WELCOME:
-                case Commands.RPL_YOURHOST:
-                case Commands.RPL_CREATIONDATE:
-                case Commands.RPL_YOURINFO:
-                case Commands.RPL_ALTSERVER:
-                    case Commands.
             }
         }
 
@@ -101,7 +100,7 @@ namespace Convex.Client.Component {
 
         private void RegisterMethods() {
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Default, null, Commands.ALL, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NamesReply, null, Commands.RPL_NAMESREPLY, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NamesReply, null, Commands.RPL_NAMES, null));
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Join, null, Commands.JOIN, null));
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Part, null, Commands.PART, null));
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(ChannelTopic, null, Commands.RPL_TOPIC, null));
@@ -117,7 +116,7 @@ namespace Convex.Client.Component {
 #endif
 
             if (ParseMessageFlag(args.Message)) {
-                ParseMessage(args.Message);
+                FixMessageOrigin(args.Message);
             } else { return Task.CompletedTask; }
 
             if (GetChannel(args.Message.Origin) == null) {
@@ -176,7 +175,7 @@ namespace Convex.Client.Component {
         }
 
         private Task ChannelTopic(ServerMessagedEventArgs e) {
-            GetChannel(e.Message.SplitArgs[0]).Topic = e.Message.Args.Substring(e.Message.Args.IndexOf(' ') + 2);
+            GetChannel(e.Message.SplitArgs[0]).Topic = e.Message.SplitArgs[1].Substring(1);
 
             return Task.CompletedTask;
         }

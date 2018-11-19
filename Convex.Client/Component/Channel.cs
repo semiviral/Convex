@@ -18,11 +18,11 @@ namespace Convex.Client.Component {
         #region MEMBERS
 
         public string Name { get; }
-        public string Topic { get; internal set; }
+        public string Topic { get; set; }
         public List<User> Inhabitants { get; }
         public List<IrcMode> Modes { get; }
         public bool IsPrivate { get; }
-        public bool Connected { get; internal set; }
+        public bool Connected { get; set; }
 
         #endregion
     }
