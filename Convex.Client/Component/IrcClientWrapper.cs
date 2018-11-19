@@ -52,6 +52,8 @@ namespace Convex.Client.Component {
 
         #region METHODS
 
+        private void ParseMessage(ServerMessage message)
+
         private string FormatServerMessage(ServerMessage message) {
             return StaticLog.Format(message.Nickname, message.Args);
         }
@@ -92,6 +94,8 @@ namespace Convex.Client.Component {
 #if DEBUG
             Debug.WriteLine(args.Message.RawMessage);
 #endif
+
+            ParseMessage(args.Message);
 
             if (GetChannel(args.Message.Origin) == null) {
                 Channels.Add(new Channel(args.Message.Origin));

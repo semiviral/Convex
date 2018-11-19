@@ -19,8 +19,8 @@ namespace Convex.Client.Component {
         public DateTime Timestamp { get; protected set; }
         public string RawMessage { get; protected set; }
         public string Formatted { get; protected set; }
-        public string Origin { get; protected set; }
-        public string Nickname { get; protected set; }
+        public string Origin { get; set; }
+        public string Nickname { get; set; }
 
         #endregion
     }

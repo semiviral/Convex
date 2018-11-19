@@ -20,7 +20,7 @@ namespace Convex.IRC.Net {
 
             Parse();
 
-            Formatted = formatter.Invoke(this);
+            _formatter = formatter;
         }
 
         #region METHODS
@@ -89,14 +89,17 @@ namespace Convex.IRC.Net {
         // Regex for parsing RawMessage messages
         private static readonly Regex _MessageRegex = new Regex(@"^:(?<Sender>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)", RegexOptions.Compiled);
         private static readonly Regex _SenderRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
+        private readonly Func<ServerMessage, string> _formatter;
+
+        new public string Formatted => _formatter.Invoke(this);
 
         public bool IsIrCv3Message { get; private set; }
 
-        public string Realname { get; private set; }
-        public string Hostname { get; private set; }
-        public string Command { get; private set; }
-        public string Args { get; private set; }
-        public List<string> SplitArgs { get; private set; }
+        public string Realname { get; set; }
+        public string Hostname { get; set; }
+        public string Command { get; set; }
+        public string Args { get; set; }
+        public List<string> SplitArgs { get; set; }
 
         public string InputCommand { get; set; } = string.Empty;
 
