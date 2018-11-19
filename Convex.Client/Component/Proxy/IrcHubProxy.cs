@@ -31,6 +31,8 @@ namespace Convex.Client.Proxy {
         private int _currentSentIndex;
         private bool _hasFirstElement;
 
+        public string SelectedChannel { get; set; }
+
         #endregion
 
         #region EVENTS

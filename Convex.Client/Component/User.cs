@@ -54,7 +54,7 @@ namespace Convex.Client.Component {
         public bool GetTimeout() {
             bool doTimeout = false;
 
-            if (Attempts.Equals(4)) {
+            if (Attempts >= 4) {
                 if (Seen.AddMinutes(1) < DateTime.UtcNow) {
                     Attempts = 0; // if so, reset their attempts to 0
                 } else {

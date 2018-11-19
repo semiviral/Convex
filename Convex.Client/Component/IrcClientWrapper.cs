@@ -62,11 +62,19 @@ namespace Convex.Client.Component {
         }
 
         private void FixMessageOrigin(ServerMessage message) {
+            if (message.Nickname.Equals("chanserv", System.StringComparison.OrdinalIgnoreCase) || message.Nickname.Equals("nickserv", System.StringComparison.OrdinalIgnoreCase)) {
+                return;
+            }
+
             switch (message.Command) {
                 case Commands.PRIVMSG:
                     break;
                 case Commands.RPL_TOPIC:
-                    message.Origin = message.SplitArgs[0].Substring(2, message.SplitArgs[0].Length - 1);
+                    message.Origin = message.SplitArgs[0];
+                    break;
+                case Commands.RPL_NAMES:
+                    // = #channelname :user1 user2 
+                    message.Origin = message.SplitArgs[1];
                     break;
                 default:
                     message.Origin = message.Nickname;
@@ -115,12 +123,21 @@ namespace Convex.Client.Component {
             Debug.WriteLine(args.Message.RawMessage);
 #endif
 
-            if (ParseMessageFlag(args.Message)) {
-                FixMessageOrigin(args.Message);
-            } else { return Task.CompletedTask; }
+            if (args.Message.Command.Equals(Commands.PING)) {
+                return Task.CompletedTask;
+            }
+
+            FixMessageOrigin(args.Message);
 
             if (GetChannel(args.Message.Origin) == null) {
                 Channels.Add(new Channel(args.Message.Origin));
+            }
+
+            if (args.Message.Command.Equals(Commands.RPL_NAMES)) {
+                // = #channelName :user1 user2 user3
+                foreach (string user in args.Message.Args.Split(':')[1].Split(' ')) {
+                    GetChannel(args.Message.Origin).Inhabitants.Add(new User(user));
+                }
             }
 
             if (firstMessageAdded) {
