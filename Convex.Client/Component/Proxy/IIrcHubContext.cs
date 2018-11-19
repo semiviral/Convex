@@ -10,6 +10,7 @@ namespace Convex.Client.Models.Proxy {
         Task BroadcastChannels(string connectionId, IEnumerable<Channel> channels);
         Task AddChannel(Channel channel);
         Task RemoveChannel(Channel channel);
+        Task SelectedChannelChanged(string connectionId, string newChannel);
         Task UpdateMessageInput(string connectionId, string updatedInput);
     }
 }

@@ -12,8 +12,8 @@ using Serilog.Events;
 #endregion
 
 namespace Convex.Plugin {
-    public class PluginWrapper<T> where T : EventArgs {
-        public PluginWrapper(string pluginsDirectory, Func<T, Task> onInvokedMethod) {
+    public class PluginHostWrapper<T> where T : EventArgs {
+        public PluginHostWrapper(string pluginsDirectory, Func<T, Task> onInvokedMethod) {
             Host = new PluginHost<T>(pluginsDirectory, onInvokedMethod);
         }
 

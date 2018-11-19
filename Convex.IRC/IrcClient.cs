@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.Net;
+using Convex.IRC.Net.Event;
 using Convex.Plugin;
 using Convex.Plugin.Registrar;
 using Convex.Util;
@@ -34,9 +35,9 @@ namespace Convex.IRC {
 
             InitialiseConfiguration(config);
 
-            Wrapper = new PluginWrapper<ServerMessagedEventArgs>(Configuration.DefaultPluginDirectoryPath, OnInvokedMethod);
-            Wrapper.TerminateSignaled += OnTerminateSignaled;
-            Wrapper.CommandReceived += Server.Connection.SendDataAsync;
+            ServerMessagedHostWrapper = new PluginHostWrapper<ServerMessagedEventArgs>(Configuration.DefaultPluginDirectoryPath, OnInvokedMethod);
+            ServerMessagedHostWrapper.TerminateSignaled += OnTerminateSignaled;
+            ServerMessagedHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
 
             Initialising = false;
         }
@@ -56,7 +57,7 @@ namespace Convex.IRC {
                 return;
             }
 
-            await Wrapper.Host.StopPlugins();
+            await ServerMessagedHostWrapper.Host.StopPlugins();
             Server?.Dispose();
             Config?.Dispose();
 
@@ -73,14 +74,14 @@ namespace Convex.IRC {
         public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
 
         public List<string> IgnoreList => Config.IgnoreList ?? new List<string>();
-        public Dictionary<string, Tuple<string, string>> LoadedCommands => Wrapper.Host.DescriptionRegistry;
+        public Dictionary<string, Tuple<string, string>> LoadedCommands => ServerMessagedHostWrapper.Host.DescriptionRegistry;
 
         public string Address => Server.Connection.Address.Hostname;
         public int Port => Server.Connection.Address.Port;
         public bool IsInitialised { get; private set; }
         public bool Initialising { get; private set; }
 
-        private PluginWrapper<ServerMessagedEventArgs> Wrapper { get; }
+        private PluginHostWrapper<ServerMessagedEventArgs> ServerMessagedHostWrapper { get; }
 
         private bool _disposed;
 
@@ -114,7 +115,7 @@ namespace Convex.IRC {
             }
 
             try {
-                await Wrapper.Host.InvokeAsync(args);
+                await ServerMessagedHostWrapper.Host.InvokeAsync(args);
             } catch (Exception ex) {
                 await OnError(this, new ErrorEventArgs(ex));
             }
@@ -156,11 +157,11 @@ namespace Convex.IRC {
 
             Initialising = false;
 
-            return IsInitialised = Server.Initialised && Wrapper.Initialised;
+            return IsInitialised = Server.Initialised && ServerMessagedHostWrapper.Initialised;
         }
 
         private async Task InitialisePluginWrapper() {
-            await Wrapper.Initialise();
+            await ServerMessagedHostWrapper.Initialise();
         }
 
         #endregion
@@ -219,7 +220,7 @@ namespace Convex.IRC {
                 return;
             }
 
-            Wrapper.Host.RegisterMethod(methodRegistrar);
+            ServerMessagedHostWrapper.Host.RegisterMethod(methodRegistrar);
         }
 
         private void RegisterMethods() {
@@ -234,7 +235,7 @@ namespace Convex.IRC {
         /// <param name="command">Command to be returned</param>
         /// <returns></returns>
         public Tuple<string, string> GetCommand(string command) {
-            return Wrapper.Host.DescriptionRegistry.Values.SingleOrDefault(x => x != null && x.Item1.Equals(command, StringComparison.CurrentCultureIgnoreCase));
+            return ServerMessagedHostWrapper.Host.DescriptionRegistry.Values.SingleOrDefault(x => x != null && x.Item1.Equals(command, StringComparison.CurrentCultureIgnoreCase));
         }
 
         /// <summary>
@@ -252,14 +253,14 @@ namespace Convex.IRC {
 
         private async Task OnInvokedMethod(ServerMessagedEventArgs args) {
             if (!args.Message.Command.Equals(Commands.ALL)) {
-                await Wrapper.Host.CompositionHandlers[Commands.ALL].Invoke(this, args);
+                await ServerMessagedHostWrapper.Host.CompositionHandlers[Commands.ALL].Invoke(this, args);
             }
 
-            if (!Wrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
+            if (!ServerMessagedHostWrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
                 return;
             }
 
-            await Wrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);
+            await ServerMessagedHostWrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);
         }
 
         #endregion

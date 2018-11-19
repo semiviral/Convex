@@ -38,6 +38,10 @@ namespace Convex.Client.Hubs {
             await _ircHubProxy.SendMessage(rawMessage);
         }
 
+        public async Task SelectedChannelChanged(string newChannel) {
+            await _ircHubProxy.SelectedChannelChanged(Context.ConnectionId, newChannel);
+        }
+
         /// <summary>
         /// Updated the text of the MessageInput box
         /// </summary>

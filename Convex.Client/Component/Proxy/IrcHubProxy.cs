@@ -31,8 +31,6 @@ namespace Convex.Client.Proxy {
         private int _currentSentIndex;
         private bool _hasFirstElement;
 
-        public string SelectedChannel { get; set; }
-
         #endregion
 
         #region EVENTS
@@ -45,18 +43,10 @@ namespace Convex.Client.Proxy {
                     }
 
                     break;
-                case NotifyCollectionChangedAction.Move:
-                    break;
                 case NotifyCollectionChangedAction.Remove:
                     foreach (Channel channel in args.NewItems) {
                         RemoveChannel(channel).ConfigureAwait(false);
                     }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    break;
-                default:
                     break;
             }
         }
@@ -89,6 +79,10 @@ namespace Convex.Client.Proxy {
 
             await _ircHubContext.BroadcastMessage(new Message(rawMessage, Program.Config.Nickname, Program.Config.Nickname));
             await _ircService.IrcClientWrapper.SendMessageAsync(this, ConvertToCommandArgs(rawMessage));
+        }
+
+        public async Task SelectedChannelChanged(string connectionId, string newChannel) {
+            await _ircHubContext.SelectedChannelChanged(connectionId, newChannel);
         }
 
         #endregion

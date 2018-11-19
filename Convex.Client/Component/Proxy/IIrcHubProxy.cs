@@ -7,6 +7,7 @@ namespace Convex.Client.Proxy {
     public interface IIrcHubProxy {
         Task RequestBroadcastChannels(string connectionId);
         Task SendMessage(string rawMessage);
+        Task SelectedChannelChanged(string connectionId, string newChannel);
 
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, DateTime startDate, DateTime endDate);
         Task BroadcastMessageBatch(string connectionId, bool isPrepend, string channelName, int startIndex, int length);
