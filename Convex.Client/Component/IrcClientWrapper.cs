@@ -52,7 +52,28 @@ namespace Convex.Client.Component {
 
         #region METHODS
 
-        private void ParseMessage(ServerMessage message)
+        private bool ParseMessageFlag(ServerMessage message) {
+            switch (message.Command) {
+                case Commands.PING:
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void ParseMessage(ServerMessage message) {
+            switch (message.Command) {
+                case Commands.NOTICE:
+                    message.Origin = message.Nickname;
+                    break;
+                case Commands.RPL_WELCOME:
+                case Commands.RPL_YOURHOST:
+                case Commands.RPL_CREATIONDATE:
+                case Commands.RPL_YOURINFO:
+                case Commands.RPL_ALTSERVER:
+                    case Commands.
+            }
+        }
 
         private string FormatServerMessage(ServerMessage message) {
             return StaticLog.Format(message.Nickname, message.Args);
@@ -80,10 +101,10 @@ namespace Convex.Client.Component {
 
         private void RegisterMethods() {
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Default, null, Commands.ALL, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NamesReply, null, Commands.NAMES_REPLY, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NamesReply, null, Commands.RPL_NAMESREPLY, null));
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Join, null, Commands.JOIN, null));
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Part, null, Commands.PART, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(ChannelTopic, null, Commands.CHANNEL_TOPIC, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(ChannelTopic, null, Commands.RPL_TOPIC, null));
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NewTopic, null, Commands.TOPIC, null));
         }
 
@@ -95,7 +116,9 @@ namespace Convex.Client.Component {
             Debug.WriteLine(args.Message.RawMessage);
 #endif
 
-            ParseMessage(args.Message);
+            if (ParseMessageFlag(args.Message)) {
+                ParseMessage(args.Message);
+            } else { return Task.CompletedTask; }
 
             if (GetChannel(args.Message.Origin) == null) {
                 Channels.Add(new Channel(args.Message.Origin));
