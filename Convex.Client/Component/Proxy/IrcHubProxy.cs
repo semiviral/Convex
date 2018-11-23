@@ -35,7 +35,7 @@ namespace Convex.Client.Proxy {
 
         #region EVENTS
 
-        private void ChannelsListChanged(object sender, NotifyCollectionChangedEventArgs args) {
+        private void ChannelsListChanged(object source, NotifyCollectionChangedEventArgs args) {
             switch (args.Action) {
                 case NotifyCollectionChangedAction.Add:
                     foreach (Channel channel in args.NewItems) {

@@ -41,12 +41,12 @@ namespace Convex.IRC.Net {
         public async Task Initialise(IAddress address) {
             Address = address;
 
-            Connected += (sender, args) => {
+            Connected += (source, args) => {
                 IsConnected = true;
                 return Task.CompletedTask;
             };
 
-            Disconnected += (sender, args) => {
+            Disconnected += (source, args) => {
                 IsConnected = false;
                 return Task.CompletedTask;
             };
@@ -72,7 +72,7 @@ namespace Convex.IRC.Net {
 
         #region METHODS
 
-        public async Task SendDataAsync(object sender, IrcCommandEventArgs args) {
+        public async Task SendDataAsync(object source, IrcCommandEventArgs args) {
             await WriteAsync(args.ToString());
         }
 
@@ -139,44 +139,44 @@ namespace Convex.IRC.Net {
         public event AsyncEventHandler<StreamFlushedEventArgs> Flushed;
         public event AsyncEventHandler<LogEventArgs> Logged;
 
-        private async Task OnInitialised(object sender, ClassInitialisedEventArgs args) {
+        private async Task OnInitialised(object source, ClassInitialisedEventArgs args) {
             if (Initialised == null) {
                 return;
             }
 
-            await Initialised.Invoke(sender, args);
+            await Initialised.Invoke(source, args);
         }
 
-        private async Task OnConnected(object sender, ConnectedEventArgs args) {
+        private async Task OnConnected(object source, ConnectedEventArgs args) {
             if (Connected == null) {
                 return;
             }
 
-            await Connected.Invoke(sender, args);
+            await Connected.Invoke(source, args);
         }
 
-        private async Task OnDisconnected(object sender, DisconnectedEventArgs args) {
+        private async Task OnDisconnected(object source, DisconnectedEventArgs args) {
             if (Disconnected == null) {
                 return;
             }
 
-            await Disconnected.Invoke(sender, args);
+            await Disconnected.Invoke(source, args);
         }
 
-        private async Task OnFlushed(object sender, StreamFlushedEventArgs args) {
+        private async Task OnFlushed(object source, StreamFlushedEventArgs args) {
             if (Flushed == null) {
                 return;
             }
 
-            await Flushed.Invoke(sender, args);
+            await Flushed.Invoke(source, args);
         }
 
-        private async Task OnLogged(object sender, LogEventArgs args) {
+        private async Task OnLogged(object source, LogEventArgs args) {
             if (Logged == null) {
                 return;
             }
 
-            await Logged.Invoke(sender, args);
+            await Logged.Invoke(source, args);
         }
 
         #endregion

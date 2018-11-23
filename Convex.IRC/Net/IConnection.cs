@@ -16,7 +16,7 @@ namespace Convex.IRC.Net {
 
         void Dispose();
         Task Initialise(IAddress address);
-        Task SendDataAsync(object sender, IrcCommandEventArgs args);
+        Task SendDataAsync(object source, IrcCommandEventArgs args);
         Task<string> ListenAsync();
     }
 }

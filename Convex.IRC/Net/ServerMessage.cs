@@ -54,12 +54,12 @@ namespace Convex.IRC.Net {
 
             // begin parsing message into sections
             Match mVal = _MessageRegex.Match(RawMessage);
-            Match sMatch = _SenderRegex.Match(mVal.Groups["Sender"].Value);
+            Match sMatch = _sourceRegex.Match(mVal.Groups["source"].Value);
 
             // class property setting
-            Nickname = mVal.Groups["Sender"].Value;
-            Realname = mVal.Groups["Sender"].Value.ToLower();
-            Hostname = mVal.Groups["Sender"].Value;
+            Nickname = mVal.Groups["source"].Value;
+            Realname = mVal.Groups["source"].Value.ToLower();
+            Hostname = mVal.Groups["source"].Value;
             Command = mVal.Groups["Type"].Value;
             Origin = mVal.Groups["Recipient"].Value.StartsWith(":") ? mVal.Groups["Recipient"].Value.Substring(1) : mVal.Groups["Recipient"].Value;
 
@@ -87,8 +87,8 @@ namespace Convex.IRC.Net {
         #region MEMBERS
 
         // Regex for parsing RawMessage messages
-        private static readonly Regex _MessageRegex = new Regex(@"^:(?<Sender>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)", RegexOptions.Compiled);
-        private static readonly Regex _SenderRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
+        private static readonly Regex _MessageRegex = new Regex(@"^:(?<source>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)", RegexOptions.Compiled);
+        private static readonly Regex _sourceRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
         private readonly Func<ServerMessage, string> _formatter;
 
         public new string Formatted => _formatter.Invoke(this);

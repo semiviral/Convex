@@ -72,8 +72,8 @@ namespace Convex.Client.Component {
             OnPropertyChanged(this, new UserPropertyChangedEventArgs(memberName, Realname, newValue));
         }
 
-        public void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            PropertyChanged?.Invoke(sender, e);
+        public void OnPropertyChanged(object source, PropertyChangedEventArgs e) {
+            PropertyChanged?.Invoke(source, e);
         }
 
         #region MEMBERS

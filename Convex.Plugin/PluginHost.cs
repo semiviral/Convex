@@ -17,14 +17,15 @@ using Serilog.Events;
 
 namespace Convex.Plugin {
     public class PluginHost<T> where T : EventArgs {
-        public PluginHost(string pluginsDirectory, Func<T, Task> onInvokedMethod) {
+        public PluginHost(string pluginsDirectory, Func<T, Task> invokeAsyncMethod, string pluginMask) {
             PluginsDirectory = pluginsDirectory;
-            OnInvoked = onInvokedMethod;
+            InvokedAsync += async (source, args) => await invokeAsyncMethod(args);
+            _PluginMask = pluginMask;
         }
 
         #region MEMBERS
 
-        private const string _PluginMask = "Convex.*.dll";
+        private string _PluginMask { get; }
 
         private List<PluginInstance> Plugins { get; } = new List<PluginInstance>();
 
@@ -32,13 +33,13 @@ namespace Convex.Plugin {
         public Dictionary<string, Tuple<string, string>> DescriptionRegistry { get; } = new Dictionary<string, Tuple<string, string>>();
 
         public bool ShuttingDown { get; private set; }
-        public Func<T, Task> OnInvoked { get; }
         public string PluginsDirectory { get; }
 
         #endregion
 
         #region EVENTS
 
+        public event AsyncEventHandler<T> InvokedAsync;
         public event AsyncEventHandler<PluginActionEventArgs> PluginCallback;
 
         #endregion
@@ -60,10 +61,6 @@ namespace Convex.Plugin {
             }
         }
 
-        public async Task InvokeAsync(T args) {
-            await OnInvoked(args);
-        }
-
         public void RegisterMethod(IAsyncRegistrar<T> registrar) {
             AddComposition(registrar);
 
@@ -81,7 +78,7 @@ namespace Convex.Plugin {
                 CompositionHandlers.Add(registrar.Command, null);
             }
 
-            CompositionHandlers[registrar.Command] += async (sender, args) => {
+            CompositionHandlers[registrar.Command] += async (source, args) => {
                 if (!registrar.CanExecute(args)) {
                     return;
                 }
@@ -166,6 +163,14 @@ namespace Convex.Plugin {
             } catch (Exception ex) {
                 StaticLog.Log(new LogEventArgs(LogEventLevel.Warning, $"Error adding plugin: {ex.Message}"));
             }
+        }
+
+        public async Task InvokeAsync(object source, T args) {
+            if (InvokedAsync == null) {
+                return;
+            }
+
+            await InvokeAsync(source, args);
         }
 
         private async Task OnPluginCallback(object source, PluginActionEventArgs e) {

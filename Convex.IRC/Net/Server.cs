@@ -62,12 +62,12 @@ namespace Convex.IRC.Net {
 
         public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
 
-        private async Task OnChannelMessaged(object sender, ServerMessagedEventArgs args) {
+        private async Task OnChannelMessaged(object source, ServerMessagedEventArgs args) {
             if (ServerMessaged == null) {
                 return;
             }
 
-            await ServerMessaged.Invoke(sender, args);
+            await ServerMessaged.Invoke(source, args);
         }
 
         #endregion

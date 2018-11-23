@@ -62,14 +62,14 @@ namespace Convex.Plugin.Node_Network {
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.Log, string.Join(" ", args), Name));
         }
 
-        private async Task DoCallback(object sender, PluginActionEventArgs args) {
+        private async Task DoCallback(object source, PluginActionEventArgs args) {
             if (Callback == null) {
                 return;
             }
 
             args.PluginName = Name;
 
-            await Callback.Invoke(sender, args);
+            await Callback.Invoke(source, args);
         }
 
         #endregion

@@ -52,6 +52,18 @@ namespace Convex.Client.Component {
 
         #region METHODS
 
+        private async Task OnInvokedMethod(ServerMessagedEventArgs args) {
+            if (!args.Message.Command.Equals(Commands.ALL)) {
+                await ServerMessagedHostWrapper.Host.CompositionHandlers[Commands.ALL].Invoke(this, args);
+            }
+
+            if (!ServerMessagedHostWrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
+                return;
+            }
+
+            await ServerMessagedHostWrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);
+        }
+
         private bool ParseMessageFlag(ServerMessage message) {
             switch (message.Command) {
                 case Commands.PING:
@@ -59,27 +71,6 @@ namespace Convex.Client.Component {
             }
 
             return true;
-        }
-
-        private void FixMessageOrigin(ServerMessage message) {
-            if (message.Nickname.Equals("chanserv", System.StringComparison.OrdinalIgnoreCase) || message.Nickname.Equals("nickserv", System.StringComparison.OrdinalIgnoreCase)) {
-                return;
-            }
-
-            switch (message.Command) {
-                case Commands.PRIVMSG:
-                    break;
-                case Commands.RPL_TOPIC:
-                    message.Origin = message.SplitArgs[0];
-                    break;
-                case Commands.RPL_NAMES:
-                    // = #channelname :user1 user2 
-                    message.Origin = message.SplitArgs[1];
-                    break;
-                default:
-                    message.Origin = message.Nickname;
-                    break;
-            }
         }
 
         private string FormatServerMessage(ServerMessage message) {
@@ -98,8 +89,8 @@ namespace Convex.Client.Component {
             return Channels.SingleOrDefault(channel => channel.Name.Equals(channelName));
         }
 
-        public async Task SendMessageAsync(object sender, IrcCommandEventArgs args) {
-            await _client.Server.Connection.SendDataAsync(sender, args);
+        public async Task SendMessageAsync(object source, IrcCommandEventArgs args) {
+            await _client.Server.Connection.SendDataAsync(source, args);
         }
 
         #endregion
@@ -107,12 +98,45 @@ namespace Convex.Client.Component {
         #region REGISTRARS
 
         private void RegisterMethods() {
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Default, null, Commands.ALL, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NamesReply, null, Commands.RPL_NAMES, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Join, null, Commands.JOIN, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Part, null, Commands.PART, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(ChannelTopic, null, Commands.RPL_TOPIC, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(NewTopic, null, Commands.TOPIC, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.PreExecution, IsPing, null, Commands.PING, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Critical, FixMessageOrigin, null, Commands.ALL, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Provisionary, Default, null, Commands.ALL, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, NamesReply, null, Commands.RPL_NAMES, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, Join, null, Commands.JOIN, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, Part, null, Commands.PART, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, ChannelTopic, null, Commands.RPL_TOPIC, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, NewTopic, null, Commands.TOPIC, null));
+        }
+
+        private Task IsPing(ServerMessagedEventArgs args) {
+            if (args.Message.Command.Equals(Commands.PING)) {
+                args.Execute = false;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task FixMessageOrigin(ServerMessagedEventArgs args) {
+            if (args.Message.Nickname.Equals("chanserv", System.StringComparison.OrdinalIgnoreCase) || args.Nickname.Equals("nickserv", System.StringComparison.OrdinalIgnoreCase)) {
+                return Task.CompletedTask;
+            }
+
+            switch (args.Message.Command) {
+                case Commands.PRIVMSG:
+                    break;
+                case Commands.RPL_TOPIC:
+                    args.Message.Origin = args.Message.SplitArgs[0];
+                    break;
+                case Commands.RPL_NAMES:
+                    // = #channelname :user1 user2 
+                    args.Message.Origin = args.Message.SplitArgs[1];
+                    break;
+                default:
+                    args.Message.Origin = args.Message.Nickname;
+                    break;
+            }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -123,11 +147,8 @@ namespace Convex.Client.Component {
             Debug.WriteLine(args.Message.RawMessage);
 #endif
 
-            if (args.Message.Command.Equals(Commands.PING)) {
-                return Task.CompletedTask;
-            }
 
-            FixMessageOrigin(args.Message);
+
 
             if (GetChannel(args.Message.Origin) == null) {
                 Channels.Add(new Channel(args.Message.Origin));

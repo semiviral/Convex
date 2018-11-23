@@ -22,7 +22,7 @@ namespace Convex.IRC {
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     receiving.
         /// </summary>
-        public IrcClient(Func<ServerMessage, string> formatter, IConfiguration config = null) {
+        public IrcClient(Func<ServerMessage, string> formatter, Func<ServerMessagedEventArgs, Task> invokeAsyncMethod, IConfiguration config = null) {
             Initialising = true;
 
             _pendingPlugins = new Stack<IAsyncRegistrar<ServerMessagedEventArgs>>();
@@ -35,7 +35,7 @@ namespace Convex.IRC {
 
             InitialiseConfiguration(config);
 
-            ServerMessagedHostWrapper = new PluginHostWrapper<ServerMessagedEventArgs>(Configuration.DefaultPluginDirectoryPath, OnInvokedMethod);
+            ServerMessagedHostWrapper = new PluginHostWrapper<ServerMessagedEventArgs>(Configuration.DefaultPluginDirectoryPath, invokeAsyncMethod, "Convex.*.dll");
             ServerMessagedHostWrapper.TerminateSignaled += OnTerminateSignaled;
             ServerMessagedHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
 
@@ -115,7 +115,7 @@ namespace Convex.IRC {
             }
 
             try {
-                await ServerMessagedHostWrapper.Host.InvokeAsync(args);
+                await ServerMessagedHostWrapper.Host.InvokeAsync(this, args);
             } catch (Exception ex) {
                 await OnError(this, new ErrorEventArgs(ex));
             }
@@ -173,39 +173,39 @@ namespace Convex.IRC {
         public event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
         public event AsyncEventHandler<ErrorEventArgs> Error;
 
-        private async Task OnQuery(object sender, DatabaseQueriedEventArgs args) {
+        private async Task OnQuery(object source, DatabaseQueriedEventArgs args) {
             if (Queried == null) {
                 return;
             }
 
-            await Queried.Invoke(sender, args);
+            await Queried.Invoke(source, args);
         }
 
-        private async Task OnTerminateSignaled(object sender, OperationTerminatedEventArgs args) {
+        private async Task OnTerminateSignaled(object source, OperationTerminatedEventArgs args) {
             if (TerminateSignaled == null) {
                 return;
             }
 
-            await TerminateSignaled.Invoke(sender, args);
+            await TerminateSignaled.Invoke(source, args);
         }
 
-        private async Task OnInitialised(object sender, ClassInitialisedEventArgs args) {
+        private async Task OnInitialised(object source, ClassInitialisedEventArgs args) {
             if (Initialised == null) {
                 return;
             }
 
-            await Initialised.Invoke(sender, args);
+            await Initialised.Invoke(source, args);
         }
 
-        private async Task OnError(object sender, ErrorEventArgs args) {
+        private async Task OnError(object source, ErrorEventArgs args) {
             if (Error == null) {
                 return;
             }
 
-            await Error.Invoke(sender, args);
+            await Error.Invoke(source, args);
         }
 
-        private async Task Terminate(object sender, OperationTerminatedEventArgs args) {
+        private async Task Terminate(object source, OperationTerminatedEventArgs args) {
             await Dispose(true);
         }
 
@@ -249,18 +249,6 @@ namespace Convex.IRC {
 
         public string GetApiKey(string type) {
             return Config.ApiKeys[type];
-        }
-
-        private async Task OnInvokedMethod(ServerMessagedEventArgs args) {
-            if (!args.Message.Command.Equals(Commands.ALL)) {
-                await ServerMessagedHostWrapper.Host.CompositionHandlers[Commands.ALL].Invoke(this, args);
-            }
-
-            if (!ServerMessagedHostWrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
-                return;
-            }
-
-            await ServerMessagedHostWrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);
         }
 
         #endregion
