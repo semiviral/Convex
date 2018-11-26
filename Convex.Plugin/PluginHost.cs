@@ -17,9 +17,9 @@ using Serilog.Events;
 
 namespace Convex.Plugin {
     public class PluginHost<T> where T : EventArgs {
-        public PluginHost(string pluginsDirectory, Func<InvokeAsyncEventArgs<T>, Task> invokeAsyncMethod, string pluginMask) {
+        public PluginHost(string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod, string pluginMask) {
             PluginsDirectory = pluginsDirectory;
-            InvokedAsync += async (source, args) => await invokeAsyncMethod(new InvokeAsyncEventArgs<T>(this, args));
+            InvokedAsync += async (source, args) => await invokeAsyncMethod(new InvokedAsyncEventArgs<T>(this, args));
             _PluginMask = pluginMask;
         }
 

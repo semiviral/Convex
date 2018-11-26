@@ -67,7 +67,7 @@ namespace Convex.Client.Services {
         public async Task StartAsync(CancellationToken cancellationToken) {
             Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Program.Config.LogFilePath).WriteTo.ServerMessageSink(_ircHubMethodsProxy).CreateLogger();
 
-            IrcClientWrapper.RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Final, CheckBroadcastMessage, null, Commands.ALL, null));
+            IrcClientWrapper.RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, CheckBroadcastMessage, null, Commands.ALL, null));
 
             await Initialise();
             await DoWork();

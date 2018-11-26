@@ -1,27 +1,12 @@
 ﻿namespace Convex.Plugin.Registrar {
-    public enum RegistrarExecutionLevel {
-        /// <summary>
-        /// <para>    This layer executes before all others.</para>
-        /// <para>    This layer should only operate on the core
-        ///             plugin layer.</para>
-        ///         
-        /// </summary>
-        PreExecution = 0,
-
-        /// <summary>
-        ///     Determines whether the object should be executed by
-        ///         lower execution levels.
-        /// </summary>
-        Critical = 1,
-
-        /// <summary>
-        ///     Layer for editing the object.
-        /// </summary>
-        Provisionary = 2,
-
-        /// <summary>
-        ///     Layer for external execution of plugin code.
-        /// </summary>
-        Final = 3,
+    public enum RegistrarExecutionStep {
+        Step0 = 0,
+        Step1 = 1,
+        Step2 = 2,
+        Step3 = 3,
+        Step4 = 4,
+        Step5 = 5,
+        Step6 = 6,
+        Step7 = 7,
     }
 }

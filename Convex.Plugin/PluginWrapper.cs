@@ -13,7 +13,7 @@ using Serilog.Events;
 
 namespace Convex.Plugin {
     public class PluginHostWrapper<T> where T : EventArgs {
-        public PluginHostWrapper(string pluginsDirectory, Func<InvokeAsyncEventArgs<T>, Task> invokeAsyncMethod, string pluginMask) {
+        public PluginHostWrapper(string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod, string pluginMask) {
             Host = new PluginHost<T>(pluginsDirectory, invokeAsyncMethod, pluginMask);
         }
 

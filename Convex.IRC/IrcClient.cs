@@ -23,7 +23,7 @@ namespace Convex.IRC {
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     receiving.
         /// </summary>
-        public IrcClient(Func<ServerMessage, string> formatter, Func<InvokeAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod, IConfiguration config = null) {
+        public IrcClient(Func<ServerMessage, string> formatter, Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod, IConfiguration config = null) {
             Initialising = true;
 
             _pendingPlugins = new Stack<IAsyncRegistrar<ServerMessagedEventArgs>>();
