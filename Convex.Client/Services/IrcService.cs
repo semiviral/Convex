@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using Convex.Client.Component;
 using Convex.Client.Component.Log.Sinks;
 using Convex.Client.Models.Proxy;
+using Convex.Event;
 using Convex.IRC.Net;
+using Convex.Plugin.Registrar;
 using Convex.Util;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -21,6 +23,20 @@ namespace Convex.Client.Services {
 
         private async Task DoWork() {
             await IrcClientWrapper.BeginListenAsync();
+        }
+
+        private Task CheckBroadcastMessage(ServerMessagedEventArgs args) {
+            switch (args.Message.Command) {
+                case Commands.PING:
+                case Commands.RPL_NAMES:
+                case Commands.RPL_ENDOFNAMES:
+                    args.Execute = false;
+                    return Task.CompletedTask;
+            }
+
+            _ircHubMethodsProxy.BroadcastMessage(args.Message);
+
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -51,18 +67,7 @@ namespace Convex.Client.Services {
         public async Task StartAsync(CancellationToken cancellationToken) {
             Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Program.Config.LogFilePath).WriteTo.ServerMessageSink(_ircHubMethodsProxy).CreateLogger();
 
-            IrcClientWrapper.RegisterMethod(new Plugin.Registrar.MethodRegistrar<Event.ServerMessagedEventArgs>((args) => {
-                switch (args.Message.Command) {
-                    case Commands.PING:
-                    case Commands.RPL_NAMES:
-                    case Commands.RPL_ENDOFNAMES:
-                        break;
-                }
-
-                _ircHubMethodsProxy.BroadcastMessage(args.Message);
-
-                return Task.CompletedTask;
-            }, null, Commands.ALL, null));
+            IrcClientWrapper.RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Final, CheckBroadcastMessage, null, Commands.ALL, null));
 
             await Initialise();
             await DoWork();

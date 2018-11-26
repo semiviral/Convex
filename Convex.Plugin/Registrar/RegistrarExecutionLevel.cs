@@ -22,6 +22,6 @@
         /// <summary>
         ///     Layer for external execution of plugin code.
         /// </summary>
-        NonCritical = 3,
+        Final = 3,
     }
 }

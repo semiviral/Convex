@@ -36,7 +36,7 @@ namespace Convex.Plugin.Node_Network {
         public async Task Start() {
             Network = new NodeNetwork<string>();
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new MethodRegistrar<ServerMessagedEventArgs>(ProcessText, args => true, Commands.PRIVMSG, null), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Final, ProcessText, args => true, Commands.PRIVMSG, null), Name));
         }
 
         public async Task Stop() {

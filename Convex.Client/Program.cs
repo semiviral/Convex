@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Convex.IRC;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +18,8 @@ namespace Convex.Client {
             Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Config.LogFilePath).CreateLogger();
 
             BuildWebHost(args).Run();
+
+            Console.ReadLine();
         }
 
         public static IWebHost BuildWebHost(string[] args) {

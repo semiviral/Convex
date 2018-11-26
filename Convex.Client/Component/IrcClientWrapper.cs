@@ -7,6 +7,7 @@ using Convex.Client.Component.Collections;
 using Convex.Event;
 using Convex.IRC;
 using Convex.IRC.Net;
+using Convex.Plugin.Event;
 using Convex.Plugin.Registrar;
 using Convex.Util;
 
@@ -15,7 +16,7 @@ namespace Convex.Client.Component {
         public IrcClientWrapper(IConfiguration config = null) {
             Channels = new ObservableCollection<Channel>();
             Messages = new SortedList<MessagesIndex, IMessage>();
-            _client = new IrcClient(FormatServerMessage, config);
+            _client = new IrcClient(FormatServerMessage, OnInvokedMethod, config);
             firstMessageAdded = false;
 
             RegisterMethods();
@@ -52,16 +53,16 @@ namespace Convex.Client.Component {
 
         #region METHODS
 
-        private async Task OnInvokedMethod(ServerMessagedEventArgs args) {
-            if (!args.Message.Command.Equals(Commands.ALL)) {
-                await ServerMessagedHostWrapper.Host.CompositionHandlers[Commands.ALL].Invoke(this, args);
+        private async Task OnInvokedMethod(InvokeAsyncEventArgs<ServerMessagedEventArgs> args) {
+            if (!args.Args.Message.Command.Equals(Commands.ALL)) {
+                await args.Host.CompositionHandlers[Commands.ALL].Invoke(this, args.Args);
             }
 
-            if (!ServerMessagedHostWrapper.Host.CompositionHandlers.ContainsKey(args.Message.Command)) {
+            if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command)) {
                 return;
             }
 
-            await ServerMessagedHostWrapper.Host.CompositionHandlers[args.Message.Command].Invoke(this, args);
+            await args.Host.CompositionHandlers[args.Args.Message.Command].Invoke(this, args.Args);
         }
 
         private bool ParseMessageFlag(ServerMessage message) {
@@ -101,11 +102,11 @@ namespace Convex.Client.Component {
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.PreExecution, IsPing, null, Commands.PING, null));
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Critical, FixMessageOrigin, null, Commands.ALL, null));
             RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Provisionary, Default, null, Commands.ALL, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, NamesReply, null, Commands.RPL_NAMES, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, Join, null, Commands.JOIN, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, Part, null, Commands.PART, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, ChannelTopic, null, Commands.RPL_TOPIC, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.NonCritical, NewTopic, null, Commands.TOPIC, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Final, NamesReply, null, Commands.RPL_NAMES, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Final, Join, null, Commands.JOIN, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Final, Part, null, Commands.PART, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Final, ChannelTopic, null, Commands.RPL_TOPIC, null));
+            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionLevel.Final, NewTopic, null, Commands.TOPIC, null));
         }
 
         private Task IsPing(ServerMessagedEventArgs args) {
@@ -117,7 +118,7 @@ namespace Convex.Client.Component {
         }
 
         private Task FixMessageOrigin(ServerMessagedEventArgs args) {
-            if (args.Message.Nickname.Equals("chanserv", System.StringComparison.OrdinalIgnoreCase) || args.Nickname.Equals("nickserv", System.StringComparison.OrdinalIgnoreCase)) {
+            if (args.Message.Nickname.Equals("chanserv", System.StringComparison.OrdinalIgnoreCase) || args.Message.Nickname.Equals("nickserv", System.StringComparison.OrdinalIgnoreCase)) {
                 return Task.CompletedTask;
             }
 
