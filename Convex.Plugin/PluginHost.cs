@@ -79,11 +79,13 @@ namespace Convex.Plugin {
         }
 
         private void AddComposition(IAsyncCompsition<T> composition) {
-            if (!CompositionHandlers.ContainsKey(composition.Command)) {
-                CompositionHandlers.Add(composition.Command, new List<IAsyncCompsition<T>>());
-            }
+            foreach (string command in composition.Commands) {
+                if (!CompositionHandlers.ContainsKey(command)) {
+                    CompositionHandlers.Add(command, new List<IAsyncCompsition<T>>());
+                }
 
-            CompositionHandlers[composition.Command].Add(composition);
+                CompositionHandlers[command].Add(composition);
+            }
         }
 
 

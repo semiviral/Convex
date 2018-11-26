@@ -117,14 +117,14 @@ namespace Convex.Client.Component {
         #region REGISTRARS
 
         private void RegisterMethods() {
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step0, IsPing, null, Commands.PING, null));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step1, FixMessageOrigin, null, Commands.ALL, null));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step2, Default, null, Commands.ALL, null));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NamesReply, null, Commands.RPL_NAMES, null));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Join, null, Commands.JOIN, null));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Part, null, Commands.PART, null));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, ChannelTopic, null, Commands.RPL_TOPIC, null));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NewTopic, null, Commands.TOPIC, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step0, IsPing, null, null, Commands.PING));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step1, FixMessageOrigin, null, null, Commands.ALL));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step2, Default, null, null, Commands.ALL));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NamesReply, null, null, Commands.RPL_NAMES));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Join, null, null, Commands.JOIN));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Part, null, null, Commands.PART));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, ChannelTopic, null, null, Commands.RPL_TOPIC));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NewTopic, null, null, Commands.TOPIC));
         }
 
         private Task IsPing(ServerMessagedEventArgs args) {

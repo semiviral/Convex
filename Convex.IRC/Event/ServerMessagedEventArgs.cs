@@ -10,6 +10,7 @@ namespace Convex.Event {
     public class ServerMessagedEventArgs : EventArgs {
         public ServerMessagedEventArgs(IIrcClient bot, ServerMessage message) {
             Execute = true;
+            Display = true;
 
             Caller = bot;
             Message = message;
