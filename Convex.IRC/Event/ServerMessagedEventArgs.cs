@@ -18,6 +18,7 @@ namespace Convex.Event {
         #region MEMBERS
 
         public bool Execute { get; set; }
+        public bool Display { get; set; }
 
         // todo: I don't like this solution
         public IIrcClient Caller { get; }

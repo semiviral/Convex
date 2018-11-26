@@ -14,5 +14,12 @@
         Step5 = 5,
         Step6 = 6,
         Step7 = 7,
+
+        // ...
+
+        /// <summary>
+        ///     Absolute last step, for display ONLY
+        /// </summary>
+        Display = 99,
     }
 }

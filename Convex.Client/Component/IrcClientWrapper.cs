@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Component.Collections;
 using Convex.Event;
@@ -58,7 +60,7 @@ namespace Convex.Client.Component {
                 await InvokeSteps(args, Commands.ALL);
             }
 
-            if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command)) {
+            if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command) || !args.Args.Execute) {
                 return;
             }
 
@@ -73,6 +75,10 @@ namespace Convex.Client.Component {
         /// <returns></returns>
         private async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args, string contextCommand) {
             foreach (IAsyncCompsition<ServerMessagedEventArgs> composition in args.Host.CompositionHandlers[contextCommand].OrderBy(comp => comp.ExecutionStep)) {
+                if (!args.Args.Execute) {
+                    return;
+                }
+
                 await composition.InvokeAsync(args.Args);
             }
         }
@@ -130,19 +136,32 @@ namespace Convex.Client.Component {
         }
 
         private Task FixMessageOrigin(ServerMessagedEventArgs args) {
-            if (args.Message.Nickname.Equals("chanserv", System.StringComparison.OrdinalIgnoreCase) || args.Message.Nickname.Equals("nickserv", System.StringComparison.OrdinalIgnoreCase)) {
-                return Task.CompletedTask;
+            if (args.Message.Origin.Equals("eve", StringComparison.OrdinalIgnoreCase)) {
+                Thread.Sleep(10);
             }
 
             switch (args.Message.Command) {
-                case Commands.PRIVMSG:
-                    break;
                 case Commands.RPL_TOPIC:
                     args.Message.Origin = args.Message.SplitArgs[0];
                     break;
                 case Commands.RPL_NAMES:
                     // = #channelname :user1 user2 
                     args.Message.Origin = args.Message.SplitArgs[1];
+                    break;
+                case Commands.NOTICE:
+                    if (args.Message.Nickname.Equals("ChanServ", StringComparison.OrdinalIgnoreCase)) {
+                        //start: [#channelname]
+                        args.Message.Origin = args.Message.SplitArgs[0].Substring(1, args.Message.SplitArgs[0].Length - 2);
+                    } else {
+                        args.Message.Origin = args.Message.Nickname;
+                    }
+                    break;
+                case Commands.MODE:
+                    if (args.Message.Nickname.Equals("ChanServ", StringComparison.OrdinalIgnoreCase)) {
+                        break;
+                    } else {
+                        args.Message.Origin = args.Message.Nickname;
+                    }
                     break;
                 default:
                     args.Message.Origin = args.Message.Nickname;
