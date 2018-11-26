@@ -30,7 +30,7 @@ namespace Convex.Plugin {
         private List<PluginInstance> Plugins { get; } = new List<PluginInstance>();
 
         public Dictionary<string, List<IAsyncCompsition<T>>> CompositionHandlers { get; } = new Dictionary<string, List<IAsyncCompsition<T>>>();
-        public Dictionary<string, KeyValuePair<string, string>> DescriptionRegistry { get; } = new Dictionary<string, KeyValuePair<string, string>>();
+        public Dictionary<string, CompositionDescription> DescriptionRegistry { get; } = new Dictionary<string, CompositionDescription>();
 
         public bool ShuttingDown { get; private set; }
         public string PluginsDirectory { get; }

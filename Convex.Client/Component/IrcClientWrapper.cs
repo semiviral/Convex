@@ -7,8 +7,8 @@ using Convex.Client.Component.Collections;
 using Convex.Event;
 using Convex.IRC;
 using Convex.IRC.Net;
-using Convex.Plugin.Event;
 using Convex.Plugin.Composition;
+using Convex.Plugin.Event;
 using Convex.Util;
 
 namespace Convex.Client.Component {
@@ -55,14 +55,20 @@ namespace Convex.Client.Component {
 
         private async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args) {
             if (!args.Args.Message.Command.Equals(Commands.ALL)) {
-                await args.Host.CompositionHandlers[Commands.ALL].Invoke(this, args.Args);
+                await InvokeSteps(args);
             }
 
             if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command)) {
                 return;
             }
 
-            await args.Host.CompositionHandlers[args.Args.Message.Command].Invoke(this, args.Args);
+            await InvokeSteps(args);
+        }
+
+        private async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args) {
+            foreach (IAsyncCompsition<ServerMessagedEventArgs> composition in args.Host.CompositionHandlers[args.Args.Message.Command].OrderBy(comp => comp.ExecutionStep)) {
+                await composition.InvokeAsync(args.Args);
+            }
         }
 
         private bool ParseMessageFlag(ServerMessage message) {
