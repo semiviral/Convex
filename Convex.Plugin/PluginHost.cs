@@ -8,8 +8,8 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.Plugin.Event;
 using Convex.Plugin.Composition;
+using Convex.Plugin.Event;
 using Convex.Util;
 using Serilog.Events;
 

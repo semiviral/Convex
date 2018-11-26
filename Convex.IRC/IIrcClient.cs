@@ -13,7 +13,7 @@ namespace Convex.IRC {
         List<string> IgnoreList { get; }
         bool Initialising { get; }
         bool IsInitialised { get; }
-        Dictionary<string, Tuple<string, string>> LoadedCommands { get; }
+        Dictionary<string, KeyValuePair<string, string>> LoadedCommands { get; }
         int Port { get; }
         IServer Server { get; }
         Guid UniqueId { get; }
@@ -28,7 +28,7 @@ namespace Convex.IRC {
         bool CommandExists(string command);
         void Dispose();
         string GetApiKey(string type);
-        Tuple<string, string> GetCommand(string command);
+        KeyValuePair<string, string> GetCommand(string command);
         Task<bool> Initialise(IAddress address);
         void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar);
     }

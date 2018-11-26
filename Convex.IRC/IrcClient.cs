@@ -75,7 +75,7 @@ namespace Convex.IRC {
         public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
 
         public List<string> IgnoreList => Config.IgnoreList ?? new List<string>();
-        public Dictionary<string, Tuple<string, string>> LoadedCommands => ServerMessagedHostWrapper.Host.DescriptionRegistry;
+        public Dictionary<string, KeyValuePair<string, string>> LoadedCommands => ServerMessagedHostWrapper.Host.DescriptionRegistry;
 
         public string Address => Server.Connection.Address.Hostname;
         public int Port => Server.Connection.Address.Port;
@@ -235,8 +235,8 @@ namespace Convex.IRC {
         /// </summary>
         /// <param name="command">Command to be returned</param>
         /// <returns></returns>
-        public Tuple<string, string> GetCommand(string command) {
-            return ServerMessagedHostWrapper.Host.DescriptionRegistry.Values.SingleOrDefault(x => x != null && x.Item1.Equals(command, StringComparison.CurrentCultureIgnoreCase));
+        public KeyValuePair<string, string> GetCommand(string command) {
+            return ServerMessagedHostWrapper.Host.DescriptionRegistry.Values.SingleOrDefault(kvp => kvp.Key.Equals(command, StringComparison.CurrentCultureIgnoreCase));
         }
 
         /// <summary>
