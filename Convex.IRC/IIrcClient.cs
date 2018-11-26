@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.IRC.Net;
-using Convex.Plugin.Registrar;
+using Convex.Plugin.Composition;
 
 namespace Convex.IRC {
     public interface IIrcClient {
@@ -30,6 +30,6 @@ namespace Convex.IRC {
         string GetApiKey(string type);
         Tuple<string, string> GetCommand(string command);
         Task<bool> Initialise(IAddress address);
-        void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar);
+        void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar);
     }
 }

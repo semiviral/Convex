@@ -8,7 +8,7 @@ using Convex.Event;
 using Convex.IRC;
 using Convex.IRC.Net;
 using Convex.Plugin.Event;
-using Convex.Plugin.Registrar;
+using Convex.Plugin.Composition;
 using Convex.Util;
 
 namespace Convex.Client.Component {

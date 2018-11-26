@@ -1,4 +1,4 @@
-﻿namespace Convex.Plugin.Registrar {
+﻿namespace Convex.Plugin.Composition {
     /// <summary>
     ///     A registrar's execution step defines where in the chain of execution it falls.
     ///     0 is executed first, 1 second, etc.

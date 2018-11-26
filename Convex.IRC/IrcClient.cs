@@ -11,7 +11,7 @@ using Convex.IRC.Net;
 using Convex.IRC.Net.Event;
 using Convex.Plugin;
 using Convex.Plugin.Event;
-using Convex.Plugin.Registrar;
+using Convex.Plugin.Composition;
 using Convex.Util;
 using Newtonsoft.Json;
 
@@ -26,7 +26,7 @@ namespace Convex.IRC {
         public IrcClient(Func<ServerMessage, string> formatter, Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod, IConfiguration config = null) {
             Initialising = true;
 
-            _pendingPlugins = new Stack<IAsyncRegistrar<ServerMessagedEventArgs>>();
+            _pendingPlugins = new Stack<IAsyncCompsition<ServerMessagedEventArgs>>();
 
             UniqueId = Guid.NewGuid();
             Server = new Server(formatter);
@@ -86,7 +86,7 @@ namespace Convex.IRC {
 
         private bool _disposed;
 
-        private Stack<IAsyncRegistrar<ServerMessagedEventArgs>> _pendingPlugins;
+        private Stack<IAsyncCompsition<ServerMessagedEventArgs>> _pendingPlugins;
 
         #endregion
 
@@ -214,14 +214,14 @@ namespace Convex.IRC {
 
         #region METHODS
 
-        public void RegisterMethod(IAsyncRegistrar<ServerMessagedEventArgs> methodRegistrar) {
+        public void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar) {
             if (!IsInitialised && !Initialising) {
                 _pendingPlugins.Push(methodRegistrar);
 
                 return;
             }
 
-            ServerMessagedHostWrapper.Host.RegisterMethod(methodRegistrar);
+            ServerMessagedHostWrapper.Host.RegisterComposition(methodRegistrar);
         }
 
         private void RegisterMethods() {

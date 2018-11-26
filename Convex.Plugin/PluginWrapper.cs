@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Event;
-using Convex.Plugin.Registrar;
+using Convex.Plugin.Composition;
 using Convex.Util;
 using Serilog.Events;
 
@@ -29,11 +29,11 @@ namespace Convex.Plugin {
                     await OnTerminated(source, new OperationTerminatedEventArgs(source, "Terminate signaled."));
                     break;
                 case PluginActionType.RegisterMethod:
-                    if (!(args.Result is IAsyncRegistrar<T>)) {
+                    if (!(args.Result is IAsyncCompsition<T>)) {
                         break;
                     }
 
-                    Host.RegisterMethod((IAsyncRegistrar<T>)args.Result);
+                    Host.RegisterComposition((IAsyncCompsition<T>)args.Result);
                     break;
                 case PluginActionType.SendMessage:
                     if (!(args.Result is IrcCommandEventArgs)) {

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 #endregion
 
-namespace Convex.Plugin.Registrar {
-    public class Composition<TEventArgs> : IAsyncRegistrar<TEventArgs> where TEventArgs : EventArgs {
+namespace Convex.Plugin.Composition {
+    public class Composition<TEventArgs> : IAsyncCompsition<TEventArgs> where TEventArgs : EventArgs {
         /// <summary>
         ///     Creates a new instance of MethodRegistrar
         /// </summary>

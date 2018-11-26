@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Event;
-using Convex.Plugin.Registrar;
+using Convex.Plugin.Composition;
 using Convex.Util;
 using NodeNetwork;
 

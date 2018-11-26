@@ -5,7 +5,7 @@ using Convex.Client.Component.Log.Sinks;
 using Convex.Client.Models.Proxy;
 using Convex.Event;
 using Convex.IRC.Net;
-using Convex.Plugin.Registrar;
+using Convex.Plugin.Composition;
 using Convex.Util;
 using Microsoft.Extensions.Hosting;
 using Serilog;

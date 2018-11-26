@@ -9,7 +9,7 @@ using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Event;
-using Convex.Plugin.Registrar;
+using Convex.Plugin.Composition;
 using Convex.Util;
 using Serilog.Events;
 
@@ -29,8 +29,8 @@ namespace Convex.Plugin {
 
         private List<PluginInstance> Plugins { get; } = new List<PluginInstance>();
 
-        public Dictionary<string, AsyncEventHandler<T>> CompositionHandlers { get; } = new Dictionary<string, AsyncEventHandler<T>>();
-        public Dictionary<string, Tuple<string, string>> DescriptionRegistry { get; } = new Dictionary<string, Tuple<string, string>>();
+        public Dictionary<string, List<IAsyncCompsition<T>>> CompositionHandlers { get; } = new Dictionary<string, List<IAsyncCompsition<T>>>();
+        public Dictionary<string, KeyValuePair<string, string>> DescriptionRegistry { get; } = new Dictionary<string, KeyValuePair<string, string>>();
 
         public bool ShuttingDown { get; private set; }
         public string PluginsDirectory { get; }
@@ -61,30 +61,24 @@ namespace Convex.Plugin {
             }
         }
 
-        public void RegisterMethod(IAsyncRegistrar<T> registrar) {
-            AddComposition(registrar);
+        public void RegisterComposition(IAsyncCompsition<T> composition) {
+            AddComposition(composition);
 
-            if (DescriptionRegistry.Keys.Contains(registrar.UniqueId)) {
-                StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"'{registrar.UniqueId}' description already exists, skipping entry."));
+            if (DescriptionRegistry.Keys.Contains(composition.UniqueId)) {
+                StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"'{composition.UniqueId}' description already exists, skipping entry."));
             } else {
-                DescriptionRegistry.Add(registrar.UniqueId, registrar.Description);
+                DescriptionRegistry.Add(composition.UniqueId, composition.Description);
             }
 
-            StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"Loaded plugin: {registrar.UniqueId}"));
+            StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"Loaded plugin: {composition.UniqueId}"));
         }
 
-        private void AddComposition(IAsyncRegistrar<T> registrar) {
-            if (!CompositionHandlers.ContainsKey(registrar.Command)) {
-                CompositionHandlers.Add(registrar.Command, null);
+        private void AddComposition(IAsyncCompsition<T> composition) {
+            if (!CompositionHandlers.ContainsKey(composition.Command)) {
+                CompositionHandlers.Add(composition.Command, null);
             }
 
-            CompositionHandlers[registrar.Command] += async (source, args) => {
-                if (!registrar.CanExecute(args)) {
-                    return;
-                }
-
-                await registrar.Composition(args);
-            };
+            CompositionHandlers[composition.Command].Add(composition);
         }
 
 
