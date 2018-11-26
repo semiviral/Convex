@@ -16,13 +16,13 @@ namespace Convex.Plugin.Composition {
         /// <param name="command">command to reference composition</param>
         /// <param name="composition">registrable composition to be executed</param>
         /// <param name="description">describes composition</param>
-        public Composition(RegistrarExecutionStep executionLevel, Func<TEventArgs, Task> composition, Predicate<TEventArgs> canExecute, string command, CompositionDescription description) {
+        public Composition(RegistrarExecutionStep executionLevel, Func<TEventArgs, Task> composition, Predicate<TEventArgs> canExecute, CompositionDescription description, params string[] commands) {
             UniqueId = Guid.NewGuid().ToString();
 
             ExecutionStep = executionLevel;
             InnerMethod = composition;
             CanExecute = canExecute ?? (obj => true);
-            Command = command ?? string.Empty;
+            Commands = commands;
             Description = description ?? new CompositionDescription("", "undefined");
         }
 
@@ -31,7 +31,7 @@ namespace Convex.Plugin.Composition {
         public RegistrarExecutionStep ExecutionStep { get; }
         public Func<TEventArgs, Task> InnerMethod { get; }
         public Predicate<TEventArgs> CanExecute { get; }
-        public string Command { get; }
+        public string[] Commands { get; }
         public CompositionDescription Description { get; }
 
         public string UniqueId { get; }

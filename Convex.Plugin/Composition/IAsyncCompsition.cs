@@ -13,7 +13,7 @@ namespace Convex.Plugin.Composition {
         Func<T, Task> InnerMethod { get; }
         CompositionDescription Description { get; }
         string UniqueId { get; }
-        string Command { get; }
+        string[] Commands { get; }
 
         Task InvokeAsync(T args);
     }
