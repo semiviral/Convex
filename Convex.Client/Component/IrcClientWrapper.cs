@@ -65,8 +65,6 @@ namespace Convex.Client.Component {
             await args.Host.CompositionHandlers[args.Args.Message.Command].Invoke(this, args.Args);
         }
 
-
-
         private bool ParseMessageFlag(ServerMessage message) {
             switch (message.Command) {
                 case Commands.PING:
@@ -80,7 +78,7 @@ namespace Convex.Client.Component {
             return StaticLog.Format(message.Nickname, message.Args);
         }
 
-        public void RegisterMethod(MethodRegistrar<ServerMessagedEventArgs> args) {
+        public void RegisterMethod(Composition<ServerMessagedEventArgs> args) {
             _client.RegisterMethod(args);
         }
 
@@ -101,14 +99,14 @@ namespace Convex.Client.Component {
         #region REGISTRARS
 
         private void RegisterMethods() {
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step0, IsPing, null, Commands.PING, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step1, FixMessageOrigin, null, Commands.ALL, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step2, Default, null, Commands.ALL, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NamesReply, null, Commands.RPL_NAMES, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Join, null, Commands.JOIN, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Part, null, Commands.PART, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, ChannelTopic, null, Commands.RPL_TOPIC, null));
-            RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NewTopic, null, Commands.TOPIC, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step0, IsPing, null, Commands.PING, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step1, FixMessageOrigin, null, Commands.ALL, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step2, Default, null, Commands.ALL, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NamesReply, null, Commands.RPL_NAMES, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Join, null, Commands.JOIN, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Part, null, Commands.PART, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, ChannelTopic, null, Commands.RPL_TOPIC, null));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NewTopic, null, Commands.TOPIC, null));
         }
 
         private Task IsPing(ServerMessagedEventArgs args) {
