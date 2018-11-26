@@ -169,7 +169,7 @@ namespace Convex.Plugin {
                 return;
             }
 
-            await InvokeAsync(source, args);
+            await InvokedAsync.Invoke(source, args);
         }
 
         private async Task OnPluginCallback(object source, PluginActionEventArgs e) {
