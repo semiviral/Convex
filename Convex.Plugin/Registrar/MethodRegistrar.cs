@@ -16,29 +16,36 @@ namespace Convex.Plugin.Registrar {
         /// <param name="composition">registrable composition to be executed</param>
         /// <param name="description">describes composition</param>
         public Composition(RegistrarExecutionStep executionLevel, Func<TEventArgs, Task> composition, Predicate<TEventArgs> canExecute, string command, Tuple<string, string> description) {
-            IsRegistered = false;
-
             UniqueId = Guid.NewGuid().ToString();
 
             ExecutionStep = executionLevel;
-            Composition = composition;
+            InnerMethod = composition;
             CanExecute = canExecute ?? (obj => true);
             Command = command ?? string.Empty;
             Description = description;
-
-            IsRegistered = true;
         }
 
         #region MEMBERS
 
         public RegistrarExecutionStep ExecutionStep { get; }
-        public Func<TEventArgs, Task> Composition { get; }
+        public Func<TEventArgs, Task> InnerMethod { get; }
         public Predicate<TEventArgs> CanExecute { get; }
         public string Command { get; }
         public Tuple<string, string> Description { get; }
-        public bool IsRegistered { get; }
 
         public string UniqueId { get; }
+
+        #endregion
+
+        #region METHODS
+
+        public async Task InvokeAsync(TEventArgs args) {
+            if (!CanExecute(args)) {
+                return;
+            }
+
+            await InnerMethod.Invoke(args);
+        }
 
         #endregion
     }
