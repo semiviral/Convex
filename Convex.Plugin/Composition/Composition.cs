@@ -23,7 +23,7 @@ namespace Convex.Plugin.Composition {
             InnerMethod = composition;
             CanExecute = canExecute ?? (obj => true);
             Command = command ?? string.Empty;
-            Description = description;
+            Description = description ?? new CompositionDescription("", "undefined");
         }
 
         #region MEMBERS

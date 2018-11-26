@@ -62,7 +62,12 @@ namespace Convex.Plugin {
         }
 
         public void RegisterComposition(IAsyncCompsition<T> composition) {
-            AddComposition(composition);
+            try {
+                AddComposition(composition);
+            } catch (Exception ex)
+            {
+                StaticLog.Log(new LogEventArgs(LogEventLevel.Error, $"Failed to load composition {composition.UniqueId}: {ex}"));
+            }
 
             if (DescriptionRegistry.Keys.Contains(composition.UniqueId)) {
                 StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"'{composition.UniqueId}' description already exists, skipping entry."));
@@ -75,7 +80,7 @@ namespace Convex.Plugin {
 
         private void AddComposition(IAsyncCompsition<T> composition) {
             if (!CompositionHandlers.ContainsKey(composition.Command)) {
-                CompositionHandlers.Add(composition.Command, null);
+                CompositionHandlers.Add(composition.Command, new List<IAsyncCompsition<T>>());
             }
 
             CompositionHandlers[composition.Command].Add(composition);
