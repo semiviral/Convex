@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Convex.Plugin.Composition {
     public interface IAsyncCompsition<in T> {
-        RegistrarExecutionStep ExecutionStep { get; }
+        int ExecutionStep { get; }
         Predicate<T> CanExecute { get; }
         Func<T, Task> InnerMethod { get; }
         CompositionDescription Description { get; }

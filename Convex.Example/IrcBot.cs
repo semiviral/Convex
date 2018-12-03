@@ -1,13 +1,14 @@
 ﻿#region usings
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.IRC;
-using Convex.IRC.Component.Event;
-using Convex.IRC.Component.Reference;
-using Convex.IRC.Dependency;
-using Convex.Plugin.Registrar;
+using Convex.Core;
+using Convex.Core.Net;
+using Convex.Plugin.Composition;
+using Convex.Plugin.Event;
+using Convex.Util;
 using Serilog;
 using Serilog.Events;
 
@@ -19,9 +20,10 @@ namespace Convex.Example {
         ///     Initialises class
         /// </summary>
         public IrcBot() {
-            _bot = new Client();
+
+
+            _bot = new IrcClient(FormatServerMessage, OnInvokedMethod);
             _bot.Initialised += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, "Client initialised."));
-            _bot.Logged += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, args.Information));
             _bot.Server.Connection.Flushed += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
             _bot.Server.ServerMessaged += LogServerMessage;
 
@@ -31,7 +33,7 @@ namespace Convex.Example {
         #region INIT
 
         public async Task Initialise() {
-            await _bot.Initialise("irc.foonetic.net", 6667);
+            await _bot.Initialise(new Address("irc.foonetic.net", 6667));
             RegisterMethods();
 
             IsInitialised = true;
@@ -107,7 +109,7 @@ namespace Convex.Example {
         ///     Register all methods
         /// </summary>
         private void RegisterMethods() {
-            _bot.RegisterMethod(new MethodRegistrar<ServerMessagedEventArgs>(Info, e => e.Message.InputCommand.Equals(nameof(Info).ToLower()), Commands.PRIVMSG, new Tuple<string, string>(nameof(Info), "returns the basic information about this bot")));
+            _bot.RegisterMethod(new Composition<ServerMessagedEventArgs>(99, Info, e => e.Message.InputCommand.Equals(nameof(Info).ToLower()), new CompositionDescription(nameof(Info), "returns the basic information about this bot"), Commands.PRIVMSG));
         }
 
         private async Task Info(ServerMessagedEventArgs e) {
@@ -135,6 +137,42 @@ namespace Convex.Example {
 
         ~IrcBot() {
             Dispose(false);
+        }
+
+        #endregion
+
+        #region METHODS
+
+        private string FormatServerMessage(ServerMessage message) {
+            return StaticLog.Format(message.Nickname, message.Args);
+        }
+
+        private async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args) {
+            if (!args.Args.Message.Command.Equals(Commands.ALL)) {
+                await InvokeSteps(args, Commands.ALL);
+            }
+
+            if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command) || !args.Args.Execute) {
+                return;
+            }
+
+            await InvokeSteps(args, args.Args.Message.Command);
+        }
+
+        /// <summary>
+        ///     Step-invokes an InvokedAsyncEventArgs
+        /// </summary>
+        /// <param name="args">InvokedAsyncEventArgs object</param>
+        /// <param name="contextCommand">Command to execute from</param>
+        /// <returns></returns>
+        private async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args, string contextCommand) {
+            foreach (IAsyncCompsition<ServerMessagedEventArgs> composition in args.Host.CompositionHandlers[contextCommand].OrderBy(comp => comp.ExecutionStep)) {
+                if (!args.Args.Execute) {
+                    return;
+                }
+
+                await composition.InvokeAsync(args.Args);
+            }
         }
 
         #endregion

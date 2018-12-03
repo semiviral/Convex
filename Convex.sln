@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example", "Convex.Ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example.Plugin", "Convex.Example.Plugin\Convex.Example.Plugin.csproj", "{C419C111-5A03-4738-90A5-FB5318F6DB67}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.IRC", "Convex.IRC\Convex.IRC.csproj", "{D3BA1D67-FFB8-40DF-812C-011FB53A0802}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Core", "Convex.IRC\Convex.Core.csproj", "{D3BA1D67-FFB8-40DF-812C-011FB53A0802}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Plugin", "Convex.Plugin\Convex.Plugin.csproj", "{26E6E4F0-B510-46E7-A739-96BCB192BC00}"
 EndProject
@@ -28,7 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Client", "Convex.Client\Convex.Client.csproj", "{C872E64D-236A-49F3-ACB8-1D29C756247C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convex.Util", "Convex.Util\Convex.Util.csproj", "{88D04192-B339-4A89-A4B2-C206E548B092}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Util", "Convex.Util\Convex.Util.csproj", "{88D04192-B339-4A89-A4B2-C206E548B092}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

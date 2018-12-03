@@ -55,33 +55,7 @@ namespace Convex.Client.Component {
 
         #region METHODS
 
-        private async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args) {
-            if (!args.Args.Message.Command.Equals(Commands.ALL)) {
-                await InvokeSteps(args, Commands.ALL);
-            }
 
-            if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command) || !args.Args.Execute) {
-                return;
-            }
-
-            await InvokeSteps(args, args.Args.Message.Command);
-        }
-
-        /// <summary>
-        ///     Step-invokes an InvokedAsyncEventArgs
-        /// </summary>
-        /// <param name="args">InvokedAsyncEventArgs object</param>
-        /// <param name="contextCommand">Command to execute from</param>
-        /// <returns></returns>
-        private async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args, string contextCommand) {
-            foreach (IAsyncCompsition<ServerMessagedEventArgs> composition in args.Host.CompositionHandlers[contextCommand].OrderBy(comp => comp.ExecutionStep)) {
-                if (!args.Args.Execute) {
-                    return;
-                }
-
-                await composition.InvokeAsync(args.Args);
-            }
-        }
 
         private bool ParseMessageFlag(ServerMessage message) {
             switch (message.Command) {

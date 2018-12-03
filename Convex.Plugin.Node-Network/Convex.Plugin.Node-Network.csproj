@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Convex.Event\Convex.Event.csproj" />
-    <ProjectReference Include="..\Convex.IRC\Convex.IRC.csproj" />
+    <ProjectReference Include="..\Convex.IRC\Convex.Core.csproj" />
     <ProjectReference Include="..\Convex.Plugin\Convex.Plugin.csproj" />
   </ItemGroup>
 

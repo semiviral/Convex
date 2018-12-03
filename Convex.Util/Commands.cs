@@ -356,7 +356,7 @@ namespace Convex.Util {
         /// <summary>
         ///     :End of MOTD command
         /// </summary>
-        public const string RPLENDOFMOTD = "376";
+        public const string RPL_ENDOFMOTD = "376";
 
         /// <summary>
         ///     :You are now an IRC operator
