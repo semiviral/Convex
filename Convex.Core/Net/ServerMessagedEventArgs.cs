@@ -6,7 +6,7 @@ using Convex.Core.Net;
 
 #endregion
 
-namespace Convex.Event {
+namespace Convex.Net {
     public class ServerMessagedEventArgs : EventArgs {
         public ServerMessagedEventArgs(IIrcClient bot, ServerMessage message) {
             Execute = true;

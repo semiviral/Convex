@@ -10,7 +10,7 @@ using Convex.Core.Component;
 
 #endregion
 
-namespace Convex.Example {
+namespace Convex.IRC.Component {
     public sealed class User : INotifyPropertyChanged {
         public User(int id, string nickname, string realname, int access) {
             Id = id;

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Core.Net;
 using Convex.Plugin.Composition;
+using Convex.Net;
 
 namespace Convex.Core {
     public interface IIrcClient {

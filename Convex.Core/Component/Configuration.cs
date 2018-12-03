@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Convex.Event;
 using Convex.Util;
 using Newtonsoft.Json;
@@ -55,7 +56,7 @@ namespace Convex.Core {
             set => _logFilePath = value;
         }
 
-        public string DatabaseFilePath {
+        public string PluginDirectoryPath {
             get => string.IsNullOrEmpty(_databaseFilePath) ? DefualtDatabaseFilePath : _databaseFilePath;
             set => _databaseFilePath = value;
         }
@@ -82,6 +83,53 @@ namespace Convex.Core {
             _disposed = true;
         }
 
+        public static IConfiguration ParseConfig(string path) {
+            IEnumerable<Property> properties = ReadConfig(path).Select(GenerateProperty);
+
+            Configuration config = new Configuration();
+
+            foreach (Property prop in properties) {
+                switch (prop.Property) {
+                    case "nickname":
+                        config.Nickname = prop.Value;
+                        break;
+                    case "realname":
+                        config.Realname = prop.Value;
+                        break;
+                    case "password":
+                        config.Password = prop.Value;
+                        break;
+                    case "pluginsdirectory":
+                        config.PluginDirectoryPath = prop.Value;
+                        break;
+                    case "logfile":
+                        config.LogFilePath = prop.Value;
+                        break;
+                }
+            }
+
+        }
+
+        private static IEnumerable<string> ReadConfig(string path) {
+            using (StreamReader fstream = new StreamReader(path)) {
+                yield return fstream.ReadLine();
+            }
+        }
+        
+        private static Property GenerateProperty(string rawProperty) {
+            string[] splitProp = rawProperty.Split(' ', 2);
+            return new Property(splitProp[0].ToLower(), splitProp[1].ToLower());
+        }
+
+        private class Property {
+            public Property(string property, string value) {
+                Property = property;
+                Value = value;
+            }
+
+            public string Property { get; }
+            public string Value { get; }
+        }
         #endregion
     }
 }

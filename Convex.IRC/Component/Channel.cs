@@ -5,7 +5,7 @@ using Convex.Util;
 
 #endregion
 
-namespace Convex.Core.Component {
+namespace Convex.IRC.Component {
     public class Channel {
         public Channel(string name) {
             Name = name;

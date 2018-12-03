@@ -2,6 +2,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Convex.Core;
+using Serilog;
 
 #endregion
 
@@ -10,6 +12,7 @@ namespace Convex.Example {
         #region MEMBERS
 
         private static IrcBot Bot { get; set; }
+        private static IConfiguration Config { get; set; }
 
         #endregion
 
@@ -22,7 +25,11 @@ namespace Convex.Example {
         }
 
         private static async Task InitialiseAndExecute() {
+            Config = Configuration.ParseConfig("config");
+
             using (Bot = new IrcBot()) {
+                Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Bot.Config.LogFilePath).WriteTo.LiterateConsole().CreateLogger();
+
                 await Bot.Initialise();
                 await DebugRun();
             }

@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example", "Convex.Ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example.Plugin", "Convex.Example.Plugin\Convex.Example.Plugin.csproj", "{C419C111-5A03-4738-90A5-FB5318F6DB67}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Core", "Convex.IRC\Convex.Core.csproj", "{D3BA1D67-FFB8-40DF-812C-011FB53A0802}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Plugin", "Convex.Plugin\Convex.Plugin.csproj", "{26E6E4F0-B510-46E7-A739-96BCB192BC00}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Plugin.Node-Network", "Convex.Plugin.Node-Network\Convex.Plugin.Node-Network.csproj", "{C1994AA0-F3BF-4979-92C5-FA995F42DA7B}"
@@ -30,6 +28,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Client", "Convex.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Util", "Convex.Util\Convex.Util.csproj", "{88D04192-B339-4A89-A4B2-C206E548B092}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Core", "Convex.Core\Convex.Core.csproj", "{73F68194-E859-494F-91BB-536715DF21B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convex.IRC", "Convex.IRC\Convex.IRC.csproj", "{138FB875-2EAB-4D79-BCDB-61599306117B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,10 +50,6 @@ Global
 		{C419C111-5A03-4738-90A5-FB5318F6DB67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C419C111-5A03-4738-90A5-FB5318F6DB67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C419C111-5A03-4738-90A5-FB5318F6DB67}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D3BA1D67-FFB8-40DF-812C-011FB53A0802}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D3BA1D67-FFB8-40DF-812C-011FB53A0802}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D3BA1D67-FFB8-40DF-812C-011FB53A0802}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D3BA1D67-FFB8-40DF-812C-011FB53A0802}.Release|Any CPU.Build.0 = Release|Any CPU
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -72,6 +70,14 @@ Global
 		{88D04192-B339-4A89-A4B2-C206E548B092}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88D04192-B339-4A89-A4B2-C206E548B092}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88D04192-B339-4A89-A4B2-C206E548B092}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73F68194-E859-494F-91BB-536715DF21B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73F68194-E859-494F-91BB-536715DF21B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73F68194-E859-494F-91BB-536715DF21B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73F68194-E859-494F-91BB-536715DF21B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{138FB875-2EAB-4D79-BCDB-61599306117B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{138FB875-2EAB-4D79-BCDB-61599306117B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{138FB875-2EAB-4D79-BCDB-61599306117B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{138FB875-2EAB-4D79-BCDB-61599306117B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

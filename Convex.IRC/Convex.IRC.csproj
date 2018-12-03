@@ -4,12 +4,8 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Users\semiv\OneDrive\Documents\GitHub\Convex\Convex.Example\bin\Debug\netcoreapp2.1\Plugins\</OutputPath>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <Folder Include="Component\" />
   </ItemGroup>
 
   <ItemGroup>

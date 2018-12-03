@@ -6,6 +6,7 @@ using Convex.Plugin.Event;
 using Convex.Plugin.Composition;
 using Convex.Util;
 using NodeNetwork;
+using Convex.Net;
 
 namespace Convex.Plugin.Node_Network {
     public class LanguageReader : IPlugin {

@@ -1,11 +1,12 @@
-﻿#region usings
+﻿#region USINGS
 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Convex.Event;
 using Convex.Core;
 using Convex.Core.Net;
+using Convex.Event;
+using Convex.Net;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
 using Convex.Util;
@@ -14,20 +15,16 @@ using Serilog.Events;
 
 #endregion
 
-namespace Convex.Example {
+namespace Convex.IRC {
     public class IrcBot : IDisposable {
         /// <summary>
         ///     Initialises class
         /// </summary>
         public IrcBot() {
-
-
             _bot = new IrcClient(FormatServerMessage, OnInvokedMethod);
             _bot.Initialised += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, "Client initialised."));
             _bot.Server.Connection.Flushed += (sender, args) => OnLog(sender, new LogEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
             _bot.Server.ServerMessaged += LogServerMessage;
-
-            Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(_bot.Config.LogFilePath).WriteTo.LiterateConsole().CreateLogger();
         }
 
         #region INIT

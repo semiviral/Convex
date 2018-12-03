@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Core.Net;
 using Convex.Event;
+using Convex.Net;
 using Convex.Plugin;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
