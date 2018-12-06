@@ -2,7 +2,9 @@
 
 using System;
 using System.Threading.Tasks;
+using Convex.Configuration;
 using Convex.Core;
+using Convex.IRC;
 using Serilog;
 
 #endregion
@@ -12,7 +14,7 @@ namespace Convex.Example {
         #region MEMBERS
 
         private static IrcBot Bot { get; set; }
-        private static IConfiguration Config { get; set; }
+        private static IConfig Config { get; set; }
 
         #endregion
 
@@ -25,7 +27,7 @@ namespace Convex.Example {
         }
 
         private static async Task InitialiseAndExecute() {
-            Config = Configuration.ParseConfig("config");
+            Config = new Configuration.Config("default");
 
             using (Bot = new IrcBot()) {
                 Log.Logger = new LoggerConfiguration().WriteTo.RollingFile(Bot.Config.LogFilePath).WriteTo.LiterateConsole().CreateLogger();

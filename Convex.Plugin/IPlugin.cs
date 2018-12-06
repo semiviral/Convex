@@ -22,6 +22,8 @@ namespace Convex.Plugin {
 
         event AsyncEventHandler<PluginActionEventArgs> Callback;
 
+        IConfiguration GetConfiguration();
+
         #region MEMBERS
 
         string Name { get; }

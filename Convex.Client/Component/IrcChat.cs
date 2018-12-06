@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using BlazorSignalR;
 using Convex.Client.Component.Collections;
-using Convex.IRC.Net;
-using Microsoft.AspNetCore.Mvc;
+using Convex.Core.Net;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.SignalR.Client;
 

@@ -31,7 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Util", "Convex.Util\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Core", "Convex.Core\Convex.Core.csproj", "{73F68194-E859-494F-91BB-536715DF21B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convex.IRC", "Convex.IRC\Convex.IRC.csproj", "{138FB875-2EAB-4D79-BCDB-61599306117B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.IRC", "Convex.IRC\Convex.IRC.csproj", "{138FB875-2EAB-4D79-BCDB-61599306117B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convex.Configuration", "Convex.Configuration\Convex.Configuration.csproj", "{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +81,10 @@ Global
 		{138FB875-2EAB-4D79-BCDB-61599306117B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{138FB875-2EAB-4D79-BCDB-61599306117B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{138FB875-2EAB-4D79-BCDB-61599306117B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
