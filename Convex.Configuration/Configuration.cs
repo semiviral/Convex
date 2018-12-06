@@ -8,15 +8,10 @@ using System.Linq;
 #endregion
 
 namespace Convex.Configuration {
-    public class Config : IConfig {
-        public Config(string host) {
-            Host = host;
-            _properties = new List<IProperty>();
-        }
-
-        public static void WriteConfig(string host, IEnumerable<IProperty> properties) {
-            using (StreamWriter wStream = new StreamWriter($@"{AppContext.BaseDirectory}\config\{host}.conf")) {
-                foreach (Property prop in properties) {
+    public static class Config {
+        public static void WriteConfig() {
+            using (StreamWriter wStream = new StreamWriter($@"{AppContext.BaseDirectory}\config\config")) {
+                foreach (Property prop in _properties) {
                     wStream.WriteLineAsync($"{prop}");
                 }
             }
@@ -24,12 +19,11 @@ namespace Convex.Configuration {
 
         #region MEMBERS
 
-        public string Host { get; }
-        private List<IProperty> _properties;
+        private static List<IProperty> _properties = new List<IProperty>();
 
         // I know this isn't readable. Just run the program once and you'll get a much cleaner
         // representation of the default config in the generated config.json
-        public const string DEFAULT_CONFIG = "{\r\n\t\"IgnoreList\": [],\r\n\t\"ApiKeys\": { \"YouTube\": \"\", \"Dictionary\": \"\" },\r\n\t\"Realname\": \"Evealyn\",\r\n\t\"Nickname\": \"Eve\",\r\n\t\"Password\": \"evepass\",\r\n\t\"DatabaseFilePath\": \"\",\r\n\t\"LogFilePath\": \"\",\r\n\t\"PluginsDirectoryPath\": \"\"\r\n}\r\n";
+        public const string DEFAULT_CONFIG = "\r\n";
         public static readonly string DefaultResourceDirectory = AppContext.BaseDirectory.EndsWith(@"\") ? $"{AppContext.BaseDirectory}Resources" : $@"{AppContext.BaseDirectory}\Resources";
         public static readonly string DefaultConfigurationFilePath = DefaultResourceDirectory + @"\config.json";
         public static readonly string DefualtDatabaseFilePath = DefaultResourceDirectory + @"\users.sqlite";
@@ -63,44 +57,39 @@ namespace Convex.Configuration {
 
         #region INTERFACE IMPLEMENTATION
 
-        public void Dispose() {
-            Dispose(true);
-        }
-
-        protected virtual void Dispose(bool dispose) {
-            if (!dispose || _disposed) {
-                return;
-            }
-
-            WriteConfig(Host, _properties);
-
-            _disposed = true;
-        }
-
-        public IEnumerable<IProperty> GetProperties() {
+        public static IEnumerable<IProperty> GetProperties() {
             return _properties;
         }
 
-        public void CommitConfiguration() {
-
+        public static void CommitConfiguration() {
+            WriteConfig();
         }
 
-        public void Initialise(string basePath) {
-            string fullPath = $@"{basePath}\{Host}.conf";
+        public static void Initialise(string basePath) {
+            string fullPath = $@"{basePath}\config";
 
+            // if file doesn't exist, create it
+            // and write defaults to it
             if (!File.Exists(fullPath)) {
                 File.Create(fullPath);
+                File.WriteAllText(fullPath, DEFAULT_CONFIG);
             }
 
+            // read properties from file
             using (StreamReader sReader = new StreamReader(fullPath)) {
-                string[] rawProp = sReader.ReadLine().Split(' ', 2);
-                Property prop = new Property(rawProp[0], rawProp[1]);
+                while (!sReader.EndOfStream) {
+                    string rawProp = sReader.ReadLine();
 
-                _properties.Add(prop);
+                    // For comments
+                    if (rawProp.StartsWith('#')) continue;
+
+                    string[] splitProp = rawProp.Split(' ', 2);
+                    _properties.Add(new Property(splitProp[0], splitProp[1]));
+                }
             }
         }
 
-        public IProperty GetProperty(string key) {
+        public static IProperty GetProperty(string key) {
             return _properties.Single(prop => prop.Key.Equals(key));
         }
 

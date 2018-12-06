@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Convex.Configuration;
 using Convex.Event;
 using Convex.Example.Plugin.Calculator;
 using Convex.Net;
@@ -64,6 +65,10 @@ namespace Convex.Example.Plugin {
         public async Task CallDie() {
             Status = PluginStatus.Stopped;
             await Log($"Calling die, stopping process, sending unload —— plugin: {Name}");
+        }
+
+        public IConfig GetConfiguration() {
+            return null;
         }
 
         #endregion

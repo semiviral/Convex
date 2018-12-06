@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Convex.Configuration\Convex.Configuration.csproj" />
     <ProjectReference Include="..\Convex.IRC\Convex.IRC.csproj" />
   </ItemGroup>
 
