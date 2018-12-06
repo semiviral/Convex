@@ -43,7 +43,7 @@ namespace Convex.Example.Plugin {
         public async Task Start() {
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(1, Default, null, null, Commands.PRIVMSG), Name));
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, MotdReplyEnd, null, null, Commands.RPL_ENDOFMOTD), Name));
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, YouTubeLinkResponse, args => _youtubeRegex.IsMatch(args.Message.Args), null, Commands.PRIVMSG), Name));
+            //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, YouTubeLinkResponse, args => _youtubeRegex.IsMatch(args.Message.Args), null, Commands.PRIVMSG), Name));
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Quit, args => InputEquals(args, "quit"), new CompositionDescription(nameof(Quit), "terminates bot execution"), Commands.PRIVMSG), Name));
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Eval, args => InputEquals(args, "eval"), new CompositionDescription(nameof(Eval), "(<expression>) — evaluates given mathematical expression."), Commands.PRIVMSG), Name));
             //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Join, args => InputEquals(args, "join"), new CompositionDescription(nameof(Join), "(< channel> *<message>) — joins specified channel."), Commands.PRIVMSG), Name));
@@ -65,10 +65,6 @@ namespace Convex.Example.Plugin {
         public async Task CallDie() {
             Status = PluginStatus.Stopped;
             await Log($"Calling die, stopping process, sending unload —— plugin: {Name}");
-        }
-
-        public IConfig GetConfiguration() {
-            return null;
         }
 
         #endregion
@@ -98,11 +94,11 @@ namespace Convex.Example.Plugin {
         #region REGISTRARS
 
         private async Task Default(ServerMessagedEventArgs e) {
-            if (e.Caller.IgnoreList.Contains(e.Message.Realname)) {
+            if (((List<string>)Config.GetProperty("IgnoreList"))?.Contains(e.Message.Realname) == true) {
                 return;
             }
 
-            if (!e.Message.SplitArgs[0].Replace(",", string.Empty).Equals(e.Caller.Config.Nickname.ToLower())) {
+            if (!e.Message.SplitArgs[0].Replace(",", string.Empty).Equals(Config.GetProperty("Nickname").ToString().ToLower())) {
                 return;
             }
 
@@ -144,8 +140,8 @@ namespace Convex.Example.Plugin {
                 return;
             }
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {args.Caller.Config.Password}"), Name));
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.MODE, $"{args.Caller.Config.Nickname} +B"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {Config.GetProperty("Password")}"), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs(Commands.MODE, $"{Config.GetProperty("nickname")} +B"), Name));
 
             //args.Caller.Server.Channels.Add(new Channel("#testgrounds"));
 
@@ -255,37 +251,37 @@ namespace Convex.Example.Plugin {
         //    Status = PluginStatus.Stopped;
         //}
 
-        private async Task YouTubeLinkResponse(ServerMessagedEventArgs args) {
-            Status = PluginStatus.Running;
+        //private async Task YouTubeLinkResponse(ServerMessagedEventArgs args) {
+        //    Status = PluginStatus.Running;
 
-            const int maxDescriptionLength = 100;
+        //    const int maxDescriptionLength = 100;
 
-            string getResponse = await $"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={_youtubeRegex.Match(args.Message.Args).Groups["ID"]}&key={args.Caller.GetApiKey("YouTube")}".HttpGet();
+        //    string getResponse = await $"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={_youtubeRegex.Match(args.Message.Args).Groups["ID"]}&key={args.Caller.GetApiKey("YouTube")}".HttpGet();
 
-            JToken video = JObject.Parse(getResponse)["items"][0]["snippet"];
-            string channel = (string)video["channelTitle"];
-            string title = (string)video["title"];
-            string description = video["description"].ToString().Split('\n')[0];
-            string[] descArray = description.Split(' ');
+        //    JToken video = JObject.Parse(getResponse)["items"][0]["snippet"];
+        //    string channel = (string)video["channelTitle"];
+        //    string title = (string)video["title"];
+        //    string description = video["description"].ToString().Split('\n')[0];
+        //    string[] descArray = description.Split(' ');
 
-            if (description.Length > maxDescriptionLength) {
-                description = string.Empty;
+        //    if (description.Length > maxDescriptionLength) {
+        //        description = string.Empty;
 
-                for (int i = 0; description.Length < maxDescriptionLength; i++) {
-                    description += $" {descArray[i]}";
-                }
+        //        for (int i = 0; description.Length < maxDescriptionLength; i++) {
+        //            description += $" {descArray[i]}";
+        //        }
 
-                if (!description.EndsWith(" ")) {
-                    description.Remove(description.LastIndexOf(' '));
-                }
+        //        if (!description.EndsWith(" ")) {
+        //            description.Remove(description.LastIndexOf(' '));
+        //        }
 
-                description += "....";
-            }
+        //        description += "....";
+        //    }
 
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", $"{title} (by {channel}) — {description}"), Name));
+        //    await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", $"{title} (by {channel}) — {description}"), Name));
 
-            Status = PluginStatus.Stopped;
-        }
+        //    Status = PluginStatus.Stopped;
+        //}
 
         private async Task Define(ServerMessagedEventArgs args) {
             Status = PluginStatus.Processing;

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Convex.Configuration;
 using Convex.Core.Net;
 using Convex.Event;
 using Convex.Net;
@@ -13,7 +14,6 @@ using Convex.Plugin;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
 using Convex.Util;
-using Newtonsoft.Json;
 
 #endregion
 
@@ -23,8 +23,10 @@ namespace Convex.Core {
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     receiving.
         /// </summary>
-        public IrcClient(Func<ServerMessage, string> formatter, Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod, IConfiguration config = null) {
+        public IrcClient(Func<ServerMessage, string> formatter, Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod) {
             Initialising = true;
+
+            Version = new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
 
             _pendingPlugins = new Stack<IAsyncCompsition<ServerMessagedEventArgs>>();
 
@@ -34,9 +36,7 @@ namespace Convex.Core {
             TerminateSignaled += Terminate;
             Server.ServerMessaged += OnServerMessaged;
 
-            InitialiseConfiguration(config);
-
-            ServerMessagedHostWrapper = new PluginHostWrapper<ServerMessagedEventArgs>(Configuration.DefaultPluginDirectoryPath, invokeAsyncMethod, "Convex.*.dll");
+            ServerMessagedHostWrapper = new PluginHostWrapper<ServerMessagedEventArgs>(Config.GetProperty("PluginsDirectory").ToString(), invokeAsyncMethod, "Convex.*.dll");
             ServerMessagedHostWrapper.TerminateSignaled += OnTerminateSignaled;
             ServerMessagedHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
 
@@ -60,7 +60,6 @@ namespace Convex.Core {
 
             await ServerMessagedHostWrapper.Host.StopPlugins();
             Server?.Dispose();
-            Config?.Dispose();
 
             _disposed = true;
         }
@@ -71,10 +70,8 @@ namespace Convex.Core {
 
         public Guid UniqueId { get; }
         public Server Server { get; }
-        public IConfiguration Config { get; private set; }
-        public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
-
-        public List<string> IgnoreList => Config.IgnoreList ?? new List<string>();
+        public Version Version { get; }
+        
         public Dictionary<string, CompositionDescription> LoadedDescriptions => ServerMessagedHostWrapper.Host.DescriptionRegistry;
 
         public string Address => Server.Connection.Address.Hostname;
@@ -107,11 +104,11 @@ namespace Convex.Core {
                 return;
             }
 
-            if (args.Message.Nickname.Equals(Config.Nickname) || Config.IgnoreList.Contains(args.Message.Realname)) {
+            if (args.Message.Nickname.Equals(Config.GetProperty("Nickname").ToString()) || ((List<string>)Config.GetProperty("IgnoreList")).Contains(args.Message.Realname)) {
                 return;
             }
 
-            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(Config.Nickname.ToLower())) {
+            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(Config.GetProperty("Nickname").ToString().ToLower())) {
                 args.Message.InputCommand = args.Message.SplitArgs[1].ToLower();
             }
 
@@ -125,19 +122,6 @@ namespace Convex.Core {
         #endregion
 
         #region INIT
-
-        private void InitialiseConfiguration(IConfiguration configuration) {
-            if (!Directory.Exists(Configuration.DefaultResourceDirectory)) {
-                Directory.CreateDirectory(Configuration.DefaultResourceDirectory);
-            }
-
-            if (configuration == null) {
-                Configuration.CheckCreateConfig(Configuration.DefaultConfigurationFilePath);
-                Config = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(Configuration.DefaultConfigurationFilePath));
-            } else {
-                Config = configuration;
-            }
-        }
 
         public async Task<bool> Initialise(IAddress address) {
             if (IsInitialised || Initialising) {
@@ -154,7 +138,7 @@ namespace Convex.Core {
 
             await OnInitialised(this, new ClassInitialisedEventArgs(this));
 
-            await Server.SendConnectionInfo(Config.Nickname, Config.Realname);
+            await Server.SendConnectionInfo(Config.GetProperty("Nickname").ToString(), Config.GetProperty("Realname").ToString());
 
             Initialising = false;
 
@@ -246,10 +230,6 @@ namespace Convex.Core {
         /// <returns>True: exists; false: does not exist</returns>
         public bool CommandExists(string command) {
             return !GetDescription(command).Equals(default(Tuple<string, string>));
-        }
-
-        public string GetApiKey(string type) {
-            return Config.ApiKeys[type];
         }
 
         #endregion

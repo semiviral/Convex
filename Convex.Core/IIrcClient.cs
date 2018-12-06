@@ -10,8 +10,6 @@ using Convex.Net;
 namespace Convex.Core {
     public interface IIrcClient {
         string Address { get; }
-        IConfiguration Config { get; }
-        List<string> IgnoreList { get; }
         bool Initialising { get; }
         bool IsInitialised { get; }
         Dictionary<string, CompositionDescription> LoadedDescriptions { get; }
@@ -28,7 +26,6 @@ namespace Convex.Core {
         Task BeginListenAsync();
         bool CommandExists(string command);
         void Dispose();
-        string GetApiKey(string type);
         CompositionDescription GetDescription(string command);
         Task<bool> Initialise(IAddress address);
         void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar);

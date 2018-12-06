@@ -6,19 +6,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Convex.Client.Component.Collections;
+using Convex.Core;
+using Convex.Core.Component;
+using Convex.Core.Net;
 using Convex.Event;
-using Convex.IRC;
-using Convex.IRC.Net;
+using Convex.Net;
 using Convex.Plugin.Composition;
-using Convex.Plugin.Event;
 using Convex.Util;
 
 namespace Convex.Client.Component {
     public class IrcClientWrapper {
-        public IrcClientWrapper(IConfiguration config = null) {
+        public IrcClientWrapper() {
             Channels = new ObservableCollection<Channel>();
             Messages = new SortedList<MessagesIndex, IMessage>();
-            _client = new IrcClient(FormatServerMessage, OnInvokedMethod, config);
+            _client = new IrcClient(FormatServerMessage, OnInvokedMethod);
             firstMessageAdded = false;
 
             RegisterMethods();
@@ -91,14 +92,14 @@ namespace Convex.Client.Component {
         #region REGISTRARS
 
         private void RegisterMethods() {
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step0, IsPing, null, null, Commands.PING));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step1, FixMessageOrigin, null, null, Commands.ALL));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step2, Default, null, null, Commands.ALL));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NamesReply, null, null, Commands.RPL_NAMES));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Join, null, null, Commands.JOIN));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, Part, null, null, Commands.PART));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, ChannelTopic, null, null, Commands.RPL_TOPIC));
-            RegisterMethod(new Composition<ServerMessagedEventArgs>(RegistrarExecutionStep.Step3, NewTopic, null, null, Commands.TOPIC));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(0, IsPing, null, null, Commands.PING));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(1, FixMessageOrigin, null, null, Commands.ALL));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(2, Default, null, null, Commands.ALL));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(3, NamesReply, null, null, Commands.RPL_NAMES));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(3, Join, null, null, Commands.JOIN));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(3, Part, null, null, Commands.PART));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(3, ChannelTopic, null, null, Commands.RPL_TOPIC));
+            RegisterMethod(new Composition<ServerMessagedEventArgs>(3, NewTopic, null, null, Commands.TOPIC));
         }
 
         private Task IsPing(ServerMessagedEventArgs args) {
@@ -152,9 +153,6 @@ namespace Convex.Client.Component {
 #if DEBUG
             Debug.WriteLine(args.Message.RawMessage);
 #endif
-
-
-
 
             if (GetChannel(args.Message.Origin) == null) {
                 Channels.Add(new Channel(args.Message.Origin));

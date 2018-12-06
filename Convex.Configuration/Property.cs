@@ -7,5 +7,9 @@
 
         public string Key { get; }
         public object Value { get; }
+
+        public override string ToString() {
+            return (string)Value;
+        }
     }
 }
