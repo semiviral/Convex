@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Component\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Convex.Core\Convex.Core.csproj" />
     <ProjectReference Include="..\Convex.Event\Convex.Event.csproj" />
     <ProjectReference Include="..\Convex.Plugin\Convex.Plugin.csproj" />

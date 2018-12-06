@@ -24,10 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Convex.Core\Convex.Core.csproj" />
-    <ProjectReference Include="..\Convex.Event\Convex.Event.csproj" />
-    <ProjectReference Include="..\Convex.Plugin\Convex.Plugin.csproj" />
-    <ProjectReference Include="..\Convex.Util\Convex.Util.csproj" />
+    <ProjectReference Include="..\Convex.IRC\Convex.IRC.csproj" />
   </ItemGroup>
 
 </Project>

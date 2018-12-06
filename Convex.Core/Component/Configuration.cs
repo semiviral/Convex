@@ -7,6 +7,7 @@ using System.Linq;
 using Convex.Event;
 using Convex.Util;
 using Newtonsoft.Json;
+using Serilog;
 
 #endregion
 
@@ -89,7 +90,7 @@ namespace Convex.Core {
             Configuration config = new Configuration();
 
             foreach (Property prop in properties) {
-                switch (prop.Property) {
+                switch (prop.Key) {
                     case "nickname":
                         config.Nickname = prop.Value;
                         break;
@@ -104,6 +105,9 @@ namespace Convex.Core {
                         break;
                     case "logfile":
                         config.LogFilePath = prop.Value;
+                        break;
+                    default:
+                        StaticLog.Log(new LogEventArgs(Serilog.Events.LogEventLevel.Information, $"Skipping property '{prop.Key}': does not exist"));
                         break;
                 }
             }
@@ -123,11 +127,11 @@ namespace Convex.Core {
 
         private class Property {
             public Property(string property, string value) {
-                Property = property;
+                Key = property;
                 Value = value;
             }
 
-            public string Property { get; }
+            public string Key { get; }
             public string Value { get; }
         }
         #endregion
