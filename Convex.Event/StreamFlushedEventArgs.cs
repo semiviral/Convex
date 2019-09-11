@@ -1,8 +1,15 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Event {
-    public class StreamFlushedEventArgs : EventArgs {
-        public StreamFlushedEventArgs(string information) {
+using System;
+
+#endregion
+
+namespace Convex.Event
+{
+    public class StreamFlushedEventArgs : EventArgs
+    {
+        public StreamFlushedEventArgs(string information)
+        {
             Information = information;
         }
 

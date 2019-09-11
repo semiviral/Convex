@@ -1,53 +1,62 @@
-﻿#region USINGS
+﻿#region
 
 using System;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.Plugin.Event;
 using Convex.Plugin.Composition;
+using Convex.Plugin.Event;
 using Convex.Util;
 using Serilog.Events;
 
-
 #endregion
 
-namespace Convex.Plugin {
-    public class PluginHostWrapper<T> where T : EventArgs {
-        public PluginHostWrapper(string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod, string pluginMask) {
+namespace Convex.Plugin
+{
+    public class PluginHostWrapper<T> where T : EventArgs
+    {
+        public PluginHostWrapper(
+            string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod, string pluginMask)
+        {
             Host = new PluginHost<T>(pluginsDirectory, invokeAsyncMethod, pluginMask);
         }
 
         #region METHODS
 
-        private async Task Callback(object source, PluginActionEventArgs args) {
-            if (Host.ShuttingDown) {
+        private async Task Callback(object source, PluginActionEventArgs args)
+        {
+            if (Host.ShuttingDown)
+            {
                 return;
             }
 
-            switch (args.ActionType) {
+            switch (args.ActionType)
+            {
                 case PluginActionType.SignalTerminate:
                     await OnTerminated(source, new OperationTerminatedEventArgs(source, "Terminate signaled."));
                     break;
                 case PluginActionType.RegisterMethod:
-                    if (!(args.Result is IAsyncCompsition<T>)) {
+                    if (!(args.Result is IAsyncCompsition<T>))
+                    {
                         break;
                     }
 
-                    Host.RegisterComposition((IAsyncCompsition<T>)args.Result);
+                    Host.RegisterComposition((IAsyncCompsition<T>) args.Result);
                     break;
                 case PluginActionType.SendMessage:
-                    if (!(args.Result is IrcCommandEventArgs)) {
+                    if (!(args.Result is IrcCommandEventArgs))
+                    {
                         break;
                     }
 
-                    await OnCommandReceived(source, (IrcCommandEventArgs)args.Result);
+                    await OnCommandReceived(source, (IrcCommandEventArgs) args.Result);
                     break;
                 case PluginActionType.Log:
-                    if (!(args.Result is string)) {
+                    if (!(args.Result is string))
+                    {
                         break;
                     }
 
-                    StaticLog.Log(new LogEventArgs(LogEventLevel.Information, (string)args.Result));
+                    StaticLog.Log(new LogEventArgs(LogEventLevel.Information, (string) args.Result));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -58,8 +67,10 @@ namespace Convex.Plugin {
 
         #region INIT
 
-        public async Task Initialise() {
-            if (Host == null) {
+        public async Task Initialise()
+        {
+            if (Host == null)
+            {
                 return;
             }
 
@@ -84,16 +95,20 @@ namespace Convex.Plugin {
         public event AsyncEventHandler<IrcCommandEventArgs> CommandReceived;
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
 
-        private async Task OnCommandReceived(object source, IrcCommandEventArgs args) {
-            if (CommandReceived == null) {
+        private async Task OnCommandReceived(object source, IrcCommandEventArgs args)
+        {
+            if (CommandReceived == null)
+            {
                 return;
             }
 
             await CommandReceived.Invoke(source, args);
         }
 
-        private async Task OnTerminated(object source, OperationTerminatedEventArgs args) {
-            if (TerminateSignaled == null) {
+        private async Task OnTerminated(object source, OperationTerminatedEventArgs args)
+        {
+            if (TerminateSignaled == null)
+            {
                 return;
             }
 

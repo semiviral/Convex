@@ -1,14 +1,19 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Convex.Event;
 using Convex.Core.Net;
+using Convex.Event;
 using Convex.Plugin.Composition;
-using Convex.Net;
 
-namespace Convex.Core {
-    public interface IIrcClient {
+#endregion
+
+namespace Convex.Core
+{
+    public interface IIrcClient
+    {
         string Address { get; }
         bool Initialising { get; }
         bool IsInitialised { get; }

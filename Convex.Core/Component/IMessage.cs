@@ -1,7 +1,13 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Core.Component {
-    public interface IMessage {
+using System;
+
+#endregion
+
+namespace Convex.Core.Component
+{
+    public interface IMessage
+    {
         DateTime Timestamp { get; }
         string RawMessage { get; }
         string Formatted { get; }

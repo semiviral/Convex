@@ -1,6 +1,9 @@
-﻿namespace Convex.Plugin.Composition {
-    public class CompositionDescription {
-        public CompositionDescription(string command, string description) {
+﻿namespace Convex.Plugin.Composition
+{
+    public class CompositionDescription
+    {
+        public CompositionDescription(string command, string description)
+        {
             Command = command;
             Description = description;
         }

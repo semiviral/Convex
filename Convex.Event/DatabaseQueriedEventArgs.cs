@@ -1,8 +1,15 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Event {
-    public class DatabaseQueriedEventArgs : EventArgs {
-        public DatabaseQueriedEventArgs(string query) {
+using System;
+
+#endregion
+
+namespace Convex.Event
+{
+    public class DatabaseQueriedEventArgs : EventArgs
+    {
+        public DatabaseQueriedEventArgs(string query)
+        {
             Query = query;
         }
 

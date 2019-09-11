@@ -1,23 +1,26 @@
-﻿#region USINGS
+﻿#region
 
 using System;
 using System.Threading.Tasks;
 using Convex.Event;
-using Convex.Net;
 using Convex.Util;
 
 #endregion
 
-namespace Convex.Core.Net {
-    public class Server : IDisposable {
-        public Server(Func<ServerMessage, string> formatter) {
+namespace Convex.Core.Net
+{
+    public class Server : IDisposable
+    {
+        public Server(Func<ServerMessage, string> formatter)
+        {
             Connection = new Connection();
             _formatter = formatter;
         }
 
         #region INTERFACE IMPLEMENTATION
 
-        public void Dispose() {
+        public void Dispose()
+        {
             Connection?.Dispose();
 
             Identified = false;
@@ -36,10 +39,12 @@ namespace Convex.Core.Net {
         /// <remarks>
         ///     Use this method to begin listening cycle.
         /// </remarks>
-        public async Task ListenAsync(IIrcClient caller) {
+        public async Task ListenAsync(IIrcClient caller)
+        {
             string rawData = await Connection.ListenAsync();
 
-            if (string.IsNullOrEmpty(rawData) || await CheckPing(rawData)) {
+            if (string.IsNullOrEmpty(rawData) || await CheckPing(rawData))
+            {
                 return;
             }
 
@@ -50,7 +55,7 @@ namespace Convex.Core.Net {
 
         #region MEMBERS
 
-        private Func<ServerMessage, string> _formatter;
+        private readonly Func<ServerMessage, string> _formatter;
 
         public Connection Connection { get; }
         public bool Identified { get; set; }
@@ -63,8 +68,10 @@ namespace Convex.Core.Net {
 
         public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
 
-        private async Task OnChannelMessaged(object source, ServerMessagedEventArgs args) {
-            if (ServerMessaged == null) {
+        private async Task OnChannelMessaged(object source, ServerMessagedEventArgs args)
+        {
+            if (ServerMessaged == null)
+            {
                 return;
             }
 
@@ -75,7 +82,8 @@ namespace Convex.Core.Net {
 
         #region INIT
 
-        public async Task Initialise(IAddress address) {
+        public async Task Initialise(IAddress address)
+        {
             await Connection.Initialise(address);
 
             Initialised = Connection.IsInitialised;
@@ -84,7 +92,8 @@ namespace Convex.Core.Net {
         /// <summary>
         ///     sends client info to the server
         /// </summary>
-        public async Task SendConnectionInfo(string nickname, string realname) {
+        public async Task SendConnectionInfo(string nickname, string realname)
+        {
             await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.USER, $"{nickname} 0 * {realname}"));
             await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.NICK, nickname));
 
@@ -100,12 +109,15 @@ namespace Convex.Core.Net {
         /// </summary>
         /// <param name="rawData"></param>
         /// <returns></returns>
-        private async Task<bool> CheckPing(string rawData) {
-            if (!rawData.StartsWith(Commands.PING)) {
+        private async Task<bool> CheckPing(string rawData)
+        {
+            if (!rawData.StartsWith(Commands.PING))
+            {
                 return false;
             }
 
-            await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.PONG, rawData.Remove(0, 5))); // removes 'PING ' from string
+            await Connection.SendDataAsync(this,
+                new IrcCommandEventArgs(Commands.PONG, rawData.Remove(0, 5))); // removes 'PING ' from string
             return true;
         }
 

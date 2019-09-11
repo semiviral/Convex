@@ -1,11 +1,19 @@
-﻿using System;
+﻿#region
+
+using System;
 using Convex.Event;
 using Serilog.Events;
 
-namespace Convex.Util {
-    public static class StaticLog {
-        public static void Log(LogEventArgs args) {
-            switch (args.Level) {
+#endregion
+
+namespace Convex.Util
+{
+    public static class StaticLog
+    {
+        public static void Log(LogEventArgs args)
+        {
+            switch (args.Level)
+            {
                 case LogEventLevel.Verbose:
                     Serilog.Log.Verbose(Format(args));
                     break;
@@ -27,15 +35,18 @@ namespace Convex.Util {
             }
         }
 
-        public static string Format(LogEventArgs args) {
+        public static string Format(LogEventArgs args)
+        {
             return $"[{nameof(args.Level).ToUpper()} {GetTime()}] {args.Information}\r\n";
         }
 
-        public static string Format(string nickname, string message) {
+        public static string Format(string nickname, string message)
+        {
             return $"[IRC {GetTime()}] <{nickname}> {message}";
         }
 
-        public static string GetTime() {
+        public static string GetTime()
+        {
             return DateTime.Now.ToString("HH:mm:ss");
         }
     }

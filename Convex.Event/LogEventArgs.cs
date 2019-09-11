@@ -1,10 +1,16 @@
-﻿using System;
+﻿#region
+
+using System;
 using Serilog.Events;
 
+#endregion
 
-namespace Convex.Event {
-    public class LogEventArgs : EventArgs {
-        public LogEventArgs(LogEventLevel logLevel, string message) {
+namespace Convex.Event
+{
+    public class LogEventArgs : EventArgs
+    {
+        public LogEventArgs(LogEventLevel logLevel, string message)
+        {
             Information = message;
             Level = logLevel;
         }

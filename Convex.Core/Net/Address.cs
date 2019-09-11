@@ -1,6 +1,9 @@
-﻿namespace Convex.Core.Net {
-    public class Address : IAddress {
-        public Address(string hostname, int port) {
+﻿namespace Convex.Core.Net
+{
+    public class Address : IAddress
+    {
+        public Address(string hostname, int port)
+        {
             Hostname = hostname;
             Port = port;
         }
@@ -12,7 +15,8 @@
 
         #endregion
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"{Hostname}:{Port}";
         }
     }

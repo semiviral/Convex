@@ -1,8 +1,14 @@
-﻿using System.Collections.Generic;
+﻿#region
+
+using System.Collections.Generic;
 using System.Linq;
 
-namespace Convex.Util {
-    public static class Commands {
+#endregion
+
+namespace Convex.Util
+{
+    public static class Commands
+    {
         #region MEMBERS
 
         public const string ALL = "";
@@ -660,7 +666,8 @@ namespace Convex.Util {
 
         #region METHODS
 
-        public static List<string> CommandsList { get; } = new List<string>(typeof(Commands).GetFields().Select(field => field.Name));
+        public static List<string> CommandsList { get; } =
+            new List<string>(typeof(Commands).GetFields().Select(field => field.Name));
 
         #endregion
     }

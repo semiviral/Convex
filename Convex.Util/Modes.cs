@@ -1,5 +1,7 @@
-﻿namespace Convex.Util {
-    public static class Modes {
+﻿namespace Convex.Util
+{
+    public static class Modes
+    {
         #region MEMBERS
 
         // Several modes mean different things on
@@ -73,8 +75,10 @@
         #endregion
     }
 
-    public class IrcMode {
-        public IrcMode(char identifier, string syntax = "") {
+    public class IrcMode
+    {
+        public IrcMode(char identifier, string syntax = "")
+        {
             Identifier = identifier;
             Syntax = syntax;
         }

@@ -1,4 +1,4 @@
-﻿#region USINGS  
+﻿#region
 
 using System;
 using System.Collections.Generic;
@@ -6,10 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Convex.Configuration;
+using Convex.Core.Configuration;
 using Convex.Core.Net;
 using Convex.Event;
-using Convex.Net;
 using Convex.Plugin;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
@@ -17,13 +16,18 @@ using Convex.Util;
 
 #endregion
 
-namespace Convex.Core {
-    public sealed class IrcClient : IDisposable, IIrcClient {
+namespace Convex.Core
+{
+    public sealed class IrcClient : IDisposable, IIrcClient
+    {
         /// <summary>
         ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
         ///     receiving.
         /// </summary>
-        public IrcClient(Func<ServerMessage, string> formatter, Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod) {
+        public IrcClient(
+            Func<ServerMessage, string> formatter,
+            Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod)
+        {
             Initialising = true;
 
             Version = new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
@@ -36,7 +40,9 @@ namespace Convex.Core {
             TerminateSignaled += Terminate;
             Server.ServerMessaged += OnServerMessaged;
 
-            ServerMessagedHostWrapper = new PluginHostWrapper<ServerMessagedEventArgs>(Config.GetProperty("PluginsDirectory").ToString(), invokeAsyncMethod, "Convex.*.dll");
+            ServerMessagedHostWrapper =
+                new PluginHostWrapper<ServerMessagedEventArgs>(Config.GetProperty("PluginsDirectory").ToString(),
+                    invokeAsyncMethod, "Convex.*.dll");
             ServerMessagedHostWrapper.TerminateSignaled += OnTerminateSignaled;
             ServerMessagedHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
 
@@ -49,12 +55,15 @@ namespace Convex.Core {
         /// <summary>
         ///     Dispose of all streams and objects
         /// </summary>
-        public void Dispose() {
+        public void Dispose()
+        {
             Dispose(true).Wait();
         }
 
-        private async Task Dispose(bool dispose) {
-            if (!dispose || _disposed) {
+        private async Task Dispose(bool dispose)
+        {
+            if (!dispose || _disposed)
+            {
                 return;
             }
 
@@ -71,8 +80,9 @@ namespace Convex.Core {
         public Guid UniqueId { get; }
         public Server Server { get; }
         public Version Version { get; }
-        
-        public Dictionary<string, CompositionDescription> LoadedDescriptions => ServerMessagedHostWrapper.Host.DescriptionRegistry;
+
+        public Dictionary<string, CompositionDescription> LoadedDescriptions =>
+            ServerMessagedHostWrapper.Host.DescriptionRegistry;
 
         public string Address => Server.Connection.Address.Hostname;
         public int Port => Server.Connection.Address.Port;
@@ -83,38 +93,50 @@ namespace Convex.Core {
 
         private bool _disposed;
 
-        private Stack<IAsyncCompsition<ServerMessagedEventArgs>> _pendingPlugins;
+        private readonly Stack<IAsyncCompsition<ServerMessagedEventArgs>> _pendingPlugins;
 
         #endregion
 
         #region RUNTIME
 
-        public async Task BeginListenAsync() {
-            do {
+        public async Task BeginListenAsync()
+        {
+            do
+            {
                 await Server.ListenAsync(this);
             } while (Server.Connection.IsConnected);
         }
 
-        private async Task OnServerMessaged(object source, ServerMessagedEventArgs args) {
-            if (string.IsNullOrEmpty(args.Message.Command)) {
+        private async Task OnServerMessaged(object source, ServerMessagedEventArgs args)
+        {
+            if (string.IsNullOrEmpty(args.Message.Command))
+            {
                 return;
             }
 
-            if (args.Message.Command.Equals(Commands.ERROR)) {
+            if (args.Message.Command.Equals(Commands.ERROR))
+            {
                 return;
             }
 
-            if (args.Message.Nickname.Equals(Config.GetProperty("Nickname").ToString()) || ((List<string>)Config.GetProperty("IgnoreList")).Contains(args.Message.Realname)) {
+            if (args.Message.Nickname.Equals(Config.GetProperty("Nickname").ToString())
+                || ((List<string>) Config.GetProperty("IgnoreList")).Contains(args.Message.Realname))
+            {
                 return;
             }
 
-            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(Config.GetProperty("Nickname").ToString().ToLower())) {
+            if ((args.Message.SplitArgs.Count >= 2)
+                && args.Message.SplitArgs[0].Equals(Config.GetProperty("Nickname").ToString().ToLower()))
+            {
                 args.Message.InputCommand = args.Message.SplitArgs[1].ToLower();
             }
 
-            try {
+            try
+            {
                 await ServerMessagedHostWrapper.Host.InvokeAsync(this, args);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 await OnError(this, new ErrorEventArgs(ex));
             }
         }
@@ -123,8 +145,10 @@ namespace Convex.Core {
 
         #region INIT
 
-        public async Task<bool> Initialise(IAddress address) {
-            if (IsInitialised || Initialising) {
+        public async Task<bool> Initialise(IAddress address)
+        {
+            if (IsInitialised || Initialising)
+            {
                 return true;
             }
 
@@ -138,14 +162,16 @@ namespace Convex.Core {
 
             await OnInitialised(this, new ClassInitialisedEventArgs(this));
 
-            await Server.SendConnectionInfo(Config.GetProperty("Nickname").ToString(), Config.GetProperty("Realname").ToString());
+            await Server.SendConnectionInfo(Config.GetProperty("Nickname").ToString(),
+                Config.GetProperty("Realname").ToString());
 
             Initialising = false;
 
             return IsInitialised = Server.Initialised && ServerMessagedHostWrapper.Initialised;
         }
 
-        private async Task InitialisePluginWrapper() {
+        private async Task InitialisePluginWrapper()
+        {
             await ServerMessagedHostWrapper.Initialise();
         }
 
@@ -158,39 +184,48 @@ namespace Convex.Core {
         public event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
         public event AsyncEventHandler<ErrorEventArgs> Error;
 
-        private async Task OnQuery(object source, DatabaseQueriedEventArgs args) {
-            if (Queried == null) {
+        private async Task OnQuery(object source, DatabaseQueriedEventArgs args)
+        {
+            if (Queried == null)
+            {
                 return;
             }
 
             await Queried.Invoke(source, args);
         }
 
-        private async Task OnTerminateSignaled(object source, OperationTerminatedEventArgs args) {
-            if (TerminateSignaled == null) {
+        private async Task OnTerminateSignaled(object source, OperationTerminatedEventArgs args)
+        {
+            if (TerminateSignaled == null)
+            {
                 return;
             }
 
             await TerminateSignaled.Invoke(source, args);
         }
 
-        private async Task OnInitialised(object source, ClassInitialisedEventArgs args) {
-            if (Initialised == null) {
+        private async Task OnInitialised(object source, ClassInitialisedEventArgs args)
+        {
+            if (Initialised == null)
+            {
                 return;
             }
 
             await Initialised.Invoke(source, args);
         }
 
-        private async Task OnError(object source, ErrorEventArgs args) {
-            if (Error == null) {
+        private async Task OnError(object source, ErrorEventArgs args)
+        {
+            if (Error == null)
+            {
                 return;
             }
 
             await Error.Invoke(source, args);
         }
 
-        private async Task Terminate(object source, OperationTerminatedEventArgs args) {
+        private async Task Terminate(object source, OperationTerminatedEventArgs args)
+        {
             await Dispose(true);
         }
 
@@ -198,8 +233,10 @@ namespace Convex.Core {
 
         #region METHODS
 
-        public void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar) {
-            if (!IsInitialised && !Initialising) {
+        public void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar)
+        {
+            if (!IsInitialised && !Initialising)
+            {
                 _pendingPlugins.Push(methodRegistrar);
 
                 return;
@@ -208,8 +245,10 @@ namespace Convex.Core {
             ServerMessagedHostWrapper.Host.RegisterComposition(methodRegistrar);
         }
 
-        private void RegisterMethods() {
-            while (_pendingPlugins.Count > 0) {
+        private void RegisterMethods()
+        {
+            while (_pendingPlugins.Count > 0)
+            {
                 RegisterMethod(_pendingPlugins.Pop());
             }
         }
@@ -219,8 +258,10 @@ namespace Convex.Core {
         /// </summary>
         /// <param name="command">Command to be returned</param>
         /// <returns></returns>
-        public CompositionDescription GetDescription(string command) {
-            return ServerMessagedHostWrapper.Host.DescriptionRegistry.Values.SingleOrDefault(kvp => kvp.Command.Equals(command, StringComparison.CurrentCultureIgnoreCase));
+        public CompositionDescription GetDescription(string command)
+        {
+            return ServerMessagedHostWrapper.Host.DescriptionRegistry.Values.SingleOrDefault(kvp =>
+                kvp.Command.Equals(command, StringComparison.CurrentCultureIgnoreCase));
         }
 
         /// <summary>
@@ -228,7 +269,8 @@ namespace Convex.Core {
         /// </summary>
         /// <param name="command">comamnd name to be checked</param>
         /// <returns>True: exists; false: does not exist</returns>
-        public bool CommandExists(string command) {
+        public bool CommandExists(string command)
+        {
             return !GetDescription(command).Equals(default(Tuple<string, string>));
         }
 

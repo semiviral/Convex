@@ -1,16 +1,21 @@
-﻿#region usings
+﻿#region
 
 using System;
 
 #endregion
 
-namespace Convex.Example.Plugin.Calculator {
-    public partial class InlineCalculator {
-        private void Calculate(string op, double op1, double op2) {
-            try {
+namespace Convex.Example.Plugin.Calculator
+{
+    public partial class InlineCalculator
+    {
+        private void Calculate(string op, double op1, double op2)
+        {
+            try
+            {
                 double res;
 
-                switch (op) {
+                switch (op)
+                {
                     case Token.ADD:
                         res = op1 + op2;
                         break;
@@ -40,16 +45,21 @@ namespace Convex.Example.Plugin.Calculator {
                 }
 
                 _operands.Push(PostProcess(res));
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 ThrowException(e.Message);
             }
         }
 
-        private void Calculate(string op, double operand) {
+        private void Calculate(string op, double operand)
+        {
             double res = 1;
 
-            try {
-                switch (op) {
+            try
+            {
+                switch (op)
+                {
                     case Token.UNARY_MINUS:
                         res = -operand;
                         break;
@@ -94,12 +104,15 @@ namespace Convex.Example.Plugin.Calculator {
                 }
 
                 _operands.Push(PostProcess(res));
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 ThrowException(e.Message);
             }
         }
 
-        private static double PostProcess(double result) {
+        private static double PostProcess(double result)
+        {
             return Math.Round(result, 10);
         }
     }

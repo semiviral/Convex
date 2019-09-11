@@ -1,25 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <Version>0.1.0.0</Version>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
+    <AssemblyVersion>1.4.0</AssemblyVersion>
+    <FileVersion>1.4.0</FileVersion>
     <Authors>SemiViral</Authors>
     <Company />
     <Product>Convex IRC Library</Product>
     <Description>An IRC library offering simple implementation and versatile capability.</Description>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageProjectUrl>https://github.com/SemiViral/Convex-IRC-Library</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/SemiViral/Convex-IRC-Library/blob/master/LICENSE</PackageLicenseUrl>
-    <Copyright>Copyright 2017 SemiViral</Copyright>
-    <RepositoryUrl>https://github.com/SemiViral/Convex-IRC-Library/tree/master/Convex</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/avirule/Convex</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/avirule/Convex/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>Copyright 2019 SemiViral</Copyright>
+    <RepositoryUrl>https://github.com/avirule/Convex</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>convex irc library bot</PackageTags>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageId>Convex</PackageId>
     <NeutralLanguage>en</NeutralLanguage>
     <SignAssembly>false</SignAssembly>
+    <Title>Convex IRC Library</Title>
+    <PackageVersion>1.4.0</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,7 +29,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Convex.Configuration\Convex.Configuration.csproj" />
     <ProjectReference Include="..\Convex.Event\Convex.Event.csproj" />
     <ProjectReference Include="..\Convex.Plugin\Convex.Plugin.csproj" />
     <ProjectReference Include="..\Convex.Util\Convex.Util.csproj" />
@@ -46,9 +47,5 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Event\" />
   </ItemGroup>
 </Project>

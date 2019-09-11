@@ -1,13 +1,14 @@
-﻿#region usings
+﻿#region
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 #endregion
 
-namespace Convex.Plugin.Composition {
-    public interface IAsyncCompsition<in T> {
+namespace Convex.Plugin.Composition
+{
+    public interface IAsyncCompsition<in T>
+    {
         int ExecutionStep { get; }
         Predicate<T> CanExecute { get; }
         Func<T, Task> InnerMethod { get; }

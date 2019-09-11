@@ -1,4 +1,4 @@
-﻿#region USINGS
+﻿#region
 
 using System;
 using System.Collections.Generic;
@@ -9,10 +9,14 @@ using Convex.Util;
 
 #endregion
 
-namespace Convex.Core.Net {
-    public class ServerMessage : Message {
-        public ServerMessage(string rawData, Func<ServerMessage, string> formatter) : base(rawData) {
-            if (rawData.StartsWith("ERROR")) {
+namespace Convex.Core.Net
+{
+    public class ServerMessage : Message
+    {
+        public ServerMessage(string rawData, Func<ServerMessage, string> formatter) : base(rawData)
+        {
+            if (rawData.StartsWith("ERROR"))
+            {
                 Command = Commands.ERROR;
                 Args = rawData.Substring(rawData.IndexOf(' ') + 1);
                 return;
@@ -28,8 +32,10 @@ namespace Convex.Core.Net {
         /// <summary>
         ///     For parsing IRCv3 message tags
         /// </summary>
-        private void ParseTagsPrefix() {
-            if (!RawMessage.StartsWith("@")) {
+        private void ParseTagsPrefix()
+        {
+            if (!RawMessage.StartsWith("@"))
+            {
                 return;
             }
 
@@ -38,13 +44,17 @@ namespace Convex.Core.Net {
             string fullTagsPrefix = RawMessage.Substring(0, RawMessage.IndexOf(' '));
             string[] primitiveTagsCollection = RawMessage.Split(';');
 
-            foreach (string[] splitPrimitiveTag in primitiveTagsCollection.Select(primitiveTag => primitiveTag.Split('='))) {
+            foreach (string[] splitPrimitiveTag in primitiveTagsCollection.Select(primitiveTag =>
+                primitiveTag.Split('=')))
+            {
                 Tags.Add(splitPrimitiveTag[0], splitPrimitiveTag[1] ?? string.Empty);
             }
         }
 
-        public void Parse() {
-            if (!_MessageRegex.IsMatch(RawMessage)) {
+        public void Parse()
+        {
+            if (!MessageRegex.IsMatch(RawMessage))
+            {
                 return;
             }
 
@@ -53,22 +63,28 @@ namespace Convex.Core.Net {
             Timestamp = DateTime.Now;
 
             // begin parsing message into sections
-            Match mVal = _MessageRegex.Match(RawMessage);
-            Match sMatch = _sourceRegex.Match(mVal.Groups["source"].Value);
+            Match mVal = MessageRegex.Match(RawMessage);
+            Match sMatch = SourceRegex.Match(mVal.Groups["source"].Value);
 
             // class property setting
             Nickname = mVal.Groups["source"].Value;
             Realname = mVal.Groups["source"].Value.ToLower();
             Hostname = mVal.Groups["source"].Value;
             Command = mVal.Groups["Type"].Value;
-            Origin = mVal.Groups["Recipient"].Value.StartsWith(":") ? mVal.Groups["Recipient"].Value.Substring(1) : mVal.Groups["Recipient"].Value;
+            Origin = mVal.Groups["Recipient"].Value.StartsWith(":")
+                ? mVal.Groups["Recipient"].Value.Substring(1)
+                : mVal.Groups["Recipient"].Value;
 
             Args = mVal.Groups["Args"].Value;
 
             // splits the first 5 sections of the message for parsing
-            SplitArgs = Args.Split(new[] { ' ' }, 4).Select(arg => arg.Trim()).ToList();
+            SplitArgs = Args.Split(new[]
+            {
+                ' '
+            }, 4).Select(arg => arg.Trim()).ToList();
 
-            if (!sMatch.Success) {
+            if (!sMatch.Success)
+            {
                 return;
             }
 
@@ -78,7 +94,8 @@ namespace Convex.Core.Net {
             Hostname = sMatch.Groups["Hostname"].Value;
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return RawMessage;
         }
 
@@ -87,8 +104,13 @@ namespace Convex.Core.Net {
         #region MEMBERS
 
         // Regex for parsing RawMessage messages
-        private static readonly Regex _MessageRegex = new Regex(@"^:(?<source>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)", RegexOptions.Compiled);
-        private static readonly Regex _sourceRegex = new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
+        private static readonly Regex MessageRegex =
+            new Regex(@"^:(?<source>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)",
+                RegexOptions.Compiled);
+
+        private static readonly Regex SourceRegex =
+            new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
+
         private readonly Func<ServerMessage, string> _formatter;
 
         public new string Formatted => _formatter.Invoke(this);

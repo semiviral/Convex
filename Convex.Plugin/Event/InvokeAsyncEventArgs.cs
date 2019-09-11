@@ -1,8 +1,15 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Plugin.Event {
-    public class InvokedAsyncEventArgs<T> : EventArgs where T : EventArgs {
-        public InvokedAsyncEventArgs(PluginHost<T> host, T args) {
+using System;
+
+#endregion
+
+namespace Convex.Plugin.Event
+{
+    public class InvokedAsyncEventArgs<T> : EventArgs where T : EventArgs
+    {
+        public InvokedAsyncEventArgs(PluginHost<T> host, T args)
+        {
             Host = host;
             Args = args;
         }

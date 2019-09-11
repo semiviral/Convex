@@ -1,40 +1,29 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Event", "Convex.Event\Convex.Event.csproj", "{086BBA45-D89A-4A7D-926F-EC5F0DAE4ADA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example", "Convex.Example\Convex.Example.csproj", "{CF37CDB3-3E4C-48AA-BA9A-DB5EAC5ABE8F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example.Plugin", "Convex.Example.Plugin\Convex.Example.Plugin.csproj", "{C419C111-5A03-4738-90A5-FB5318F6DB67}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Plugin", "Convex.Plugin\Convex.Plugin.csproj", "{26E6E4F0-B510-46E7-A739-96BCB192BC00}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Plugin.Node-Network", "Convex.Plugin.Node-Network\Convex.Plugin.Node-Network.csproj", "{C1994AA0-F3BF-4979-92C5-FA995F42DA7B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.REST", "Convex.REST\Convex.REST.csproj", "{A58F6301-AF9C-469A-9D1E-1BA99E010F61}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FCB73E7-25B9-4C79-BE52-BFA6601FEDAE}"
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		Convex.Example\bin\Debug\netcoreapp2.1\resource\config = Convex.Example\bin\Debug\netcoreapp2.1\resource\config
 		Config.txt = Config.txt
 		Directory.Build.targets = Directory.Build.targets
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Client", "Convex.Client\Convex.Client.csproj", "{C872E64D-236A-49F3-ACB8-1D29C756247C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Util", "Convex.Util\Convex.Util.csproj", "{88D04192-B339-4A89-A4B2-C206E548B092}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Core", "Convex.Core\Convex.Core.csproj", "{73F68194-E859-494F-91BB-536715DF21B8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.IRC", "Convex.IRC\Convex.IRC.csproj", "{138FB875-2EAB-4D79-BCDB-61599306117B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convex.Configuration", "Convex.Configuration\Convex.Configuration.csproj", "{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convex.Event", "Convex.Event\Convex.Event.csproj", "{F119C942-0A34-4152-9D59-32E79BC105AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,10 +31,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{086BBA45-D89A-4A7D-926F-EC5F0DAE4ADA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{086BBA45-D89A-4A7D-926F-EC5F0DAE4ADA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{086BBA45-D89A-4A7D-926F-EC5F0DAE4ADA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{086BBA45-D89A-4A7D-926F-EC5F0DAE4ADA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CF37CDB3-3E4C-48AA-BA9A-DB5EAC5ABE8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CF37CDB3-3E4C-48AA-BA9A-DB5EAC5ABE8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF37CDB3-3E4C-48AA-BA9A-DB5EAC5ABE8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -58,18 +43,6 @@ Global
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C1994AA0-F3BF-4979-92C5-FA995F42DA7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1994AA0-F3BF-4979-92C5-FA995F42DA7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C1994AA0-F3BF-4979-92C5-FA995F42DA7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C1994AA0-F3BF-4979-92C5-FA995F42DA7B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A58F6301-AF9C-469A-9D1E-1BA99E010F61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A58F6301-AF9C-469A-9D1E-1BA99E010F61}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A58F6301-AF9C-469A-9D1E-1BA99E010F61}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A58F6301-AF9C-469A-9D1E-1BA99E010F61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C872E64D-236A-49F3-ACB8-1D29C756247C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C872E64D-236A-49F3-ACB8-1D29C756247C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C872E64D-236A-49F3-ACB8-1D29C756247C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C872E64D-236A-49F3-ACB8-1D29C756247C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{88D04192-B339-4A89-A4B2-C206E548B092}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{88D04192-B339-4A89-A4B2-C206E548B092}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88D04192-B339-4A89-A4B2-C206E548B092}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -78,14 +51,10 @@ Global
 		{73F68194-E859-494F-91BB-536715DF21B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{138FB875-2EAB-4D79-BCDB-61599306117B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{138FB875-2EAB-4D79-BCDB-61599306117B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{138FB875-2EAB-4D79-BCDB-61599306117B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{138FB875-2EAB-4D79-BCDB-61599306117B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{49F9D5FE-3A9F-494D-945C-EDCE9D83D0A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F119C942-0A34-4152-9D59-32E79BC105AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F119C942-0A34-4152-9D59-32E79BC105AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F119C942-0A34-4152-9D59-32E79BC105AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F119C942-0A34-4152-9D59-32E79BC105AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

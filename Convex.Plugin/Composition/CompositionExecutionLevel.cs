@@ -1,11 +1,12 @@
-﻿namespace Convex.Plugin.Composition {
+﻿namespace Convex.Plugin.Composition
+{
     /// <summary>
     ///     A registrar's execution step defines where in the chain of execution it falls.
     ///     0 is executed first, 1 second, etc.
-    ///     
     ///     Step 0 should be mostly reserved for execution-halting initial checks.
     /// </summary>
-    public enum RegistrarExecutionStep {
+    public enum RegistrarExecutionStep
+    {
         Step0 = 0,
         Step1 = 1,
         Step2 = 2,
@@ -20,6 +21,6 @@
         /// <summary>
         ///     Absolute last step, for display ONLY
         /// </summary>
-        Display = 99,
+        Display = 99
     }
 }

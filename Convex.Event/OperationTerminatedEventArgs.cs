@@ -1,8 +1,15 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Event {
-    public class OperationTerminatedEventArgs : EventArgs {
-        public OperationTerminatedEventArgs(object terminatedObject, string information) {
+using System;
+
+#endregion
+
+namespace Convex.Event
+{
+    public class OperationTerminatedEventArgs : EventArgs
+    {
+        public OperationTerminatedEventArgs(object terminatedObject, string information)
+        {
             TerminatedObject = terminatedObject;
             Information = information;
         }

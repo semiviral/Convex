@@ -1,4 +1,4 @@
-﻿#region usings
+﻿#region
 
 using System;
 using System.Threading.Tasks;
@@ -7,11 +7,13 @@ using Convex.Plugin.Event;
 
 #endregion
 
-namespace Convex.Plugin {
+namespace Convex.Plugin
+{
     /// <summary>
     ///     Interface for hooking a new plugin into Eve
     /// </summary>
-    public interface IPlugin {
+    public interface IPlugin
+    {
         /// <summary>
         ///     Often used to register methods
         /// </summary>
@@ -33,8 +35,10 @@ namespace Convex.Plugin {
         #endregion
     }
 
-    public class PluginInstance {
-        public PluginInstance(IPlugin instance, PluginStatus status) {
+    public class PluginInstance
+    {
+        public PluginInstance(IPlugin instance, PluginStatus status)
+        {
             Instance = instance;
             Status = status;
         }
@@ -47,14 +51,16 @@ namespace Convex.Plugin {
         #endregion
     }
 
-    public enum PluginActionType {
+    public enum PluginActionType
+    {
         Log,
         RegisterMethod,
         SendMessage,
         SignalTerminate
     }
 
-    public enum PluginStatus {
+    public enum PluginStatus
+    {
         Stopped = 0,
         Running,
         Processing

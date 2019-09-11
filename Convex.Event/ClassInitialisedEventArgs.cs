@@ -1,8 +1,15 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Event {
-    public class ClassInitialisedEventArgs : EventArgs {
-        public ClassInitialisedEventArgs(object classObject) {
+using System;
+
+#endregion
+
+namespace Convex.Event
+{
+    public class ClassInitialisedEventArgs : EventArgs
+    {
+        public ClassInitialisedEventArgs(object classObject)
+        {
             ClassObject = classObject;
         }
 

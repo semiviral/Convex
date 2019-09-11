@@ -1,14 +1,22 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Core.Component {
-    public class Message : IMessage {
-        public Message(string rawData) {
+using System;
+
+#endregion
+
+namespace Convex.Core.Component
+{
+    public class Message : IMessage
+    {
+        public Message(string rawData)
+        {
             Timestamp = DateTime.UtcNow;
             RawMessage = Formatted = rawData;
             Origin = Nickname = "System";
         }
 
-        public Message(string rawData, string origin = "System", string nickname = "System") : this(rawData) {
+        public Message(string rawData, string origin = "System", string nickname = "System") : this(rawData)
+        {
             Origin = origin;
             Nickname = nickname;
         }

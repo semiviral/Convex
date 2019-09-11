@@ -1,4 +1,4 @@
-﻿#region USINGS
+﻿#region
 
 using System;
 using System.IO;
@@ -9,9 +9,12 @@ using Serilog.Events;
 
 #endregion
 
-namespace Convex.Core.Net {
-    public sealed class Connection {
-        public void Dispose() {
+namespace Convex.Core.Net
+{
+    public sealed class Connection
+    {
+        public void Dispose()
+        {
             _client?.Dispose();
             _networkStream?.Dispose();
             _reader?.Dispose();
@@ -37,15 +40,18 @@ namespace Convex.Core.Net {
 
         #region INIT
 
-        public async Task Initialise(IAddress address) {
+        public async Task Initialise(IAddress address)
+        {
             Address = address;
 
-            Connected += (source, args) => {
+            Connected += (source, args) =>
+            {
                 IsConnected = true;
                 return Task.CompletedTask;
             };
 
-            Disconnected += (source, args) => {
+            Disconnected += (source, args) =>
+            {
                 IsConnected = false;
                 return Task.CompletedTask;
             };
@@ -55,13 +61,18 @@ namespace Convex.Core.Net {
             IsInitialised = IsConnected;
         }
 
-        private async Task AttemptConnect() {
-            try {
+        private async Task AttemptConnect()
+        {
+            try
+            {
                 await ConnectAsync();
 
                 await OnConnected(this, new ConnectedEventArgs(this, $"Connected to endpoint {Address} "));
-            } catch (Exception) {
-                await OnDisconnected(this, new DisconnectedEventArgs(this, $"Unable to connect to endpoint {Address} "));
+            }
+            catch (Exception)
+            {
+                await OnDisconnected(this,
+                    new DisconnectedEventArgs(this, $"Unable to connect to endpoint {Address} "));
 
                 throw;
             }
@@ -71,7 +82,8 @@ namespace Convex.Core.Net {
 
         #region METHODS
 
-        public async Task SendDataAsync(object source, IrcCommandEventArgs args) {
+        public async Task SendDataAsync(object source, IrcCommandEventArgs args)
+        {
             await WriteAsync(args.ToString());
         }
 
@@ -81,18 +93,27 @@ namespace Convex.Core.Net {
         /// <remarks>
         ///     Do not use this method to start listening cycle.
         /// </remarks>
-        public async Task<string> ListenAsync() {
+        public async Task<string> ListenAsync()
+        {
             string data = string.Empty;
             Executing = true;
 
-            try {
+            try
+            {
                 data = await ReadAsync();
-            } catch (NullReferenceException) {
-                await OnLogged(this, new LogEventArgs(LogEventLevel.Information, "Stream disconnected. Attempting to reconnect..."));
+            }
+            catch (NullReferenceException)
+            {
+                await OnLogged(this,
+                    new LogEventArgs(LogEventLevel.Information, "Stream disconnected. Attempting to reconnect..."));
 
                 await AttemptConnect();
-            } catch (Exception ex) {
-                await OnLogged(this, new LogEventArgs(LogEventLevel.Information, $"Exception occured while listening on stream: {ex.Message}"));
+            }
+            catch (Exception ex)
+            {
+                await OnLogged(this,
+                    new LogEventArgs(LogEventLevel.Information,
+                        $"Exception occured while listening on stream: {ex.Message}"));
             }
 
             Executing = false;
@@ -100,7 +121,8 @@ namespace Convex.Core.Net {
             return data;
         }
 
-        private async Task ConnectAsync() {
+        private async Task ConnectAsync()
+        {
             _client = new TcpClient();
             await _client.ConnectAsync(Address.Hostname, Address.Port);
 
@@ -109,8 +131,10 @@ namespace Convex.Core.Net {
             _writer = new StreamWriter(_networkStream);
         }
 
-        private async Task WriteAsync(string writable) {
-            if (_writer.BaseStream == null) {
+        private async Task WriteAsync(string writable)
+        {
+            if (_writer.BaseStream == null)
+            {
                 throw new NullReferenceException(nameof(_writer.BaseStream));
             }
 
@@ -120,8 +144,10 @@ namespace Convex.Core.Net {
             await OnFlushed(this, new StreamFlushedEventArgs(writable));
         }
 
-        internal async Task<string> ReadAsync() {
-            if (_reader.BaseStream == null) {
+        internal async Task<string> ReadAsync()
+        {
+            if (_reader.BaseStream == null)
+            {
                 throw new NullReferenceException(nameof(_reader.BaseStream));
             }
 
@@ -138,40 +164,50 @@ namespace Convex.Core.Net {
         public event AsyncEventHandler<StreamFlushedEventArgs> Flushed;
         public event AsyncEventHandler<LogEventArgs> Logged;
 
-        private async Task OnInitialised(object source, ClassInitialisedEventArgs args) {
-            if (Initialised == null) {
+        private async Task OnInitialised(object source, ClassInitialisedEventArgs args)
+        {
+            if (Initialised == null)
+            {
                 return;
             }
 
             await Initialised.Invoke(source, args);
         }
 
-        private async Task OnConnected(object source, ConnectedEventArgs args) {
-            if (Connected == null) {
+        private async Task OnConnected(object source, ConnectedEventArgs args)
+        {
+            if (Connected == null)
+            {
                 return;
             }
 
             await Connected.Invoke(source, args);
         }
 
-        private async Task OnDisconnected(object source, DisconnectedEventArgs args) {
-            if (Disconnected == null) {
+        private async Task OnDisconnected(object source, DisconnectedEventArgs args)
+        {
+            if (Disconnected == null)
+            {
                 return;
             }
 
             await Disconnected.Invoke(source, args);
         }
 
-        private async Task OnFlushed(object source, StreamFlushedEventArgs args) {
-            if (Flushed == null) {
+        private async Task OnFlushed(object source, StreamFlushedEventArgs args)
+        {
+            if (Flushed == null)
+            {
                 return;
             }
 
             await Flushed.Invoke(source, args);
         }
 
-        private async Task OnLogged(object source, LogEventArgs args) {
-            if (Logged == null) {
+        private async Task OnLogged(object source, LogEventArgs args)
+        {
+            if (Logged == null)
+            {
                 return;
             }
 

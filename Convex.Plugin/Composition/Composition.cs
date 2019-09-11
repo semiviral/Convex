@@ -1,13 +1,14 @@
-﻿#region usings
+﻿#region
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 #endregion
 
-namespace Convex.Plugin.Composition {
-    public class Composition<TEventArgs> : IAsyncCompsition<TEventArgs> where TEventArgs : EventArgs {
+namespace Convex.Plugin.Composition
+{
+    public class Composition<TEventArgs> : IAsyncCompsition<TEventArgs> where TEventArgs : EventArgs
+    {
         /// <summary>
         ///     Creates a new instance of MethodRegistrar
         /// </summary>
@@ -16,7 +17,10 @@ namespace Convex.Plugin.Composition {
         /// <param name="command">command to reference composition</param>
         /// <param name="composition">registrable composition to be executed</param>
         /// <param name="description">describes composition</param>
-        public Composition(int executionLevel, Func<TEventArgs, Task> composition, Predicate<TEventArgs> canExecute, CompositionDescription description, params string[] commands) {
+        public Composition(
+            int executionLevel, Func<TEventArgs, Task> composition, Predicate<TEventArgs> canExecute,
+            CompositionDescription description, params string[] commands)
+        {
             UniqueId = Guid.NewGuid().ToString();
 
             ExecutionStep = executionLevel;
@@ -40,8 +44,10 @@ namespace Convex.Plugin.Composition {
 
         #region METHODS
 
-        public async Task InvokeAsync(TEventArgs args) {
-            if (!CanExecute(args)) {
+        public async Task InvokeAsync(TEventArgs args)
+        {
+            if (!CanExecute(args))
+            {
                 return;
             }
 

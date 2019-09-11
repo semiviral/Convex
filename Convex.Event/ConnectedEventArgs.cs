@@ -1,8 +1,15 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Event {
-    public class ConnectedEventArgs : EventArgs {
-        public ConnectedEventArgs(object connection, string information) {
+using System;
+
+#endregion
+
+namespace Convex.Event
+{
+    public class ConnectedEventArgs : EventArgs
+    {
+        public ConnectedEventArgs(object connection, string information)
+        {
             Connection = connection;
             Information = information;
         }

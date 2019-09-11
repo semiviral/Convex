@@ -1,13 +1,21 @@
-﻿using System;
+﻿#region
 
-namespace Convex.Event {
-    public class IrcCommandEventArgs : EventArgs {
-        public IrcCommandEventArgs(string command, string arguments) {
+using System;
+
+#endregion
+
+namespace Convex.Event
+{
+    public class IrcCommandEventArgs : EventArgs
+    {
+        public IrcCommandEventArgs(string command, string arguments)
+        {
             Command = command;
             Arguments = arguments;
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"{Command} {string.Join(' ', Arguments)}";
         }
 
