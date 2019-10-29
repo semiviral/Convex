@@ -15,12 +15,12 @@ namespace Convex.Core.Net
     {
         public void Dispose()
         {
-            _client?.Dispose();
-            _networkStream?.Dispose();
-            _reader?.Dispose();
-            _writer?.Dispose();
+            _Client?.Dispose();
+            _NetworkStream?.Dispose();
+            _Reader?.Dispose();
+            _Writer?.Dispose();
 
-            IsInitialised = false;
+            IsInitialized = false;
             IsConnected = false;
         }
 
@@ -28,19 +28,19 @@ namespace Convex.Core.Net
 
         public IAddress Address { get; private set; }
         public bool IsConnected { get; private set; }
-        public bool IsInitialised { get; private set; }
-        public bool Executing { get; set; }
+        public bool IsInitialized { get; private set; }
+        public bool Executing { get; private set; }
 
-        private TcpClient _client;
-        private NetworkStream _networkStream;
-        private StreamReader _reader;
-        private StreamWriter _writer;
+        private TcpClient _Client;
+        private NetworkStream _NetworkStream;
+        private StreamReader _Reader;
+        private StreamWriter _Writer;
 
         #endregion
 
         #region INIT
 
-        public async Task Initialise(IAddress address)
+        public async Task<bool> Initialize(IAddress address)
         {
             Address = address;
 
@@ -58,7 +58,14 @@ namespace Convex.Core.Net
 
             await AttemptConnect();
 
-            IsInitialised = IsConnected;
+            IsInitialized = IsConnected;
+
+            if (IsInitialized)
+            {
+                await OnInitialized(this, new ClassInitializedEventArgs(this));
+            }
+
+            return IsInitialized;
         }
 
         private async Task AttemptConnect()
@@ -88,7 +95,7 @@ namespace Convex.Core.Net
         }
 
         /// <summary>
-        ///     Recieves input from open stream
+        ///     Receives input from open stream
         /// </summary>
         /// <remarks>
         ///     Do not use this method to start listening cycle.
@@ -123,55 +130,55 @@ namespace Convex.Core.Net
 
         private async Task ConnectAsync()
         {
-            _client = new TcpClient();
-            await _client.ConnectAsync(Address.Hostname, Address.Port);
+            _Client = new TcpClient();
+            await _Client.ConnectAsync(Address.Hostname, Address.Port);
 
-            _networkStream = _client.GetStream();
-            _reader = new StreamReader(_networkStream);
-            _writer = new StreamWriter(_networkStream);
+            _NetworkStream = _Client.GetStream();
+            _Reader = new StreamReader(_NetworkStream);
+            _Writer = new StreamWriter(_NetworkStream);
         }
 
         private async Task WriteAsync(string writable)
         {
-            if (_writer.BaseStream == null)
+            if (_Writer.BaseStream == null)
             {
-                throw new NullReferenceException(nameof(_writer.BaseStream));
+                throw new NullReferenceException(nameof(_Writer.BaseStream));
             }
 
-            await _writer.WriteLineAsync(writable);
-            await _writer.FlushAsync();
+            await _Writer.WriteLineAsync(writable);
+            await _Writer.FlushAsync();
 
             await OnFlushed(this, new StreamFlushedEventArgs(writable));
         }
 
-        internal async Task<string> ReadAsync()
+        private async Task<string> ReadAsync()
         {
-            if (_reader.BaseStream == null)
+            if (_Reader.BaseStream == null)
             {
-                throw new NullReferenceException(nameof(_reader.BaseStream));
+                throw new NullReferenceException(nameof(_Reader.BaseStream));
             }
 
-            return await _reader.ReadLineAsync();
+            return await _Reader.ReadLineAsync();
         }
 
         #endregion
 
         #region EVENTS
 
-        public event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
+        public event AsyncEventHandler<ClassInitializedEventArgs> Initialized;
         public event AsyncEventHandler<ConnectedEventArgs> Connected;
         public event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
         public event AsyncEventHandler<StreamFlushedEventArgs> Flushed;
         public event AsyncEventHandler<LogEventArgs> Logged;
 
-        private async Task OnInitialised(object source, ClassInitialisedEventArgs args)
+        private async Task OnInitialized(object source, ClassInitializedEventArgs args)
         {
-            if (Initialised == null)
+            if (Initialized == null)
             {
                 return;
             }
 
-            await Initialised.Invoke(source, args);
+            await Initialized.Invoke(source, args);
         }
 
         private async Task OnConnected(object source, ConnectedEventArgs args)

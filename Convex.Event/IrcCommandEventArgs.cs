@@ -14,10 +14,7 @@ namespace Convex.Event
             Arguments = arguments;
         }
 
-        public override string ToString()
-        {
-            return $"{Command} {string.Join(' ', Arguments)}";
-        }
+        public override string ToString() => $"{Command} {string.Join(' ', Arguments)}";
 
         #region MEMBERS
 

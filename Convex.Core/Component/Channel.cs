@@ -14,7 +14,7 @@ namespace Convex.Core.Component
             Name = name;
             Topic = string.Empty;
             Inhabitants = new List<string>();
-            Modes = new List<IrcMode>();
+            Modes = new List<Mode>();
             IsPrivate = !Name.StartsWith("#");
         }
 
@@ -23,7 +23,7 @@ namespace Convex.Core.Component
         public string Name { get; }
         public string Topic { get; internal set; }
         public List<string> Inhabitants { get; }
-        public List<IrcMode> Modes { get; }
+        public List<Mode> Modes { get; }
         public bool IsPrivate { get; }
         public bool Connected { get; internal set; }
 

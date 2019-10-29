@@ -14,7 +14,7 @@ namespace Convex.Core.Net
         public Server(Func<ServerMessage, string> formatter)
         {
             Connection = new Connection();
-            _formatter = formatter;
+            _Formatter = formatter;
         }
 
         #region INTERFACE IMPLEMENTATION
@@ -24,7 +24,7 @@ namespace Convex.Core.Net
             Connection?.Dispose();
 
             Identified = false;
-            Initialised = false;
+            Initialized = false;
         }
 
         #endregion
@@ -43,23 +43,23 @@ namespace Convex.Core.Net
         {
             string rawData = await Connection.ListenAsync();
 
-            if (string.IsNullOrEmpty(rawData) || await CheckPing(rawData))
+            if (string.IsNullOrEmpty(rawData) || await CheckIsPing(rawData))
             {
                 return;
             }
 
-            await OnChannelMessaged(this, new ServerMessagedEventArgs(caller, new ServerMessage(rawData, _formatter)));
+            await OnChannelMessaged(this, new ServerMessagedEventArgs(caller, new ServerMessage(rawData, _Formatter)));
         }
 
         #endregion
 
         #region MEMBERS
 
-        private readonly Func<ServerMessage, string> _formatter;
+        private readonly Func<ServerMessage, string> _Formatter;
 
         public Connection Connection { get; }
         public bool Identified { get; set; }
-        public bool Initialised { get; private set; }
+        public bool Initialized { get; private set; }
         public bool Executing => Connection.Executing;
 
         #endregion
@@ -82,17 +82,17 @@ namespace Convex.Core.Net
 
         #region INIT
 
-        public async Task Initialise(IAddress address)
+        public async Task Initialize(IAddress address)
         {
-            await Connection.Initialise(address);
+            await Connection.Initialize(address);
 
-            Initialised = Connection.IsInitialised;
+            Initialized = Connection.IsInitialized;
         }
 
         /// <summary>
         ///     sends client info to the server
         /// </summary>
-        public async Task SendConnectionInfo(string nickname, string realname)
+        public async Task SendIdentityInfo(string nickname, string realname)
         {
             await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.USER, $"{nickname} 0 * {realname}"));
             await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.NICK, nickname));
@@ -109,7 +109,7 @@ namespace Convex.Core.Net
         /// </summary>
         /// <param name="rawData"></param>
         /// <returns></returns>
-        private async Task<bool> CheckPing(string rawData)
+        private async Task<bool> CheckIsPing(string rawData)
         {
             if (!rawData.StartsWith(Commands.PING))
             {

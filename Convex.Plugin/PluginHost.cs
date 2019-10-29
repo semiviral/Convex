@@ -19,8 +19,8 @@ namespace Convex.Plugin
 {
     public class PluginHost<T> where T : EventArgs
     {
-        public PluginHost(
-            string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod, string pluginMask)
+        public PluginHost(string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod,
+            string pluginMask)
         {
             PluginsDirectory = pluginsDirectory;
             InvokedAsync += async (source, args) => await invokeAsyncMethod(new InvokedAsyncEventArgs<T>(this, args));
@@ -169,7 +169,7 @@ namespace Convex.Plugin
         /// <returns></returns>
         private static IEnumerable<IPlugin> GetPluginInstances(string assemblyName)
         {
-            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin) Activator.CreateInstance(type));
+            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin)Activator.CreateInstance(type));
         }
 
         /// <summary>
@@ -182,10 +182,8 @@ namespace Convex.Plugin
             return assembly.GetTypes().Where(type => type.GetTypeInfo().GetInterfaces().Contains(typeof(IPlugin)));
         }
 
-        private static Assembly GetAssembly(string assemblyName)
-        {
-            return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyName);
-        }
+        private static Assembly GetAssembly(string assemblyName) =>
+            AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyName);
 
         /// <summary>
         ///     Adds IPlugin instance to internal list

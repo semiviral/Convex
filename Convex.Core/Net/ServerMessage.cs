@@ -24,7 +24,7 @@ namespace Convex.Core.Net
 
             Parse();
 
-            _formatter = formatter;
+            _Formatter = formatter;
         }
 
         #region METHODS
@@ -53,7 +53,7 @@ namespace Convex.Core.Net
 
         public void Parse()
         {
-            if (!MessageRegex.IsMatch(RawMessage))
+            if (!_MessageRegex.IsMatch(RawMessage))
             {
                 return;
             }
@@ -63,12 +63,12 @@ namespace Convex.Core.Net
             Timestamp = DateTime.Now;
 
             // begin parsing message into sections
-            Match mVal = MessageRegex.Match(RawMessage);
-            Match sMatch = SourceRegex.Match(mVal.Groups["source"].Value);
+            Match mVal = _MessageRegex.Match(RawMessage);
+            Match sMatch = _SourceRegex.Match(mVal.Groups["source"].Value);
 
             // class property setting
             Nickname = mVal.Groups["source"].Value;
-            Realname = mVal.Groups["source"].Value.ToLower();
+            RealName = mVal.Groups["source"].Value.ToLower();
             Hostname = mVal.Groups["source"].Value;
             Command = mVal.Groups["Type"].Value;
             Origin = mVal.Groups["Recipient"].Value.StartsWith(":")
@@ -88,36 +88,38 @@ namespace Convex.Core.Net
                 return;
             }
 
-            string realname = sMatch.Groups["Realname"].Value;
+            string realName = sMatch.Groups["Realname"].Value;
             Nickname = sMatch.Groups["Nickname"].Value;
-            Realname = realname.StartsWith("~") ? realname.Substring(1) : realname;
+            RealName = realName.StartsWith("~") ? realName.Substring(1) : realName;
             Hostname = sMatch.Groups["Hostname"].Value;
         }
 
-        public override string ToString()
-        {
-            return RawMessage;
-        }
+        public override string ToString() => RawMessage;
 
         #endregion
 
         #region MEMBERS
 
-        // Regex for parsing RawMessage messages
-        private static readonly Regex MessageRegex =
+        /// <summary>
+        ///     Regex for parsing raw server message
+        /// </summary>
+        private static readonly Regex _MessageRegex =
             new Regex(@"^:(?<source>[^\s]+)\s(?<Type>[^\s]+)\s(?<Recipient>[^\s]+)\s?:?(?<Args>.*)",
                 RegexOptions.Compiled);
 
-        private static readonly Regex SourceRegex =
+        /// <summary>
+        ///     Regex for parsing message source
+        /// </summary>
+        private static readonly Regex _SourceRegex =
             new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
 
-        private readonly Func<ServerMessage, string> _formatter;
+        private readonly Func<ServerMessage, string> _Formatter;
 
-        public new string Formatted => _formatter.Invoke(this);
+        public new string Formatted => _Formatter?.Invoke(this) ?? RawMessage;
 
         public bool IsIrCv3Message { get; private set; }
 
-        public string Realname { get; set; }
+        public string RealName { get; set; }
         public string Hostname { get; set; }
         public string Command { get; set; }
         public string Args { get; set; }

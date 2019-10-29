@@ -1,6 +1,4 @@
 ﻿namespace Convex.Plugin.Event
 {
-    internal class EventArgs<T>
-    {
-    }
+    internal class EventArgs<T> { }
 }

@@ -23,19 +23,19 @@ namespace Convex.Example
         /// </summary>
         public IrcBot()
         {
-            _bot = new IrcClient(FormatServerMessage, OnInvokedMethod);
-            _bot.Initialised += (sender, args) =>
-                OnLog(sender, new LogEventArgs(LogEventLevel.Information, "Client initialised."));
-            _bot.Server.Connection.Flushed += (sender, args) =>
+            _Bot = new IrcClient(FormatServerMessage, OnInvokedMethod);
+            _Bot.Initialized += (sender, args) =>
+                OnLog(sender, new LogEventArgs(LogEventLevel.Information, "Client initialized."));
+            _Bot.Server.Connection.Flushed += (sender, args) =>
                 OnLog(sender, new LogEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
-            _bot.Server.ServerMessaged += LogServerMessage;
+            _Bot.Server.ServerMessaged += LogServerMessage;
         }
 
         #region INIT
 
-        public async Task Initialise()
+        public async Task Initialize()
         {
-            await _bot.Initialise(new Address("irc.foonetic.net", 6667));
+            await _Bot.Initialize(new Address("irc.foonetic.net", 6667));
             RegisterMethods();
 
             IsInitialised = true;
@@ -47,7 +47,7 @@ namespace Convex.Example
 
         public async Task Execute()
         {
-            await _bot.BeginListenAsync();
+            await _Bot.BeginListenAsync();
         }
 
         #endregion
@@ -55,13 +55,13 @@ namespace Convex.Example
         #region MEMBERS
 
         private string BotInfo =>
-            $"[Version {_bot.Version}] Evealyn is an IRC bot for C#.";
+            $"[Version {_Bot.Version}] Evealyn is an IRC bot for C#.";
 
         public bool IsInitialised { get; private set; }
-        public bool Executing => _bot.Server.Executing;
-        private readonly IIrcClient _bot;
+        public bool Executing => _Bot.Server.Executing;
+        private readonly IIrcClient _Bot;
 
-        private readonly string[] _defaultChannels =
+        private readonly string[] _DefaultChannels =
         {
             "#testgrounds"
         };
@@ -128,7 +128,7 @@ namespace Convex.Example
         /// </summary>
         private void RegisterMethods()
         {
-            _bot.RegisterMethod(new Composition<ServerMessagedEventArgs>(99, Info,
+            _Bot.RegisterMethod(new Composition<ServerMessagedEventArgs>(99, Info,
                 e => e.Message.InputCommand.Equals(nameof(Info).ToLower()),
                 new CompositionDescription(nameof(Info), "returns the basic information about this bot"),
                 Commands.PRIVMSG));
@@ -141,7 +141,7 @@ namespace Convex.Example
                 return;
             }
 
-            await _bot.Server.Connection.SendDataAsync(this,
+            await _Bot.Server.Connection.SendDataAsync(this,
                 new IrcCommandEventArgs(Commands.PRIVMSG, $"{e.Message.Origin} {BotInfo}"));
         }
 
@@ -153,7 +153,7 @@ namespace Convex.Example
         {
             if (disposing)
             {
-                _bot?.Dispose();
+                _Bot?.Dispose();
             }
         }
 
@@ -172,10 +172,8 @@ namespace Convex.Example
 
         #region METHODS
 
-        private static string FormatServerMessage(ServerMessage message)
-        {
-            return StaticLog.Format(message.Nickname, message.Args);
-        }
+        private static string FormatServerMessage(ServerMessage message) =>
+            StaticLog.Format(message.Nickname, message.Args);
 
         private async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args)
         {

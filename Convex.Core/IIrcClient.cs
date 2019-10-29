@@ -15,8 +15,8 @@ namespace Convex.Core
     public interface IIrcClient
     {
         string Address { get; }
-        bool Initialising { get; }
-        bool IsInitialised { get; }
+        bool Initializing { get; }
+        bool IsInitialized { get; }
         Dictionary<string, CompositionDescription> LoadedDescriptions { get; }
         int Port { get; }
         Server Server { get; }
@@ -24,7 +24,7 @@ namespace Convex.Core
         Version Version { get; }
 
         event AsyncEventHandler<ErrorEventArgs> Error;
-        event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
+        event AsyncEventHandler<ClassInitializedEventArgs> Initialized;
         event AsyncEventHandler<DatabaseQueriedEventArgs> Queried;
         event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
 
@@ -32,7 +32,7 @@ namespace Convex.Core
         bool CommandExists(string command);
         void Dispose();
         CompositionDescription GetDescription(string command);
-        Task<bool> Initialise(IAddress address);
+        Task<bool> Initialize(IAddress address);
         void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar);
     }
 }

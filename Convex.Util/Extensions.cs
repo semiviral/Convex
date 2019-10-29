@@ -21,26 +21,26 @@ namespace Convex.Util
         /// <returns>GET response</returns>
         public static async Task<string> HttpGet(this string instance)
         {
-            using (HttpClient client = new HttpClient())
+            using HttpClient client = new HttpClient
             {
-                client.BaseAddress = new Uri(instance);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                BaseAddress = new Uri(instance)
+            };
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage response = await client.GetAsync(instance);
-                string message = string.Empty;
+            HttpResponseMessage response = await client.GetAsync(instance);
+            string message = string.Empty;
 
-                if (response.IsSuccessStatusCode)
-                {
-                    message = await response.Content.ReadAsStringAsync();
-                }
-
-                return message;
+            if (response.IsSuccessStatusCode)
+            {
+                message = await response.Content.ReadAsStringAsync();
             }
+
+            return message;
         }
 
         /// <summary>
-        ///     Splits a string into seperate parts
+        ///     Splits a string into separate parts
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="maxLength">max length of individual strings to split</param>
@@ -57,66 +57,64 @@ namespace Convex.Util
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static string DeliminateSpaces(this string str)
+        public static string DeepTrim(this string str)
         {
-            StringBuilder deliminatedSpaces = new StringBuilder();
+            StringBuilder trimmedString = new StringBuilder();
             bool isSpace = false;
 
-            // using for loop to increased cycle speed
-            for (int i = 0; i < str.Length; i++)
+            foreach (char character in str)
             {
-                if (str[i].Equals(' '))
+                if (character.Equals(' '))
                 {
+                    // if the previous character was also a space, ignore char
                     if (isSpace)
                     {
                         continue;
                     }
-
-                    isSpace = true;
+                    else
+                    {
+                        isSpace = true;
+                    }
                 }
                 else
                 {
                     isSpace = false;
                 }
 
-                deliminatedSpaces.Append(str[i]);
+                trimmedString.Append(character);
             }
 
-            return deliminatedSpaces.ToString();
+            return trimmedString.ToString();
         }
 
         public static async Task QueryAsync(this SqliteConnection source, DatabaseQueriedEventArgs args)
         {
             await source.OpenAsync();
 
-            using (SqliteTransaction transaction = source.BeginTransaction())
+            await using SqliteTransaction transaction = source.BeginTransaction();
+            await using (SqliteCommand command = source.CreateCommand())
             {
-                using (SqliteCommand command = source.CreateCommand())
-                {
-                    command.Transaction = transaction;
-                    command.CommandText = args.Query;
-                    await command.ExecuteNonQueryAsync();
-                }
-
-                transaction.Commit();
+                command.Transaction = transaction;
+                command.CommandText = args.Query;
+                await command.ExecuteNonQueryAsync();
             }
+
+            transaction.Commit();
         }
 
         public static void Query(this SqliteConnection source, DatabaseQueriedEventArgs args)
         {
             source.Open();
 
-            using (SqliteTransaction transaction = source.BeginTransaction())
+            using SqliteTransaction transaction = source.BeginTransaction();
+            using (SqliteCommand command = source.CreateCommand())
             {
-                using (SqliteCommand command = source.CreateCommand())
-                {
-                    command.Transaction = transaction;
-                    command.CommandText = args.Query;
-                    command.ExecuteNonQuery();
-                }
-
-                transaction.Commit();
+                command.Transaction = transaction;
+                command.CommandText = args.Query;
+                command.ExecuteNonQuery();
             }
+
+            transaction.Commit();
         }
     }
 }

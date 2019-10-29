@@ -14,11 +14,8 @@ namespace Convex.Plugin
 {
     public class PluginHostWrapper<T> where T : EventArgs
     {
-        public PluginHostWrapper(
-            string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod, string pluginMask)
-        {
-            Host = new PluginHost<T>(pluginsDirectory, invokeAsyncMethod, pluginMask);
-        }
+        public PluginHostWrapper(string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod,
+            string pluginMask) => Host = new PluginHost<T>(pluginsDirectory, invokeAsyncMethod, pluginMask);
 
         #region METHODS
 
@@ -40,7 +37,7 @@ namespace Convex.Plugin
                         break;
                     }
 
-                    Host.RegisterComposition((IAsyncCompsition<T>) args.Result);
+                    Host.RegisterComposition((IAsyncCompsition<T>)args.Result);
                     break;
                 case PluginActionType.SendMessage:
                     if (!(args.Result is IrcCommandEventArgs))
@@ -48,7 +45,7 @@ namespace Convex.Plugin
                         break;
                     }
 
-                    await OnCommandReceived(source, (IrcCommandEventArgs) args.Result);
+                    await OnCommandReceived(source, (IrcCommandEventArgs)args.Result);
                     break;
                 case PluginActionType.Log:
                     if (!(args.Result is string))
@@ -56,7 +53,7 @@ namespace Convex.Plugin
                         break;
                     }
 
-                    StaticLog.Log(new LogEventArgs(LogEventLevel.Information, (string) args.Result));
+                    StaticLog.Log(new LogEventArgs(LogEventLevel.Information, (string)args.Result));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -67,7 +64,7 @@ namespace Convex.Plugin
 
         #region INIT
 
-        public async Task Initialise()
+        public async Task Initialize()
         {
             if (Host == null)
             {
@@ -78,7 +75,7 @@ namespace Convex.Plugin
             await Host.LoadPlugins();
             Host.StartPlugins();
 
-            Initialised = true;
+            Initialized = true;
         }
 
         #endregion
@@ -86,7 +83,7 @@ namespace Convex.Plugin
         #region MEMBERS
 
         public PluginHost<T> Host { get; }
-        public bool Initialised { get; private set; }
+        public bool Initialized { get; private set; }
 
         #endregion
 

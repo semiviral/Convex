@@ -16,7 +16,7 @@ namespace Convex.Core.Configuration
     {
         #region MEMBERS
 
-        private static readonly List<IProperty> Properties = new List<IProperty>();
+        private static readonly List<IProperty> _Properties = new List<IProperty>();
 
         // I know this isn't readable. Just run the program once and you'll get a much cleaner
         // representation of the default config in the generated config.json
@@ -27,7 +27,7 @@ namespace Convex.Core.Configuration
 
         #region INIT
 
-        public static void Initialise(string basePath)
+        public static void Initialize(string basePath)
         {
             string fullPath = $@"{basePath}\config";
 
@@ -72,7 +72,7 @@ namespace Convex.Core.Configuration
                         continue;
                     }
 
-                    Properties.Add(new Property(splitProp[0], splitProp[1]));
+                    _Properties.Add(new Property(splitProp[0], splitProp[1]));
                 }
             }
 
@@ -87,7 +87,7 @@ namespace Convex.Core.Configuration
         {
             using (StreamWriter wStream = new StreamWriter($@"{AppContext.BaseDirectory}\config\config"))
             {
-                foreach (Property prop in Properties)
+                foreach (Property prop in _Properties)
                 {
                     wStream.WriteLineAsync($"{prop}");
                 }
@@ -103,19 +103,16 @@ namespace Convex.Core.Configuration
             WriteConfig();
         }
 
-        public static IEnumerable<IProperty> GetProperties()
-        {
-            return Properties;
-        }
+        public static IEnumerable<IProperty> GetProperties() => _Properties;
 
         public static IProperty GetProperty(string key)
         {
-            if (!Properties.Select(prop => prop.Key).Contains(key))
+            if (!_Properties.Select(prop => prop.Key).Contains(key))
             {
                 return null;
             }
 
-            return Properties.Single(prop => prop.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+            return _Properties.Single(prop => prop.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
         }
 
         #endregion

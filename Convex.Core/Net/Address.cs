@@ -15,9 +15,6 @@
 
         #endregion
 
-        public override string ToString()
-        {
-            return $"{Hostname}:{Port}";
-        }
+        public override string ToString() => $"{Hostname}:{Port}";
     }
 }

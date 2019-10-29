@@ -48,7 +48,7 @@ namespace Convex.Example.Plugin.Calculator
                 SQRT = "sqrt",
                 ROOT = "rt";
 
-            private static readonly string[] BinaryOperators =
+            private static readonly string[] _BinaryOperators =
             {
                 MULTIPLY,
                 DIVIDE,
@@ -60,7 +60,7 @@ namespace Convex.Example.Plugin.Calculator
                 MOD
             };
 
-            private static readonly string[] UnaryOperators =
+            private static readonly string[] _UnaryOperators =
             {
                 SUBTRACT,
                 SINE,
@@ -76,7 +76,7 @@ namespace Convex.Example.Plugin.Calculator
                 SQRT
             };
 
-            private static readonly string[] SpecialOperators =
+            private static readonly string[] _SpecialOperators =
             {
                 SENTINEL,
                 END,
@@ -86,12 +86,12 @@ namespace Convex.Example.Plugin.Calculator
                 P_RIGHT
             };
 
-            private static readonly string[] RightSideOperators =
+            private static readonly string[] _RightSideOperators =
             {
                 FACTORIAL
             };
 
-            private static readonly string[] FunctionList =
+            private static readonly string[] _FunctionList =
             {
                 SINE,
                 COSINE,
@@ -108,7 +108,7 @@ namespace Convex.Example.Plugin.Calculator
                 ROOT
             };
 
-            private static readonly string[] LastProcessedOperators =
+            private static readonly string[] _LastProcessedOperators =
             {
                 POWER
             };
@@ -150,7 +150,7 @@ namespace Convex.Example.Plugin.Calculator
 
             public static int Compare(string op1, string op2)
             {
-                if (op1.Equals(op2) && Contains(op1, LastProcessedOperators))
+                if (op1.Equals(op2) && Contains(op1, _LastProcessedOperators))
                 {
                     return -1;
                 }
@@ -189,40 +189,19 @@ namespace Convex.Example.Plugin.Calculator
 
             #region Is... Functions
 
-            public static bool IsBinary(string op)
-            {
-                return Contains(op, BinaryOperators);
-            }
+            public static bool IsBinary(string op) => Contains(op, _BinaryOperators);
 
-            public static bool IsUnary(string op)
-            {
-                return Contains(op, UnaryOperators);
-            }
+            public static bool IsUnary(string op) => Contains(op, _UnaryOperators);
 
-            public static bool IsRightSide(string op)
-            {
-                return Contains(op, RightSideOperators);
-            }
+            public static bool IsRightSide(string op) => Contains(op, _RightSideOperators);
 
-            public static bool IsSpecial(string op)
-            {
-                return Contains(op, SpecialOperators);
-            }
+            public static bool IsSpecial(string op) => Contains(op, _SpecialOperators);
 
-            public static bool IsFunction(string op)
-            {
-                return Contains(op, FunctionList);
-            }
+            public static bool IsFunction(string op) => Contains(op, _FunctionList);
 
-            public static bool IsName(string token)
-            {
-                return Regex.IsMatch(token, @"[a-zA-Z0-9]");
-            }
+            public static bool IsName(string token) => Regex.IsMatch(token, @"[a-zA-Z0-9]");
 
-            public static bool IsDigit(string token)
-            {
-                return Regex.IsMatch(token, @"\d|\.");
-            }
+            public static bool IsDigit(string token) => Regex.IsMatch(token, @"\d|\.");
 
             #endregion
         }

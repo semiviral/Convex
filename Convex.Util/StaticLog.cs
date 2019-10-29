@@ -35,19 +35,11 @@ namespace Convex.Util
             }
         }
 
-        public static string Format(LogEventArgs args)
-        {
-            return $"[{nameof(args.Level).ToUpper()} {GetTime()}] {args.Information}\r\n";
-        }
+        public static string Format(LogEventArgs args) =>
+            $"[{nameof(args.Level).ToUpper()} {GetTime()}] {args.Information}\r\n";
 
-        public static string Format(string nickname, string message)
-        {
-            return $"[IRC {GetTime()}] <{nickname}> {message}";
-        }
+        public static string Format(string nickname, string message) => $"[IRC {GetTime()}] <{nickname}> {message}";
 
-        public static string GetTime()
-        {
-            return DateTime.Now.ToString("HH:mm:ss");
-        }
+        public static string GetTime() => DateTime.Now.ToString("HH:mm:ss");
     }
 }

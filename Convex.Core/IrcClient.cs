@@ -21,18 +21,17 @@ namespace Convex.Core
     public sealed class IrcClient : IDisposable, IIrcClient
     {
         /// <summary>
-        ///     Initialises class. No connections are made at init of class, so call `Initialise()` to begin sending and
+        ///     Initializes class. No connections are made at initialization, so call `Initialize()` to begin sending and
         ///     receiving.
         /// </summary>
-        public IrcClient(
-            Func<ServerMessage, string> formatter,
+        public IrcClient(Func<ServerMessage, string> formatter,
             Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod)
         {
-            Initialising = true;
+            Initializing = true;
 
             Version = new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
 
-            _pendingPlugins = new Stack<IAsyncCompsition<ServerMessagedEventArgs>>();
+            _PendingPlugins = new Stack<IAsyncCompsition<ServerMessagedEventArgs>>();
 
             UniqueId = Guid.NewGuid();
             Server = new Server(formatter);
@@ -46,12 +45,11 @@ namespace Convex.Core
             ServerMessagedHostWrapper.TerminateSignaled += OnTerminateSignaled;
             ServerMessagedHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
 
-            Initialising = false;
+            Initializing = false;
         }
 
         #region INTERFACE IMPLEMENTATION
 
-        /// <inheritdoc />
         /// <summary>
         ///     Dispose of all streams and objects
         /// </summary>
@@ -62,7 +60,7 @@ namespace Convex.Core
 
         private async Task Dispose(bool dispose)
         {
-            if (!dispose || _disposed)
+            if (!dispose || _Disposed)
             {
                 return;
             }
@@ -70,7 +68,7 @@ namespace Convex.Core
             await ServerMessagedHostWrapper.Host.StopPlugins();
             Server?.Dispose();
 
-            _disposed = true;
+            _Disposed = true;
         }
 
         #endregion
@@ -86,14 +84,14 @@ namespace Convex.Core
 
         public string Address => Server.Connection.Address.Hostname;
         public int Port => Server.Connection.Address.Port;
-        public bool IsInitialised { get; private set; }
-        public bool Initialising { get; private set; }
+        public bool IsInitialized { get; private set; }
+        public bool Initializing { get; private set; }
 
         private PluginHostWrapper<ServerMessagedEventArgs> ServerMessagedHostWrapper { get; }
 
-        private bool _disposed;
+        private bool _Disposed;
 
-        private readonly Stack<IAsyncCompsition<ServerMessagedEventArgs>> _pendingPlugins;
+        private readonly Stack<IAsyncCompsition<ServerMessagedEventArgs>> _PendingPlugins;
 
         #endregion
 
@@ -120,7 +118,7 @@ namespace Convex.Core
             }
 
             if (args.Message.Nickname.Equals(Config.GetProperty("Nickname").ToString())
-                || ((List<string>) Config.GetProperty("IgnoreList")).Contains(args.Message.Realname))
+                || ((List<string>)Config.GetProperty("IgnoreList")).Contains(args.Message.RealName))
             {
                 return;
             }
@@ -145,34 +143,34 @@ namespace Convex.Core
 
         #region INIT
 
-        public async Task<bool> Initialise(IAddress address)
+        public async Task<bool> Initialize(IAddress address)
         {
-            if (IsInitialised || Initialising)
+            if (IsInitialized || Initializing)
             {
                 return true;
             }
 
-            Initialising = true;
+            Initializing = true;
 
-            await InitialisePluginWrapper();
+            await InitializePluginWrapper();
 
             RegisterMethods();
 
-            await Server.Initialise(address);
+            await Server.Initialize(address);
 
-            await OnInitialised(this, new ClassInitialisedEventArgs(this));
+            await OnInitialized(this, new ClassInitializedEventArgs(this));
 
-            await Server.SendConnectionInfo(Config.GetProperty("Nickname").ToString(),
+            await Server.SendIdentityInfo(Config.GetProperty("Nickname").ToString(),
                 Config.GetProperty("Realname").ToString());
 
-            Initialising = false;
+            Initializing = false;
 
-            return IsInitialised = Server.Initialised && ServerMessagedHostWrapper.Initialised;
+            return IsInitialized = Server.Initialized && ServerMessagedHostWrapper.Initialized;
         }
 
-        private async Task InitialisePluginWrapper()
+        private async Task InitializePluginWrapper()
         {
-            await ServerMessagedHostWrapper.Initialise();
+            await ServerMessagedHostWrapper.Initialize();
         }
 
         #endregion
@@ -181,7 +179,7 @@ namespace Convex.Core
 
         public event AsyncEventHandler<DatabaseQueriedEventArgs> Queried;
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
-        public event AsyncEventHandler<ClassInitialisedEventArgs> Initialised;
+        public event AsyncEventHandler<ClassInitializedEventArgs> Initialized;
         public event AsyncEventHandler<ErrorEventArgs> Error;
 
         private async Task OnQuery(object source, DatabaseQueriedEventArgs args)
@@ -204,14 +202,14 @@ namespace Convex.Core
             await TerminateSignaled.Invoke(source, args);
         }
 
-        private async Task OnInitialised(object source, ClassInitialisedEventArgs args)
+        private async Task OnInitialized(object source, ClassInitializedEventArgs args)
         {
-            if (Initialised == null)
+            if (Initialized == null)
             {
                 return;
             }
 
-            await Initialised.Invoke(source, args);
+            await Initialized.Invoke(source, args);
         }
 
         private async Task OnError(object source, ErrorEventArgs args)
@@ -235,9 +233,9 @@ namespace Convex.Core
 
         public void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar)
         {
-            if (!IsInitialised && !Initialising)
+            if (!IsInitialized && !Initializing)
             {
-                _pendingPlugins.Push(methodRegistrar);
+                _PendingPlugins.Push(methodRegistrar);
 
                 return;
             }
@@ -247,9 +245,9 @@ namespace Convex.Core
 
         private void RegisterMethods()
         {
-            while (_pendingPlugins.Count > 0)
+            while (_PendingPlugins.Count > 0)
             {
-                RegisterMethod(_pendingPlugins.Pop());
+                RegisterMethod(_PendingPlugins.Pop());
             }
         }
 
@@ -269,10 +267,7 @@ namespace Convex.Core
         /// </summary>
         /// <param name="command">comamnd name to be checked</param>
         /// <returns>True: exists; false: does not exist</returns>
-        public bool CommandExists(string command)
-        {
-            return !GetDescription(command).Equals(default(Tuple<string, string>));
-        }
+        public bool CommandExists(string command) => !GetDescription(command).Equals(default(Tuple<string, string>));
 
         #endregion
     }

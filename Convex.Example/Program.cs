@@ -27,11 +27,11 @@ namespace Convex.Example
             Bot.Dispose();
         }
 
-        private static async Task InitialiseAndExecute()
+        private static async Task InitializeAndExecute()
         {
             using (Bot = new IrcBot())
             {
-                await Bot.Initialise();
+                await Bot.Initialize();
                 await DebugRun();
             }
         }
@@ -39,11 +39,11 @@ namespace Convex.Example
         public static async Task Main()
         {
             Log.Logger = new LoggerConfiguration().WriteTo.LiterateConsole().CreateLogger();
-            Config.Initialise($@"{AppContext.BaseDirectory}\resource\");
+            Config.Initialize($@"{AppContext.BaseDirectory}\resource\");
             Log.Logger = new LoggerConfiguration().WriteTo.LiterateConsole().WriteTo
                 .RollingFile(Config.GetProperty("LogPath").ToString()).CreateLogger();
 
-            await InitialiseAndExecute();
+            await InitializeAndExecute();
 
             Console.Write("Program terminated. Press any key to continue.");
             Console.ReadKey();

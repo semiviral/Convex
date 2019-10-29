@@ -80,72 +80,72 @@ namespace Convex.Core.Component
 
         public int Id
         {
-            get => _id;
+            get => _Id;
             set
             {
-                _id = value;
+                _Id = value;
                 NotifyPropertyChanged(value);
             }
         }
 
         public int Attempts
         {
-            get => _attempts;
+            get => _Attempts;
             set
             {
-                _attempts = value;
+                _Attempts = value;
                 NotifyPropertyChanged(value);
             }
         }
 
         public string Nickname
         {
-            get => _nickname;
+            get => _Nickname;
             set
             {
-                _nickname = value;
+                _Nickname = value;
                 NotifyPropertyChanged(value);
             }
         }
 
         public string Realname
         {
-            get => _realname;
+            get => _Realname;
             set
             {
-                _realname = value;
+                _Realname = value;
                 NotifyPropertyChanged(value);
             }
         }
 
         public int Access
         {
-            get => _access;
+            get => _Access;
             set
             {
-                _access = value;
+                _Access = value;
                 NotifyPropertyChanged(value);
             }
         }
 
         public DateTime Seen
         {
-            get => _seen;
+            get => _Seen;
             set
             {
-                _seen = value;
+                _Seen = value;
                 NotifyPropertyChanged(value);
             }
         }
 
         public ObservableCollection<IMessage> Messages { get; } = new ObservableCollection<IMessage>();
         public List<string> Channels { get; } = new List<string>();
-        private int _access;
-        private int _attempts;
-        private int _id;
-        private string _nickname;
-        private string _realname;
-        private DateTime _seen;
+        private int _Access;
+        private int _Attempts;
+        private int _Id;
+        private string _Nickname;
+        private string _Realname;
+        private DateTime _Seen;
 
         #endregion
     }

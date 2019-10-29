@@ -31,13 +31,13 @@ namespace Convex.Example.Plugin
         public string Id => Guid.NewGuid().ToString();
         public PluginStatus Status { get; private set; } = PluginStatus.Stopped;
 
-        private readonly InlineCalculator _calculator = new InlineCalculator();
+        private readonly InlineCalculator _Calculator = new InlineCalculator();
 
-        private readonly Regex _youtubeRegex =
+        private readonly Regex _YoutubeRegex =
             new Regex(@"(?i)http(?:s?)://(?:www\.)?youtu(?:be\.com/watch\?v=|\.be/)(?<ID>[\w\-]+)(&(amp;)?[\w\?=‌​]*)?",
                 RegexOptions.Compiled);
 
-        private bool _motdReplyEndSequenceEnacted;
+        private bool _MotdReplyEndSequenceEnacted;
 
         #endregion
 
@@ -122,10 +122,8 @@ namespace Convex.Example.Plugin
             await Callback.Invoke(source, args);
         }
 
-        private static bool InputEquals(ServerMessagedEventArgs args, string comparison)
-        {
-            return args.Message.SplitArgs[0].Equals(comparison, StringComparison.OrdinalIgnoreCase);
-        }
+        private static bool InputEquals(ServerMessagedEventArgs args, string comparison) =>
+            args.Message.SplitArgs[0].Equals(comparison, StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -133,7 +131,7 @@ namespace Convex.Example.Plugin
 
         private async Task Default(ServerMessagedEventArgs e)
         {
-            if ((Config.GetProperty("IgnoreList") as List<string>)?.Contains(e.Message.Realname) == true)
+            if ((Config.GetProperty("IgnoreList") as List<string>)?.Contains(e.Message.RealName) == true)
             {
                 return;
             }
@@ -199,7 +197,7 @@ namespace Convex.Example.Plugin
 
         private async Task MotdReplyEnd(ServerMessagedEventArgs args)
         {
-            if (_motdReplyEndSequenceEnacted)
+            if (_MotdReplyEndSequenceEnacted)
             {
                 return;
             }
@@ -214,7 +212,7 @@ namespace Convex.Example.Plugin
 
             //args.Caller.Server.Channels.Add(new Channel("#testgrounds"));
 
-            _motdReplyEndSequenceEnacted = true;
+            _MotdReplyEndSequenceEnacted = true;
         }
 
         private async Task Quit(ServerMessagedEventArgs args)
@@ -253,7 +251,7 @@ namespace Convex.Example.Plugin
 
                 try
                 {
-                    command.Arguments = _calculator.Evaluate(evalArgs).ToString(CultureInfo.CurrentCulture);
+                    command.Arguments = _Calculator.Evaluate(evalArgs).ToString(CultureInfo.CurrentCulture);
                 }
                 catch (Exception ex)
                 {
@@ -391,7 +389,7 @@ namespace Convex.Example.Plugin
                         $"http://api.pearson.com/v2/dictionaries/laad3/entries?headword={args.Message.SplitArgs[2]}{partOfSpeech}&limit=1"
                             .HttpGet());
 
-            if ((int) entry.SelectToken("count") < 1)
+            if ((int)entry.SelectToken("count") < 1)
             {
                 command.Arguments = "Query returned no results.";
                 await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, command, Name));
@@ -400,12 +398,8 @@ namespace Convex.Example.Plugin
 
             Dictionary<string, string> _out = new Dictionary<string, string>
             {
-                {
-                    "word", (string) entry["results"][0]["headword"]
-                },
-                {
-                    "pos", (string) entry["results"][0]["part_of_speech"]
-                }
+                { "word", (string)entry["results"][0]["headword"] },
+                { "pos", (string)entry["results"][0]["part_of_speech"] }
             };
 
             // todo optimise if block
@@ -413,21 +407,21 @@ namespace Convex.Example.Plugin
             // I'll likely change it in the future.
             if (entry["results"][0]["senses"][0]["subsenses"] != null)
             {
-                _out.Add("definition", (string) entry["results"][0]["senses"][0]["subsenses"][0]["definition"]);
+                _out.Add("definition", (string)entry["results"][0]["senses"][0]["subsenses"][0]["definition"]);
 
                 if (entry["results"][0]["senses"][0]["subsenses"][0]["examples"] != null)
                 {
                     _out.Add("example",
-                        (string) entry["results"][0]["senses"][0]["subsenses"][0]["examples"][0]["text"]);
+                        (string)entry["results"][0]["senses"][0]["subsenses"][0]["examples"][0]["text"]);
                 }
             }
             else
             {
-                _out.Add("definition", (string) entry["results"][0]["senses"][0]["definition"]);
+                _out.Add("definition", (string)entry["results"][0]["senses"][0]["definition"]);
 
                 if (entry["results"][0]["senses"][0]["examples"] != null)
                 {
-                    _out.Add("example", (string) entry["results"][0]["senses"][0]["examples"][0]["text"]);
+                    _out.Add("example", (string)entry["results"][0]["senses"][0]["examples"][0]["text"]);
                 }
             }
 
@@ -473,7 +467,7 @@ namespace Convex.Example.Plugin
 
             JToken pages = JObject.Parse(response)["query"]["pages"].Values().First();
 
-            if (string.IsNullOrEmpty((string) pages["extract"]))
+            if (string.IsNullOrEmpty((string)pages["extract"]))
             {
                 command.Arguments = "Query failed to return results. Perhaps try a different term?";
                 await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, command, Name));
@@ -481,7 +475,7 @@ namespace Convex.Example.Plugin
             }
 
             string fullReplyStr =
-                $"\x02{(string) pages["title"]}\x0F — {Regex.Replace((string) pages["extract"], @"\n\n?|\n", " ")}";
+                $"\x02{(string)pages["title"]}\x0F — {Regex.Replace((string)pages["extract"], @"\n\n?|\n", " ")}";
 
             command.Command = args.Message.Nickname;
 

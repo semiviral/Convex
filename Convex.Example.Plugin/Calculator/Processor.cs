@@ -44,7 +44,7 @@ namespace Convex.Example.Plugin.Calculator
                         throw new ArgumentOutOfRangeException();
                 }
 
-                _operands.Push(PostProcess(res));
+                _Operands.Push(PostProcess(res));
             }
             catch (Exception e)
             {
@@ -103,7 +103,7 @@ namespace Convex.Example.Plugin.Calculator
                         throw new ArgumentOutOfRangeException();
                 }
 
-                _operands.Push(PostProcess(res));
+                _Operands.Push(PostProcess(res));
             }
             catch (Exception e)
             {
@@ -111,9 +111,6 @@ namespace Convex.Example.Plugin.Calculator
             }
         }
 
-        private static double PostProcess(double result)
-        {
-            return Math.Round(result, 10);
-        }
+        private static double PostProcess(double result) => Math.Round(result, 10);
     }
 }

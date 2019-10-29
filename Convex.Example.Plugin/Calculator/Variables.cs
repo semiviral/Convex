@@ -21,15 +21,9 @@ namespace Convex.Example.Plugin.Calculator
         {
             Variables = new Dictionary<string, double>
             {
-                {
-                    "pi", Math.PI
-                },
-                {
-                    "e", Math.E
-                },
-                {
-                    ANSWER_VAR, 0
-                }
+                { "pi", Math.PI },
+                { "e", Math.E },
+                { ANSWER_VAR, 0 }
             };
 
             OnVariableStore?.Invoke(this, new EventArgs());
@@ -49,11 +43,9 @@ namespace Convex.Example.Plugin.Calculator
             OnVariableStore?.Invoke(this, new EventArgs());
         }
 
-        public double GetVariable(string name)
-        {
-            return Variables.ContainsKey(name)
+        public double GetVariable(string name) =>
+            Variables.ContainsKey(name)
                 ? Variables[name]
                 : 0;
-        }
     }
 }
