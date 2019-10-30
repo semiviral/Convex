@@ -1,13 +1,11 @@
 ﻿#region
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Convex.Core;
 using Convex.Core.Net;
 using Convex.Event;
 using Convex.Plugin.Composition;
-using Convex.Plugin.Event;
 using Serilog;
 
 #endregion
@@ -16,15 +14,17 @@ namespace Convex.Example
 {
     public class IrcBot : IDisposable
     {
+        private const string _SERVER_MESSAGE_OUTPUT_FORMAT = "<{0}> {1}";
+
         /// <summary>
         ///     Initialises class
         /// </summary>
         public IrcBot()
         {
-            _Bot = new Client(FormatServerMessage, OnInvokedMethod);
+            _Bot = new Client();
             _Bot.Server.MessageReceived += (source, args) =>
             {
-                Log.Information($"<{args.Message.Nickname}> {args.Message.Args}");
+                Log.Information(string.Format(_SERVER_MESSAGE_OUTPUT_FORMAT, args.Message.Nickname, args.Message.Args));
                 return Task.CompletedTask;
             };
             _Bot.Server.Connection.Flushed += (sender, args) =>
@@ -136,42 +136,6 @@ namespace Convex.Example
         #region METHODS
 
         private static string FormatServerMessage(ServerMessage message) => $"<{message.Nickname}> {message.Args}";
-
-        private static async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args)
-        {
-            if (!args.Args.Message.Command.Equals(Commands.ALL))
-            {
-                await InvokeSteps(args, Commands.ALL);
-            }
-
-            if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command) || !args.Args.Execute)
-            {
-                return;
-            }
-
-            await InvokeSteps(args, args.Args.Message.Command);
-        }
-
-        /// <summary>
-        ///     Step-invokes an InvokedAsyncEventArgs
-        /// </summary>
-        /// <param name="args">InvokedAsyncEventArgs object</param>
-        /// <param name="contextCommand">Command to execute from</param>
-        /// <returns></returns>
-        private static async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args,
-            string contextCommand)
-        {
-            foreach (IAsyncComposition<ServerMessagedEventArgs> composition in args.Host
-                .CompositionHandlers[contextCommand].OrderBy(comp => comp.Priority))
-            {
-                if (!args.Args.Execute)
-                {
-                    return;
-                }
-
-                await composition.InvokeAsync(args.Args);
-            }
-        }
 
         #endregion
     }

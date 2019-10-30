@@ -10,10 +10,9 @@ namespace Convex.Core.Net
 {
     public class Server : IDisposable
     {
-        public Server(Func<ServerMessage, string> formatter)
+        public Server()
         {
             Connection = new Connection();
-            _Formatter = formatter;
         }
 
         #region INTERFACE IMPLEMENTATION
@@ -47,14 +46,12 @@ namespace Convex.Core.Net
                 return;
             }
 
-            await OnChannelMessaged(this, new ServerMessagedEventArgs(caller, new ServerMessage(rawData, _Formatter)));
+            await OnChannelMessaged(this, new ServerMessagedEventArgs(caller, new ServerMessage(rawData)));
         }
 
         #endregion
 
         #region MEMBERS
-
-        private readonly Func<ServerMessage, string> _Formatter;
 
         public Connection Connection { get; }
         public bool Identified { get; set; }

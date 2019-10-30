@@ -64,8 +64,7 @@ namespace Convex.Core
         ///     Initializes class. No connections are made at initialization, so call `Initialize()` to begin sending and
         ///     receiving.
         /// </summary>
-        public Client(Func<ServerMessage, string> formatter,
-            Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod)
+        public Client()
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Async(conf => conf.Console())
@@ -77,13 +76,13 @@ namespace Convex.Core
             _PendingPlugins = new Stack<IAsyncComposition<ServerMessagedEventArgs>>();
 
             UniqueId = Guid.NewGuid();
-            Server = new Server(formatter);
+            Server = new Server();
 
             TerminateSignaled += Terminate;
             Server.MessageReceived += OnMessageReceived;
 
             PluginHostWrapper =
-                new PluginHostWrapper<ServerMessagedEventArgs>(Configuration, invokeAsyncMethod, "Convex.*.dll");
+                new PluginHostWrapper<ServerMessagedEventArgs>(Configuration, OnInvokedMethod, "Convex.*.dll");
             PluginHostWrapper.TerminateSignaled += OnTerminateSignaled;
             PluginHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
         }
@@ -176,6 +175,42 @@ namespace Convex.Core
             catch (Exception ex)
             {
                 await OnError(this, new ErrorEventArgs(ex));
+            }
+        }
+        
+        private static async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args)
+        {
+            if (!args.Args.Message.Command.Equals(Commands.ALL))
+            {
+                await InvokeSteps(args, Commands.ALL);
+            }
+
+            if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command) || !args.Args.Execute)
+            {
+                return;
+            }
+
+            await InvokeSteps(args, args.Args.Message.Command);
+        }
+
+        /// <summary>
+        ///     Step-invokes an InvokedAsyncEventArgs
+        /// </summary>
+        /// <param name="args">InvokedAsyncEventArgs object</param>
+        /// <param name="contextCommand">Command to execute from</param>
+        /// <returns></returns>
+        private static async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args,
+            string contextCommand)
+        {
+            foreach (IAsyncComposition<ServerMessagedEventArgs> composition in args.Host
+                .CompositionHandlers[contextCommand].OrderBy(comp => comp.Priority))
+            {
+                if (!args.Args.Execute)
+                {
+                    return;
+                }
+
+                await composition.InvokeAsync(args.Args);
             }
         }
 

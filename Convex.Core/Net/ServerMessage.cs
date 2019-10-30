@@ -12,7 +12,7 @@ namespace Convex.Core.Net
 {
     public class ServerMessage : Message
     {
-        public ServerMessage(string rawData, Func<ServerMessage, string> formatter) : base(rawData)
+        public ServerMessage(string rawData) : base(rawData)
         {
             if (rawData.StartsWith("ERROR"))
             {
@@ -22,8 +22,6 @@ namespace Convex.Core.Net
             }
 
             Parse();
-
-            _Formatter = formatter;
         }
 
         #region METHODS
@@ -111,10 +109,6 @@ namespace Convex.Core.Net
         /// </summary>
         private static readonly Regex _SourceRegex =
             new Regex(@"^(?<Nickname>[^\s]+)!(?<Realname>[^\s]+)@(?<Hostname>[^\s]+)", RegexOptions.Compiled);
-
-        private readonly Func<ServerMessage, string> _Formatter;
-
-        public new string Formatted => _Formatter?.Invoke(this) ?? RawMessage;
 
         public bool IsIrCv3Message { get; private set; }
 
