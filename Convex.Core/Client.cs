@@ -177,7 +177,7 @@ namespace Convex.Core
                 await OnError(this, new ErrorEventArgs(ex));
             }
         }
-        
+
         private static async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args)
         {
             if (!args.Args.Message.Command.Equals(Commands.ALL))

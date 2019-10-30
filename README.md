@@ -2,11 +2,11 @@
 
  Convex is an IRC library that (tries) to achieve idiomatic simplicty.
 
- This library targets ASP/.NET Core 2.1
+ This library targets ASP/.NET Core 3.0
 
 # Implementing the IPlugin interface
 
- Implementation of the IPlugin interface is fairly simple; use `Core.cs` as a guideline for this.
+ Implementation of the IPlugin interface is fairly simple; use `Base.cs` as a guideline for this.
 
 # Dependencies
 

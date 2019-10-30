@@ -10,10 +10,7 @@ namespace Convex.Core.Net
 {
     public class Server : IDisposable
     {
-        public Server()
-        {
-            Connection = new Connection();
-        }
+        public Server() => Connection = new Connection();
 
         #region INTERFACE IMPLEMENTATION
 
