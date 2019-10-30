@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Convex.Base.Calculator;
@@ -14,7 +15,6 @@ using Convex.Event;
 using Convex.Plugin;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
-using Newtonsoft.Json.Linq;
 using SharpConfig;
 
 #endregion
@@ -386,13 +386,14 @@ namespace Convex.Base
                 ? $"&part_of_speech={args.Message.SplitArgs[3]}"
                 : string.Empty;
 
-            JObject entry =
-                JObject.Parse(
+            JsonDocument entry =
+                JsonDocument.Parse(
                     await
                         $"http://api.pearson.com/v2/dictionaries/laad3/entries?headword={args.Message.SplitArgs[2]}{partOfSpeech}&limit=1"
                             .HttpGet());
 
-            if ((int)entry.SelectToken("count") < 1)
+            if (entry.RootElement.TryGetProperty("count", out JsonElement element)
+                && (element.GetInt32() < 1))
             {
                 command.Arguments = "Query returned no results.";
                 await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, command, Name));
@@ -401,30 +402,32 @@ namespace Convex.Base
 
             Dictionary<string, string> _out = new Dictionary<string, string>
             {
-                { "word", (string)entry["results"][0]["headword"] },
-                { "pos", (string)entry["results"][0]["part_of_speech"] }
+                { "word", entry.RootElement.GetProperty("results")[0].GetProperty("headword").GetString() },
+                { "pos", entry.RootElement.GetProperty("results")[0].GetProperty("part_of_speech").GetString() }
             };
 
-            // todo optimise if block
-            // this 'if' block seems messy and unoptimised.
-            // I'll likely change it in the future.
-            if (entry["results"][0]["senses"][0]["subsenses"] != null)
+            if (entry.RootElement.TryGetProperty("results", out JsonElement resultsElement)
+                && resultsElement[0].TryGetProperty("senses", out JsonElement sensesElement))
             {
-                _out.Add("definition", (string)entry["results"][0]["senses"][0]["subsenses"][0]["definition"]);
-
-                if (entry["results"][0]["senses"][0]["subsenses"][0]["examples"] != null)
+                if (sensesElement[0].TryGetProperty("subsenses", out JsonElement subSensesElement))
                 {
-                    _out.Add("example",
-                        (string)entry["results"][0]["senses"][0]["subsenses"][0]["examples"][0]["text"]);
+                    // add definition
+                    _out.Add("definition", subSensesElement[0].GetProperty("definition").GetString());
+
+                    // check if example is provided and add
+                    if (subSensesElement[0].TryGetProperty("examples", out JsonElement examplesElement))
+                    {
+                        _out.Add("example", examplesElement[0].GetProperty("text").GetString());
+                    }
                 }
-            }
-            else
-            {
-                _out.Add("definition", (string)entry["results"][0]["senses"][0]["definition"]);
-
-                if (entry["results"][0]["senses"][0]["examples"] != null)
+                else
                 {
-                    _out.Add("example", (string)entry["results"][0]["senses"][0]["examples"][0]["text"]);
+                    _out.Add("definition", sensesElement[0].GetProperty("definition").GetString());
+
+                    if (sensesElement[0].TryGetProperty("examples", out JsonElement examplesElement))
+                    {
+                        _out.Add("example", examplesElement[0].GetProperty("text").GetString());
+                    }
                 }
             }
 
@@ -468,9 +471,11 @@ namespace Convex.Base
                     $"https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles={query}"
                         .HttpGet();
 
-            JToken pages = JObject.Parse(response)["query"]["pages"].Values().First();
+            JsonElement pages = JsonDocument.Parse(response).RootElement.GetProperty("query").GetProperty("pages")
+                .EnumerateArray().First();
 
-            if (string.IsNullOrEmpty((string)pages["extract"]))
+            if (!pages.TryGetProperty("extract", out JsonElement extractElement)
+                || string.IsNullOrEmpty(extractElement.GetString()))
             {
                 command.Arguments = "Query failed to return results. Perhaps try a different term?";
                 await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, command, Name));
@@ -478,7 +483,7 @@ namespace Convex.Base
             }
 
             string fullReplyStr =
-                $"\x02{(string)pages["title"]}\x0F — {Regex.Replace((string)pages["extract"], @"\n\n?|\n", " ")}";
+                $"\x02{pages.GetProperty("title").GetString()}\x0F — {Regex.Replace(extractElement.GetString(), @"\n\n?|\n", " ")}";
 
             command.Command = args.Message.Nickname;
 
