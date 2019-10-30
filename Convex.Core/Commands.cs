@@ -3,9 +3,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
+// ReSharper disable IdentifierTypo
+// ReSharper disable UnusedMember.Global
+
 #endregion
 
-namespace Convex.Util
+namespace Convex.Core
 {
     public static class Commands
     {

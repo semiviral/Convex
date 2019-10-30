@@ -1,7 +1,6 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Core;
 
 #endregion
 

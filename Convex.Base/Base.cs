@@ -14,7 +14,6 @@ using Convex.Event;
 using Convex.Plugin;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
-using Core;
 using Newtonsoft.Json.Linq;
 using SharpConfig;
 

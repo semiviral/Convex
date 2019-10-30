@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Convex.Core.Component;
-using Core;
 
 #endregion
 
