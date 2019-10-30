@@ -4,7 +4,7 @@
     {
         public Address(string hostname, int port)
         {
-            Hostname = hostname;
+            Hostname = hostname.Trim();
             Port = port;
         }
 

@@ -83,10 +83,10 @@ namespace Convex.Core
             TerminateSignaled += Terminate;
             Server.ServerMessaged += OnServerMessaged;
 
-            ServerMessagedHostWrapper =
+            PluginHostWrapper =
                 new PluginHostWrapper<ServerMessagedEventArgs>(Configuration, invokeAsyncMethod, "Convex.*.dll");
-            ServerMessagedHostWrapper.TerminateSignaled += OnTerminateSignaled;
-            ServerMessagedHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
+            PluginHostWrapper.TerminateSignaled += OnTerminateSignaled;
+            PluginHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
         }
 
         #region INTERFACE IMPLEMENTATION
@@ -106,7 +106,7 @@ namespace Convex.Core
                 return;
             }
 
-            await ServerMessagedHostWrapper.Host.StopPlugins();
+            await PluginHostWrapper.Host.StopPlugins();
             Server?.Dispose();
             Log.CloseAndFlush();
 
@@ -122,14 +122,14 @@ namespace Convex.Core
         public Version Version { get; }
 
         public IReadOnlyDictionary<string, CompositionDescription> PluginCommands =>
-            ServerMessagedHostWrapper.Host.DescriptionRegistry;
+            PluginHostWrapper.Host.DescriptionRegistry;
 
         public string Address => Server.Connection.Address.Hostname;
         public int Port => Server.Connection.Address.Port;
         public bool IsInitialized { get; private set; }
         public bool Initializing { get; private set; }
 
-        private PluginHostWrapper<ServerMessagedEventArgs> ServerMessagedHostWrapper { get; }
+        private PluginHostWrapper<ServerMessagedEventArgs> PluginHostWrapper { get; }
 
         private bool _Disposed;
 
@@ -172,7 +172,7 @@ namespace Convex.Core
 
             try
             {
-                await ServerMessagedHostWrapper.Host.InvokeAsync(this, args);
+                await PluginHostWrapper.Host.InvokeAsync(this, args);
             }
             catch (Exception ex)
             {
@@ -197,7 +197,7 @@ namespace Convex.Core
 
             InitializeGlobalConfiguration();
 
-            await ServerMessagedHostWrapper.Initialize();
+            await PluginHostWrapper.Initialize();
 
             RegisterMethods();
 
@@ -215,12 +215,13 @@ namespace Convex.Core
 
             Initializing = false;
 
-            if (!ServerMessagedHostWrapper.Initialized)
+            if (!PluginHostWrapper.IsInitialized)
             {
                 Log.Error("Client failed to initialize.");
                 return false;
             }
 
+            IsInitialized = Server.IsInitialized && PluginHostWrapper.IsInitialized;
             Log.Information("Client initialized.");
             return true;
         }
@@ -352,7 +353,7 @@ namespace Convex.Core
                 return;
             }
 
-            ServerMessagedHostWrapper.Host.RegisterComposition(methodRegistrar);
+            PluginHostWrapper.Host.RegisterComposition(methodRegistrar);
         }
 
         private void RegisterMethods()

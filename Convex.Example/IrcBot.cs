@@ -23,14 +23,9 @@ namespace Convex.Example
         public IrcBot()
         {
             _Bot = new Client(FormatServerMessage, OnInvokedMethod);
-            _Bot.Initialized += (sender, args) =>
-            {
-                Log.Information("Client initialized.");
-                return Task.CompletedTask;
-            };
             _Bot.Server.Connection.Flushed += (sender, args) =>
             {
-                Log.Information($" Me >> {args.Information}");
+                Log.Information($"   >> {args.Information}");
                 return Task.CompletedTask;
             };
         }
@@ -41,7 +36,7 @@ namespace Convex.Example
         {
             try
             {
-                if (!await _Bot.Initialize(new Address("irc.foonetic.net", 6667)))
+                if (!await _Bot.Initialize(new Address("irc.rizon.net", 6667)))
                 {
                     return;
                 }

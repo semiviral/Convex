@@ -7,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Convex.Base.Calculator;
 using Convex.Core.Net;
 using Convex.Event;
-using Convex.Example.Plugin.Calculator;
 using Convex.Plugin;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
@@ -19,7 +19,7 @@ using SharpConfig;
 
 #endregion
 
-namespace Convex.Example.Plugin
+namespace Convex.Base
 {
     public class Base : IPlugin
     {
@@ -85,7 +85,7 @@ namespace Convex.Example.Plugin
 
         public async Task Stop()
         {
-            if (Status.Equals(PluginStatus.Running) || Status.Equals(PluginStatus.Processing))
+            if ((Status == PluginStatus.Running) || (Status == PluginStatus.Processing))
             {
                 await Log($"Stop called but process is running from: {Name}");
             }

@@ -101,8 +101,6 @@ namespace Convex.Plugin
             {
                 DescriptionRegistry.Add(composition.UniqueId, composition.Description);
             }
-
-            Log.Information($"Loaded plugin: {composition.UniqueId}");
         }
 
         private void AddComposition(IAsyncComposition<T> composition)
@@ -124,11 +122,6 @@ namespace Convex.Plugin
         /// </summary>
         public Task LoadPlugins()
         {
-            if (!Directory.Exists(PluginHost.PluginsDirectory))
-            {
-                Directory.CreateDirectory(PluginHost.PluginsDirectory);
-            }
-
             IPlugin currentPluginIterated = null;
 
             try
@@ -162,7 +155,7 @@ namespace Convex.Plugin
             if (Plugins.Count > 0)
             {
                 Log.Information(
-                    $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => new Tuple<string, Version>(plugin.Instance.Name, plugin.Instance.Version)))}");
+                    $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => (plugin.Instance.Name, plugin.Instance.Version)))}");
             }
 
             return Task.CompletedTask;

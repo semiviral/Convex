@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example", "Convex.Example\Convex.Example.csproj", "{CF37CDB3-3E4C-48AA-BA9A-DB5EAC5ABE8F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example.Plugin", "Convex.Example.Plugin\Convex.Example.Plugin.csproj", "{C419C111-5A03-4738-90A5-FB5318F6DB67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Base", "Convex.Base\Convex.Base.csproj", "{C419C111-5A03-4738-90A5-FB5318F6DB67}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Plugin", "Convex.Plugin\Convex.Plugin.csproj", "{26E6E4F0-B510-46E7-A739-96BCB192BC00}"
 EndProject

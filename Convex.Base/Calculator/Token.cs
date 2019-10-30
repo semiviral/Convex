@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 #endregion
 
-namespace Convex.Example.Plugin.Calculator
+namespace Convex.Base.Calculator
 {
     public partial class InlineCalculator
     {

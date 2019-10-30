@@ -75,7 +75,7 @@ namespace Convex.Plugin
             await Host.LoadPlugins();
             Host.StartPlugins();
 
-            Initialized = true;
+            IsInitialized = true;
         }
 
         #endregion
@@ -83,7 +83,7 @@ namespace Convex.Plugin
         #region MEMBERS
 
         public PluginHost<T> Host { get; }
-        public bool Initialized { get; private set; }
+        public bool IsInitialized { get; private set; }
 
         #endregion
 
