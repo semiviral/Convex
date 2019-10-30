@@ -23,6 +23,11 @@ namespace Convex.Example
         public IrcBot()
         {
             _Bot = new Client(FormatServerMessage, OnInvokedMethod);
+            _Bot.Server.MessageReceived += (source, args) =>
+            {
+                Log.Information($"<{args.Message.Nickname}> {args.Message.Args}");
+                return Task.CompletedTask;
+            };
             _Bot.Server.Connection.Flushed += (sender, args) =>
             {
                 Log.Information($"   >> {args.Information}");

@@ -66,16 +66,16 @@ namespace Convex.Core.Net
 
         #region EVENTS
 
-        public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
+        public event AsyncEventHandler<ServerMessagedEventArgs> MessageReceived;
 
         private async Task OnChannelMessaged(object source, ServerMessagedEventArgs args)
         {
-            if (ServerMessaged == null)
+            if (MessageReceived == null)
             {
                 return;
             }
 
-            await ServerMessaged.Invoke(source, args);
+            await MessageReceived.Invoke(source, args);
         }
 
         #endregion

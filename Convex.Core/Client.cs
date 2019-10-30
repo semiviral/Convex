@@ -81,7 +81,7 @@ namespace Convex.Core
             Server = new Server(formatter);
 
             TerminateSignaled += Terminate;
-            Server.ServerMessaged += OnServerMessaged;
+            Server.MessageReceived += OnMessageReceived;
 
             PluginHostWrapper =
                 new PluginHostWrapper<ServerMessagedEventArgs>(Configuration, invokeAsyncMethod, "Convex.*.dll");
@@ -147,7 +147,7 @@ namespace Convex.Core
             } while (Server.Connection.IsConnected);
         }
 
-        private async Task OnServerMessaged(object source, ServerMessagedEventArgs args)
+        private async Task OnMessageReceived(object source, ServerMessagedEventArgs args)
         {
             if (string.IsNullOrEmpty(args.Message.Command))
             {
@@ -254,8 +254,6 @@ namespace Convex.Core
                 Log.Information("Configuration file not found. Creating default.");
 
                 CreateDefaultGlobalConfiguration();
-
-                File.Create(GlobalConfigurationFilePath);
             }
 
             Configuration = Configuration.LoadFromFile(GlobalConfigurationFilePath);
@@ -277,13 +275,14 @@ namespace Convex.Core
                 nameof(Core)
             };
 
-            Configuration[nameof(Core)][nameof(Nickname)].StringValue = "default";
-            Configuration[nameof(Core)][nameof(Realname)].StringValue = "default";
+            Configuration[nameof(Core)][nameof(Nickname)].StringValue = string.Empty;
+            Configuration[nameof(Core)][nameof(Realname)].StringValue = string.Empty;
             Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray = new string[0];
 
             Configuration.SaveToFile(GlobalConfigurationFilePath);
 
-            Log.Information("Default global configuration created.");
+            Log.Information(
+                "Default global configuration created. Many values are empty by default, so you will have to edit the /config/global.conf file.");
         }
 
         #endregion
