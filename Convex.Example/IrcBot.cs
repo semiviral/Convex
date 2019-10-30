@@ -10,7 +10,6 @@ using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
 using Convex.Util;
 using Serilog;
-using Serilog.Events;
 
 #endregion
 
@@ -23,22 +22,40 @@ namespace Convex.Example
         /// </summary>
         public IrcBot()
         {
-            _Bot = new IrcClient(FormatServerMessage, OnInvokedMethod);
+            _Bot = new Client(FormatServerMessage, OnInvokedMethod);
             _Bot.Initialized += (sender, args) =>
-                OnLog(sender, new LogEventArgs(LogEventLevel.Information, "Client initialized."));
+            {
+                Log.Information("Client initialized.");
+                return Task.CompletedTask;
+            };
             _Bot.Server.Connection.Flushed += (sender, args) =>
-                OnLog(sender, new LogEventArgs(LogEventLevel.Information, $" >> {args.Information}"));
-            _Bot.Server.ServerMessaged += LogServerMessage;
+            {
+                Log.Information($" Me >> {args.Information}");
+                return Task.CompletedTask;
+            };
         }
 
         #region INIT
 
         public async Task Initialize()
         {
-            await _Bot.Initialize(new Address("irc.foonetic.net", 6667));
-            RegisterMethods();
+            try
+            {
+                if (!await _Bot.Initialize(new Address("irc.foonetic.net", 6667)))
+                {
+                    return;
+                }
 
-            IsInitialised = true;
+                RegisterMethods();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                IsInitialised = _Bot?.IsInitialized ?? false;
+            }
         }
 
         #endregion
@@ -59,65 +76,12 @@ namespace Convex.Example
 
         public bool IsInitialised { get; private set; }
         public bool Executing => _Bot.Server.Executing;
-        private readonly IIrcClient _Bot;
+        private readonly IClient _Bot;
 
         private readonly string[] _DefaultChannels =
         {
             "#testgrounds"
         };
-
-        #endregion
-
-        #region EVENTS
-
-        private static Task OnLog(object sender, LogEventArgs args)
-        {
-            switch (args.Level)
-            {
-                case LogEventLevel.Verbose:
-                    Log.Verbose(args.Information);
-                    break;
-                case LogEventLevel.Debug:
-                    Log.Debug(args.Information);
-                    break;
-                case LogEventLevel.Information:
-                    Log.Information(args.Information);
-                    break;
-                case LogEventLevel.Warning:
-                    Log.Warning(args.Information);
-                    break;
-                case LogEventLevel.Error:
-                    Log.Error(args.Information);
-                    break;
-                case LogEventLevel.Fatal:
-                    Log.Fatal(args.Information);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return Task.CompletedTask;
-        }
-
-        private Task LogServerMessage(object source, ServerMessagedEventArgs e)
-        {
-            if (e.Message.Command.Equals(Commands.PRIVMSG))
-            {
-                OnLog(this,
-                    new LogEventArgs(LogEventLevel.Information,
-                        $"<{e.Message.Origin} {e.Message.Nickname}> {e.Message.Args}"));
-            }
-            else if (e.Message.Command.Equals(Commands.ERROR))
-            {
-                OnLog(this, new LogEventArgs(LogEventLevel.Error, e.Message.RawMessage));
-            }
-            else
-            {
-                OnLog(this, new LogEventArgs(LogEventLevel.Information, e.Message.RawMessage));
-            }
-
-            return Task.CompletedTask;
-        }
 
         #endregion
 
@@ -172,10 +136,9 @@ namespace Convex.Example
 
         #region METHODS
 
-        private static string FormatServerMessage(ServerMessage message) =>
-            StaticLog.Format(message.Nickname, message.Args);
+        private static string FormatServerMessage(ServerMessage message) => $"<{message.Nickname}> {message.Args}";
 
-        private async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args)
+        private static async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args)
         {
             if (!args.Args.Message.Command.Equals(Commands.ALL))
             {
@@ -196,10 +159,11 @@ namespace Convex.Example
         /// <param name="args">InvokedAsyncEventArgs object</param>
         /// <param name="contextCommand">Command to execute from</param>
         /// <returns></returns>
-        private async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args, string contextCommand)
+        private static async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args,
+            string contextCommand)
         {
-            foreach (IAsyncCompsition<ServerMessagedEventArgs> composition in args.Host
-                .CompositionHandlers[contextCommand].OrderBy(comp => comp.ExecutionStep))
+            foreach (IAsyncComposition<ServerMessagedEventArgs> composition in args.Host
+                .CompositionHandlers[contextCommand].OrderBy(comp => comp.Priority))
             {
                 if (!args.Args.Execute)
                 {

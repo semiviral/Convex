@@ -5,7 +5,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Convex.Event;
-using Serilog.Events;
+using Serilog;
 
 #endregion
 
@@ -74,14 +74,21 @@ namespace Convex.Core.Net
             {
                 await ConnectAsync();
 
-                await OnConnected(this, new ConnectedEventArgs(this, $"Connected to endpoint {Address} "));
+                Log.Information($"Connection established to endpoint: {Address}");
+                await OnConnected(this,
+                    new ConnectedEventArgs(this, $"Connection established to endpoint: {Address} "));
             }
-            catch (Exception)
+            catch (SocketException ex)
             {
+                Log.Fatal($"Unable to connect to endpoint {Address}: {ex.Message}");
                 await OnDisconnected(this,
-                    new DisconnectedEventArgs(this, $"Unable to connect to endpoint {Address} "));
-
-                throw;
+                    new DisconnectedEventArgs(this, $"Unable to connect to endpoint {Address}."));
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal($"Unable to connect to endpoint {Address}: {ex.Message}");
+                await OnDisconnected(this,
+                    new DisconnectedEventArgs(this, $"Unable to connect to endpoint {Address}."));
             }
         }
 
@@ -111,16 +118,13 @@ namespace Convex.Core.Net
             }
             catch (NullReferenceException)
             {
-                await OnLogged(this,
-                    new LogEventArgs(LogEventLevel.Information, "Stream disconnected. Attempting to reconnect..."));
+                Log.Information("Stream disconnected. Attempting to reconnect...");
 
                 await AttemptConnect();
             }
             catch (Exception ex)
             {
-                await OnLogged(this,
-                    new LogEventArgs(LogEventLevel.Information,
-                        $"Exception occured while listening on stream: {ex.Message}"));
+                Log.Error($"Exception occured while listening on stream: {ex.Message}");
             }
 
             Executing = false;
@@ -209,16 +213,6 @@ namespace Convex.Core.Net
             }
 
             await Flushed.Invoke(source, args);
-        }
-
-        private async Task OnLogged(object source, LogEventArgs args)
-        {
-            if (Logged == null)
-            {
-                return;
-            }
-
-            await Logged.Invoke(source, args);
         }
 
         #endregion

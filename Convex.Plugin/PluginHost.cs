@@ -10,19 +10,24 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
-using Convex.Util;
-using Serilog.Events;
+using Serilog;
+using SharpConfig;
 
 #endregion
 
 namespace Convex.Plugin
 {
+    public class PluginHost
+    {
+        public static readonly string PluginsDirectory = $@"{AppContext.BaseDirectory}/plugins/";
+    }
+
     public class PluginHost<T> where T : EventArgs
     {
-        public PluginHost(string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod,
+        public PluginHost(Configuration configuration, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod,
             string pluginMask)
         {
-            PluginsDirectory = pluginsDirectory;
+            Configuration = configuration;
             InvokedAsync += async (source, args) => await invokeAsyncMethod(new InvokedAsyncEventArgs<T>(this, args));
             PluginMask = pluginMask;
         }
@@ -30,17 +35,17 @@ namespace Convex.Plugin
         #region MEMBERS
 
         private string PluginMask { get; }
+        private Configuration Configuration { get; }
 
         private List<PluginInstance> Plugins { get; } = new List<PluginInstance>();
 
-        public Dictionary<string, List<IAsyncCompsition<T>>> CompositionHandlers { get; } =
-            new Dictionary<string, List<IAsyncCompsition<T>>>();
+        public Dictionary<string, List<IAsyncComposition<T>>> CompositionHandlers { get; } =
+            new Dictionary<string, List<IAsyncComposition<T>>>();
 
         public Dictionary<string, CompositionDescription> DescriptionRegistry { get; } =
             new Dictionary<string, CompositionDescription>();
 
         public bool ShuttingDown { get; private set; }
-        public string PluginsDirectory { get; }
 
         #endregion
 
@@ -57,13 +62,18 @@ namespace Convex.Plugin
         {
             foreach (PluginInstance pluginInstance in Plugins)
             {
-                pluginInstance.Instance.Start();
+                pluginInstance.Instance.Start(Configuration);
             }
         }
 
         public async Task StopPlugins()
         {
-            StaticLog.Log(new LogEventArgs(LogEventLevel.Information, "STOP PLUGINS RECEIVED — shutting down."));
+            if (Plugins.Count == 0)
+            {
+                return;
+            }
+
+            Log.Information("Stop plugins received; stopping plugins.");
             ShuttingDown = true;
 
             foreach (PluginInstance pluginInstance in Plugins)
@@ -72,7 +82,7 @@ namespace Convex.Plugin
             }
         }
 
-        public void RegisterComposition(IAsyncCompsition<T> composition)
+        public void RegisterComposition(IAsyncComposition<T> composition)
         {
             try
             {
@@ -80,30 +90,28 @@ namespace Convex.Plugin
             }
             catch (Exception ex)
             {
-                StaticLog.Log(new LogEventArgs(LogEventLevel.Error,
-                    $"Failed to load composition {composition.UniqueId}: {ex}"));
+                Log.Error($"Failed to load composition {composition.UniqueId}: {ex}");
             }
 
             if (DescriptionRegistry.Keys.Contains(composition.UniqueId))
             {
-                StaticLog.Log(new LogEventArgs(LogEventLevel.Information,
-                    $"'{composition.UniqueId}' description already exists, skipping entry."));
+                Log.Information($"'{composition.UniqueId}' description already exists, skipping entry.");
             }
             else
             {
                 DescriptionRegistry.Add(composition.UniqueId, composition.Description);
             }
 
-            StaticLog.Log(new LogEventArgs(LogEventLevel.Information, $"Loaded plugin: {composition.UniqueId}"));
+            Log.Information($"Loaded plugin: {composition.UniqueId}");
         }
 
-        private void AddComposition(IAsyncCompsition<T> composition)
+        private void AddComposition(IAsyncComposition<T> composition)
         {
             foreach (string command in composition.Commands)
             {
                 if (!CompositionHandlers.ContainsKey(command))
                 {
-                    CompositionHandlers.Add(command, new List<IAsyncCompsition<T>>());
+                    CompositionHandlers.Add(command, new List<IAsyncComposition<T>>());
                 }
 
                 CompositionHandlers[command].Add(composition);
@@ -116,9 +124,9 @@ namespace Convex.Plugin
         /// </summary>
         public Task LoadPlugins()
         {
-            if (!Directory.Exists(PluginsDirectory))
+            if (!Directory.Exists(PluginHost.PluginsDirectory))
             {
-                Directory.CreateDirectory(PluginsDirectory);
+                Directory.CreateDirectory(PluginHost.PluginsDirectory);
             }
 
             IPlugin currentPluginIterated = null;
@@ -127,7 +135,7 @@ namespace Convex.Plugin
             {
                 // array of all filepaths that are found to match the PLUGIN_MASK
                 IEnumerable<IPlugin> pluginInstances = Directory
-                    .GetFiles(PluginsDirectory, PluginMask, SearchOption.AllDirectories)
+                    .GetFiles(PluginHost.PluginsDirectory, PluginMask, SearchOption.AllDirectories)
                     .SelectMany(GetPluginInstances);
 
                 foreach (IPlugin plugin in pluginInstances)
@@ -142,20 +150,19 @@ namespace Convex.Plugin
             {
                 foreach (Exception loaderException in ex.LoaderExceptions)
                 {
-                    StaticLog.Log(new LogEventArgs(LogEventLevel.Information,
-                        $"LoaderException occured loading a plugin: {loaderException}"));
+                    Log.Information($"LoaderException occured loading a plugin: {loaderException}");
                 }
             }
             catch (Exception ex)
             {
-                StaticLog.Log(new LogEventArgs(LogEventLevel.Information,
-                    $"Error occurred loading a plugin ({currentPluginIterated.Name}, {currentPluginIterated.Version}): {ex}"));
+                Log.Information(
+                    $"Error occurred loading a plugin ({currentPluginIterated?.Name}, {currentPluginIterated?.Version}): {ex}");
             }
 
             if (Plugins.Count > 0)
             {
-                StaticLog.Log(new LogEventArgs(LogEventLevel.Information,
-                    $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => new Tuple<string, Version>(plugin.Instance.Name, plugin.Instance.Version)))}"));
+                Log.Information(
+                    $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => new Tuple<string, Version>(plugin.Instance.Name, plugin.Instance.Version)))}");
             }
 
             return Task.CompletedTask;
@@ -198,12 +205,12 @@ namespace Convex.Plugin
 
                 if (autoStart)
                 {
-                    plugin.Start();
+                    plugin.Start(Configuration);
                 }
             }
             catch (Exception ex)
             {
-                StaticLog.Log(new LogEventArgs(LogEventLevel.Warning, $"Error adding plugin: {ex.Message}"));
+                Log.Error($"Error adding plugin: {ex.Message}");
             }
         }
 

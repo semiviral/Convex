@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Convex.Core.Configuration;
 using Convex.Core.Net;
 using Convex.Event;
 using Convex.Example.Plugin.Calculator;
@@ -16,16 +15,17 @@ using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
 using Convex.Util;
 using Newtonsoft.Json.Linq;
+using SharpConfig;
 
 #endregion
 
 namespace Convex.Example.Plugin
 {
-    public class Core : IPlugin
+    public class Base : IPlugin
     {
         #region MEMBERS
 
-        public string Name => "Core";
+        public string Name => "Base";
         public string Author => "Zavier Divelbiss";
         public Version Version => new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
         public string Id => Guid.NewGuid().ToString();
@@ -37,7 +37,8 @@ namespace Convex.Example.Plugin
             new Regex(@"(?i)http(?:s?)://(?:www\.)?youtu(?:be\.com/watch\?v=|\.be/)(?<ID>[\w\-]+)(&(amp;)?[\w\?=‌​]*)?",
                 RegexOptions.Compiled);
 
-        private bool _MotdReplyEndSequenceEnacted;
+        private bool MotdReplyEndSequenceEnacted { get; set; }
+        private Configuration Configuration { get; set; }
 
         #endregion
 
@@ -45,7 +46,7 @@ namespace Convex.Example.Plugin
 
         public event AsyncEventHandler<PluginActionEventArgs> Callback;
 
-        public async Task Start()
+        public async Task Start(Configuration configuration)
         {
             //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Join, args => InputEquals(args, "join"), new CompositionDescription(nameof(Join), "(< channel> *<message>) — joins specified channel."), Commands.PRIVMSG), Name));
             //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Part, args => InputEquals(args, "part"), new CompositionDescription(nameof(Part), "(< channel> *<message>) — parts from specified channel."), Commands.PRIVMSG), Name));
@@ -131,13 +132,13 @@ namespace Convex.Example.Plugin
 
         private async Task Default(ServerMessagedEventArgs e)
         {
-            if ((Config.GetProperty("IgnoreList") as List<string>)?.Contains(e.Message.RealName) == true)
+            if (Configuration[nameof(Core)]["IgnoreList"].StringValueArray.Contains(e.Message.RealName))
             {
                 return;
             }
 
             if (!e.Message.SplitArgs[0].Replace(",", string.Empty)
-                .Equals(Config.GetProperty("Nickname").ToString().ToLower()))
+                .Equals(Configuration[nameof(Core)]["Nickname"].StringValue.ToLower()))
             {
                 return;
             }
@@ -158,7 +159,7 @@ namespace Convex.Example.Plugin
                 if (e.Message.SplitArgs.Count.Equals(2))
                 {
                     // in this case, 'help' is the only text in the string.
-                    List<CompositionDescription> entries = e.Caller.LoadedDescriptions.Values.ToList();
+                    List<CompositionDescription> entries = e.Caller.PluginCommands.Values.ToList();
                     string commandsReadable = string.Join(", ",
                         entries.Where(entry => entry != null).Select(entry => entry.Command));
 
@@ -197,22 +198,24 @@ namespace Convex.Example.Plugin
 
         private async Task MotdReplyEnd(ServerMessagedEventArgs args)
         {
-            if (_MotdReplyEndSequenceEnacted)
+            if (MotdReplyEndSequenceEnacted)
             {
                 return;
             }
 
             await DoCallback(this,
                 new PluginActionEventArgs(PluginActionType.SendMessage,
-                    new IrcCommandEventArgs(Commands.PRIVMSG, $"NICKSERV IDENTIFY {Config.GetProperty("Password")}"),
+                    new IrcCommandEventArgs(Commands.PRIVMSG,
+                        $"NICKSERV IDENTIFY {Configuration[nameof(Core)]["Password"].StringValue}"),
                     Name));
             await DoCallback(this,
                 new PluginActionEventArgs(PluginActionType.SendMessage,
-                    new IrcCommandEventArgs(Commands.MODE, $"{Config.GetProperty("nickname")} +B"), Name));
+                    new IrcCommandEventArgs(Commands.MODE, $"{Configuration[nameof(Core)]["Nickname"].StringValue} +B"),
+                    Name));
 
             //args.Caller.Server.Channels.Add(new Channel("#testgrounds"));
 
-            _MotdReplyEndSequenceEnacted = true;
+            MotdReplyEndSequenceEnacted = true;
         }
 
         private async Task Quit(ServerMessagedEventArgs args)

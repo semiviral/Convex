@@ -12,12 +12,12 @@ using Convex.Plugin.Composition;
 
 namespace Convex.Core
 {
-    public interface IIrcClient
+    public interface IClient
     {
         string Address { get; }
         bool Initializing { get; }
         bool IsInitialized { get; }
-        Dictionary<string, CompositionDescription> LoadedDescriptions { get; }
+        IReadOnlyDictionary<string, CompositionDescription> PluginCommands { get; }
         int Port { get; }
         Server Server { get; }
         Guid UniqueId { get; }
@@ -33,6 +33,6 @@ namespace Convex.Core
         void Dispose();
         CompositionDescription GetDescription(string command);
         Task<bool> Initialize(IAddress address);
-        void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar);
+        void RegisterMethod(IAsyncComposition<ServerMessagedEventArgs> methodRegistrar);
     }
 }

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
-using Convex.Util;
-using Serilog.Events;
+using Serilog;
+using SharpConfig;
 
 #endregion
 
@@ -14,8 +14,8 @@ namespace Convex.Plugin
 {
     public class PluginHostWrapper<T> where T : EventArgs
     {
-        public PluginHostWrapper(string pluginsDirectory, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod,
-            string pluginMask) => Host = new PluginHost<T>(pluginsDirectory, invokeAsyncMethod, pluginMask);
+        public PluginHostWrapper(Configuration configuration, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod,
+            string pluginMask) => Host = new PluginHost<T>(configuration, invokeAsyncMethod, pluginMask);
 
         #region METHODS
 
@@ -32,12 +32,12 @@ namespace Convex.Plugin
                     await OnTerminated(source, new OperationTerminatedEventArgs(source, "Terminate signaled."));
                     break;
                 case PluginActionType.RegisterMethod:
-                    if (!(args.Result is IAsyncCompsition<T>))
+                    if (!(args.Result is IAsyncComposition<T>))
                     {
                         break;
                     }
 
-                    Host.RegisterComposition((IAsyncCompsition<T>)args.Result);
+                    Host.RegisterComposition((IAsyncComposition<T>)args.Result);
                     break;
                 case PluginActionType.SendMessage:
                     if (!(args.Result is IrcCommandEventArgs))
@@ -53,7 +53,7 @@ namespace Convex.Plugin
                         break;
                     }
 
-                    StaticLog.Log(new LogEventArgs(LogEventLevel.Information, (string)args.Result));
+                    Log.Information((string)args.Result);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

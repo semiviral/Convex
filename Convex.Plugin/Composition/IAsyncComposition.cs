@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Convex.Plugin.Composition
 {
-    public interface IAsyncCompsition<in T>
+    public interface IAsyncComposition<in T>
     {
-        int ExecutionStep { get; }
+        int Priority { get; }
         Predicate<T> CanExecute { get; }
-        Func<T, Task> InnerMethod { get; }
+        Func<T, Task> Method { get; }
         CompositionDescription Description { get; }
         string UniqueId { get; }
         string[] Commands { get; }

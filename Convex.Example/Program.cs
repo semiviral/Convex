@@ -2,8 +2,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Convex.Core.Configuration;
-using Serilog;
 
 #endregion
 
@@ -17,7 +15,7 @@ namespace Convex.Example
 
         #endregion
 
-        private static async Task DebugRun()
+        private static async Task Run()
         {
             do
             {
@@ -32,18 +30,21 @@ namespace Convex.Example
             using (Bot = new IrcBot())
             {
                 await Bot.Initialize();
-                await DebugRun();
+
+                if (!Bot.IsInitialised)
+                {
+                    return;
+                }
+
+                await Run();
             }
         }
 
         public static async Task Main()
         {
-            Log.Logger = new LoggerConfiguration().WriteTo.LiterateConsole().CreateLogger();
-            Config.Initialize($@"{AppContext.BaseDirectory}\resource\");
-            Log.Logger = new LoggerConfiguration().WriteTo.LiterateConsole().WriteTo
-                .RollingFile(Config.GetProperty("LogPath").ToString()).CreateLogger();
-
             await InitializeAndExecute();
+
+            Bot.Dispose();
 
             Console.Write("Program terminated. Press any key to continue.");
             Console.ReadKey();

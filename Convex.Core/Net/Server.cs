@@ -24,7 +24,7 @@ namespace Convex.Core.Net
             Connection?.Dispose();
 
             Identified = false;
-            Initialized = false;
+            IsInitialized = false;
         }
 
         #endregion
@@ -39,7 +39,7 @@ namespace Convex.Core.Net
         /// <remarks>
         ///     Use this method to begin listening cycle.
         /// </remarks>
-        public async Task ListenAsync(IIrcClient caller)
+        public async Task ListenAsync(IClient caller)
         {
             string rawData = await Connection.ListenAsync();
 
@@ -59,7 +59,7 @@ namespace Convex.Core.Net
 
         public Connection Connection { get; }
         public bool Identified { get; set; }
-        public bool Initialized { get; private set; }
+        public bool IsInitialized { get; private set; }
         public bool Executing => Connection.Executing;
 
         #endregion
@@ -86,7 +86,7 @@ namespace Convex.Core.Net
         {
             await Connection.Initialize(address);
 
-            Initialized = Connection.IsInitialized;
+            IsInitialized = Connection.IsInitialized;
         }
 
         /// <summary>

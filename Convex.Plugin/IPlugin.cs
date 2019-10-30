@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Convex.Event;
 using Convex.Plugin.Event;
+using SharpConfig;
 
 #endregion
 
@@ -17,7 +18,7 @@ namespace Convex.Plugin
         /// <summary>
         ///     Often used to register methods
         /// </summary>
-        Task Start();
+        Task Start(Configuration configuration);
 
         Task Stop();
         Task CallDie();

@@ -2,36 +2,80 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Convex.Core.Configuration;
 using Convex.Core.Net;
 using Convex.Event;
 using Convex.Plugin;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
 using Convex.Util;
+using Serilog;
+using SharpConfig;
 
 #endregion
 
 namespace Convex.Core
 {
-    public sealed class IrcClient : IDisposable, IIrcClient
+    public sealed class Client : IDisposable, IClient
     {
+        public const string GLOBAL_CONFIGURATION_FILE_NAME = "global.conf";
+
+        public static readonly string ConfigurationsDirectory = $@"{AppContext.BaseDirectory}/config/";
+        public static readonly string LogsDirectory = $@"{AppContext.BaseDirectory}/logs/";
+
+        public static readonly string GlobalConfigurationFilePath =
+            $@"{ConfigurationsDirectory}/{GLOBAL_CONFIGURATION_FILE_NAME}";
+
+        public static readonly string LogFilePath =
+            $@"{LogsDirectory}/runtime-{DateTime.Now}.log";
+
+        public Configuration Configuration { get; private set; }
+
+        #region CONFIGURATION PROPERTIES
+
+        public string Nickname
+        {
+            get => Configuration[nameof(Core)][nameof(Nickname)].StringValue;
+            set
+            {
+                Configuration[nameof(Core)][nameof(Nickname)].SetValue(value);
+                Configuration.SaveToFile(GlobalConfigurationFilePath);
+            }
+        }
+
+        public string Realname
+        {
+            get => Configuration[nameof(Core)][nameof(Nickname)].StringValue;
+            set
+            {
+                Configuration[nameof(Core)][nameof(Nickname)].SetValue(value);
+                Configuration.SaveToFile(GlobalConfigurationFilePath);
+            }
+        }
+
+        public ObservableCollection<string> IgnoreList { get; private set; }
+
+        #endregion
+
         /// <summary>
         ///     Initializes class. No connections are made at initialization, so call `Initialize()` to begin sending and
         ///     receiving.
         /// </summary>
-        public IrcClient(Func<ServerMessage, string> formatter,
+        public Client(Func<ServerMessage, string> formatter,
             Func<InvokedAsyncEventArgs<ServerMessagedEventArgs>, Task> invokeAsyncMethod)
         {
-            Initializing = true;
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Async(conf => conf.Console())
+                .WriteTo.Async(conf => conf.RollingFile(LogFilePath))
+                .CreateLogger();
 
             Version = new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
 
-            _PendingPlugins = new Stack<IAsyncCompsition<ServerMessagedEventArgs>>();
+            _PendingPlugins = new Stack<IAsyncComposition<ServerMessagedEventArgs>>();
 
             UniqueId = Guid.NewGuid();
             Server = new Server(formatter);
@@ -40,12 +84,9 @@ namespace Convex.Core
             Server.ServerMessaged += OnServerMessaged;
 
             ServerMessagedHostWrapper =
-                new PluginHostWrapper<ServerMessagedEventArgs>(Config.GetProperty("PluginsDirectory").ToString(),
-                    invokeAsyncMethod, "Convex.*.dll");
+                new PluginHostWrapper<ServerMessagedEventArgs>(Configuration, invokeAsyncMethod, "Convex.*.dll");
             ServerMessagedHostWrapper.TerminateSignaled += OnTerminateSignaled;
             ServerMessagedHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
-
-            Initializing = false;
         }
 
         #region INTERFACE IMPLEMENTATION
@@ -67,6 +108,7 @@ namespace Convex.Core
 
             await ServerMessagedHostWrapper.Host.StopPlugins();
             Server?.Dispose();
+            Log.CloseAndFlush();
 
             _Disposed = true;
         }
@@ -79,7 +121,7 @@ namespace Convex.Core
         public Server Server { get; }
         public Version Version { get; }
 
-        public Dictionary<string, CompositionDescription> LoadedDescriptions =>
+        public IReadOnlyDictionary<string, CompositionDescription> PluginCommands =>
             ServerMessagedHostWrapper.Host.DescriptionRegistry;
 
         public string Address => Server.Connection.Address.Hostname;
@@ -91,7 +133,7 @@ namespace Convex.Core
 
         private bool _Disposed;
 
-        private readonly Stack<IAsyncCompsition<ServerMessagedEventArgs>> _PendingPlugins;
+        private readonly Stack<IAsyncComposition<ServerMessagedEventArgs>> _PendingPlugins;
 
         #endregion
 
@@ -117,14 +159,13 @@ namespace Convex.Core
                 return;
             }
 
-            if (args.Message.Nickname.Equals(Config.GetProperty("Nickname").ToString())
-                || ((List<string>)Config.GetProperty("IgnoreList")).Contains(args.Message.RealName))
+            if (args.Message.Nickname.Equals(Nickname)
+                || IgnoreList.Contains(args.Message.RealName))
             {
                 return;
             }
 
-            if ((args.Message.SplitArgs.Count >= 2)
-                && args.Message.SplitArgs[0].Equals(Config.GetProperty("Nickname").ToString().ToLower()))
+            if ((args.Message.SplitArgs.Count >= 2) && args.Message.SplitArgs[0].Equals(Nickname.ToLower()))
             {
                 args.Message.InputCommand = args.Message.SplitArgs[1].ToLower();
             }
@@ -152,25 +193,96 @@ namespace Convex.Core
 
             Initializing = true;
 
-            await InitializePluginWrapper();
+            CheckForBasicDirectories();
+
+            InitializeGlobalConfiguration();
+
+            await ServerMessagedHostWrapper.Initialize();
 
             RegisterMethods();
 
             await Server.Initialize(address);
 
+            if (!Server.IsInitialized)
+            {
+                Log.Error("Client failed to initialize.");
+                return false;
+            }
+
             await OnInitialized(this, new ClassInitializedEventArgs(this));
 
-            await Server.SendIdentityInfo(Config.GetProperty("Nickname").ToString(),
-                Config.GetProperty("Realname").ToString());
+            await Server.SendIdentityInfo(Nickname, Realname);
 
             Initializing = false;
 
-            return IsInitialized = Server.Initialized && ServerMessagedHostWrapper.Initialized;
+            if (!ServerMessagedHostWrapper.Initialized)
+            {
+                Log.Error("Client failed to initialize.");
+                return false;
+            }
+
+            Log.Information("Client initialized.");
+            return true;
         }
 
-        private async Task InitializePluginWrapper()
+        private static void CheckForBasicDirectories()
         {
-            await ServerMessagedHostWrapper.Initialize();
+            if (!Directory.Exists(ConfigurationsDirectory))
+            {
+                Log.Information("Configurations directory missing; creating.");
+                Directory.CreateDirectory(ConfigurationsDirectory);
+            }
+
+            if (!Directory.Exists(PluginHost.PluginsDirectory))
+            {
+                Log.Information("Plugins directory missing; creating.");
+                Directory.CreateDirectory(PluginHost.PluginsDirectory);
+            }
+
+            if (!Directory.Exists(LogsDirectory))
+            {
+                Log.Information("Logs directory missing; creating.");
+                Directory.CreateDirectory(LogsDirectory);
+            }
+        }
+
+        private void InitializeGlobalConfiguration()
+        {
+            if (!File.Exists(GlobalConfigurationFilePath))
+            {
+                Log.Information("Configuration file not found. Creating default.");
+
+                CreateDefaultGlobalConfiguration();
+
+                File.Create(GlobalConfigurationFilePath);
+            }
+
+            Configuration = Configuration.LoadFromFile(GlobalConfigurationFilePath);
+            IgnoreList =
+                new ObservableCollection<string>(Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray
+                                                 ?? new string[0]);
+            IgnoreList.CollectionChanged += (sender, args) =>
+            {
+                // save ignore list on changes
+                Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray = IgnoreList.ToArray();
+                Configuration.SaveToFile(GlobalConfigurationFilePath);
+            };
+        }
+
+        private void CreateDefaultGlobalConfiguration()
+        {
+            Configuration = new Configuration
+            {
+                nameof(Core)
+            };
+
+            Configuration[nameof(Core)][nameof(Nickname)].StringValue = "default";
+            Configuration[nameof(Core)][nameof(Realname)].StringValue = "default";
+            Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray = new string[0];
+
+            Configuration.SaveToFile(GlobalConfigurationFilePath);
+
+            Log.Information("Default global configuration created.");
         }
 
         #endregion
@@ -231,7 +343,7 @@ namespace Convex.Core
 
         #region METHODS
 
-        public void RegisterMethod(IAsyncCompsition<ServerMessagedEventArgs> methodRegistrar)
+        public void RegisterMethod(IAsyncComposition<ServerMessagedEventArgs> methodRegistrar)
         {
             if (!IsInitialized && !Initializing)
             {
@@ -258,8 +370,16 @@ namespace Convex.Core
         /// <returns></returns>
         public CompositionDescription GetDescription(string command)
         {
-            return ServerMessagedHostWrapper.Host.DescriptionRegistry.Values.SingleOrDefault(kvp =>
-                kvp.Command.Equals(command, StringComparison.CurrentCultureIgnoreCase));
+            return PluginCommands.Single(kvp =>
+                kvp.Value.Command.Equals(command, StringComparison.CurrentCultureIgnoreCase)).Value;
+        }
+
+        public bool TryGetDescription(string command, out CompositionDescription compositionDescription)
+        {
+            compositionDescription = PluginCommands.SingleOrDefault(kvp =>
+                kvp.Value.Command.Equals(command, StringComparison.CurrentCultureIgnoreCase)).Value;
+
+            return compositionDescription == default;
         }
 
         /// <summary>
@@ -267,7 +387,7 @@ namespace Convex.Core
         /// </summary>
         /// <param name="command">comamnd name to be checked</param>
         /// <returns>True: exists; false: does not exist</returns>
-        public bool CommandExists(string command) => !GetDescription(command).Equals(default(Tuple<string, string>));
+        public bool CommandExists(string command) => TryGetDescription(command, out CompositionDescription _);
 
         #endregion
     }

@@ -1,4 +1,10 @@
-﻿namespace Convex.Plugin.Composition
+﻿#region
+
+using System;
+
+#endregion
+
+namespace Convex.Plugin.Composition
 {
     public class CompositionDescription
     {
@@ -10,5 +16,8 @@
 
         public string Command { get; }
         public string Description { get; }
+
+        public static explicit operator ValueTuple<string, string>(CompositionDescription compositionDescription)
+            => (compositionDescription.Command, compositionDescription.Description);
     }
 }
