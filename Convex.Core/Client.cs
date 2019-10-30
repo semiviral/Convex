@@ -12,7 +12,7 @@ using Convex.Event;
 using Convex.Plugin;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
-using Convex.Util;
+using Core;
 using Serilog;
 using SharpConfig;
 

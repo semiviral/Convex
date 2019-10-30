@@ -19,8 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Util", "Convex.Util\Convex.Util.csproj", "{88D04192-B339-4A89-A4B2-C206E548B092}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Core", "Convex.Core\Convex.Core.csproj", "{73F68194-E859-494F-91BB-536715DF21B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convex.Event", "Convex.Event\Convex.Event.csproj", "{F119C942-0A34-4152-9D59-32E79BC105AA}"
@@ -43,10 +41,6 @@ Global
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Release|Any CPU.Build.0 = Release|Any CPU
-		{88D04192-B339-4A89-A4B2-C206E548B092}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{88D04192-B339-4A89-A4B2-C206E548B092}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{88D04192-B339-4A89-A4B2-C206E548B092}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{88D04192-B339-4A89-A4B2-C206E548B092}.Release|Any CPU.Build.0 = Release|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Release|Any CPU.ActiveCfg = Release|Any CPU

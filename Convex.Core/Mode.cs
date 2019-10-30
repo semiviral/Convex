@@ -1,7 +1,7 @@
 ﻿// ReSharper disable UnusedMember.Global
 // ReSharper disable IdentifierTypo
 
-namespace Convex.Util
+namespace Convex.Core
 {
     public class Mode
     {

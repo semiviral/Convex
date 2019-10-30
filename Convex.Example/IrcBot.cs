@@ -8,7 +8,7 @@ using Convex.Core.Net;
 using Convex.Event;
 using Convex.Plugin.Composition;
 using Convex.Plugin.Event;
-using Convex.Util;
+using Core;
 using Serilog;
 
 #endregion
