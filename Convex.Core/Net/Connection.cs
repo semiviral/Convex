@@ -173,7 +173,6 @@ namespace Convex.Core.Net
         public event AsyncEventHandler<ConnectedEventArgs> Connected;
         public event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
         public event AsyncEventHandler<StreamFlushedEventArgs> Flushed;
-        public event AsyncEventHandler<LogEventArgs> Logged;
 
         private async Task OnInitialized(object source, ClassInitializedEventArgs args)
         {
