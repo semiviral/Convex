@@ -1,12 +1,15 @@
 ﻿#region
 
 using System;
+using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace Convex.Core.Plugins.Composition
 {
-    public class CompositionDescription
+    [RequiredAttribute(typeof(Composition))]
+    [AttributeUsage(AttributeTargets.Method)]
+    public class CompositionDescription : Attribute
     {
         public CompositionDescription(string command, string description)
         {

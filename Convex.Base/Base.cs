@@ -51,35 +51,6 @@ namespace Convex.Base
             //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Part, args => InputEquals(args, "part"), new CompositionDescription(nameof(Part), "(< channel> *<message>) — parts from specified channel."), Commands.PRIVMSG), Name));
             //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Channels, args => InputEquals(args, "channels"), new CompositionDescription(nameof(Channels), "returns a list of connected channels."), Commands.PRIVMSG), Name));
             //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, YouTubeLinkResponse, args => _youtubeRegex.IsMatch(args.Message.Args), null, Commands.PRIVMSG), Name));
-
-            await DoCallback(this,
-                new PluginActionEventArgs(PluginActionType.RegisterMethod,
-                    new Composition<ServerMessagedEventArgs>(1, Default, null, null, Commands.PRIVMSG), Name));
-            await DoCallback(this,
-                new PluginActionEventArgs(PluginActionType.RegisterMethod,
-                    new Composition<ServerMessagedEventArgs>(99, MotdReplyEnd, null, null, Commands.RPL_ENDOFMOTD),
-                    Name));
-            await DoCallback(this,
-                new PluginActionEventArgs(PluginActionType.RegisterMethod,
-                    new Composition<ServerMessagedEventArgs>(99, Quit, args => InputEquals(args, "quit"),
-                        new CompositionDescription(nameof(Quit), "terminates bot execution"), Commands.PRIVMSG), Name));
-            await DoCallback(this,
-                new PluginActionEventArgs(PluginActionType.RegisterMethod,
-                    new Composition<ServerMessagedEventArgs>(99, Eval, args => InputEquals(args, "eval"),
-                        new CompositionDescription(nameof(Eval),
-                            "(<expression>) — evaluates given mathematical expression."), Commands.PRIVMSG), Name));
-            await DoCallback(this,
-                new PluginActionEventArgs(PluginActionType.RegisterMethod,
-                    new Composition<ServerMessagedEventArgs>(99, Define, args => InputEquals(args, "define"),
-                        new CompositionDescription(nameof(Define),
-                            "(< word> *<part of speech>) — returns definition for given word."), Commands.PRIVMSG),
-                    Name));
-            await DoCallback(this,
-                new PluginActionEventArgs(PluginActionType.RegisterMethod,
-                    new Composition<ServerMessagedEventArgs>(99, Lookup, args => InputEquals(args, "lookup"),
-                        new CompositionDescription(nameof(Lookup),
-                            "(<term/phrase>) — returns the wikipedia summary of given term or phrase."),
-                        Commands.PRIVMSG), Name));
         }
 
         public async Task Stop()
@@ -129,6 +100,7 @@ namespace Convex.Base
 
         #region REGISTRARS
 
+        [Composition(1, Commands.PRIVMSG)]
         private async Task Default(ServerMessagedEventArgs e)
         {
             if (Configuration[nameof(Core)]["IgnoreList"].StringValueArray.Contains(e.Message.RealName))
@@ -195,6 +167,7 @@ namespace Convex.Base
                         "Invalid command. Type 'eve help' to view my command list."), Name));
         }
 
+        [Composition(1, Commands.PRIVMSG)]
         private async Task MotdReplyEnd(ServerMessagedEventArgs args)
         {
             if (MotdReplyEndSequenceEnacted)
@@ -217,9 +190,13 @@ namespace Convex.Base
             MotdReplyEndSequenceEnacted = true;
         }
 
+        [Composition(99, Commands.PRIVMSG)]
+        [CompositionDescription(nameof(Quit), "terminates bot execution.")]
         private async Task Quit(ServerMessagedEventArgs args)
         {
-            if ((args.Message.SplitArgs.Count < 2) || !args.Message.SplitArgs[1].Equals("quit"))
+            if (!InputEquals(args, "quit")
+                || (args.Message.SplitArgs.Count < 2)
+                || !args.Message.SplitArgs[1].Equals("quit"))
             {
                 return;
             }
@@ -230,14 +207,21 @@ namespace Convex.Base
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.SignalTerminate, null, Name));
         }
 
-        private async Task Eval(ServerMessagedEventArgs e)
+        [Composition(99, Commands.PRIVMSG)]
+        [CompositionDescription(nameof(Eval), "(<expression>) — evaluates given mathematical expression.")]
+        private async Task Eval(ServerMessagedEventArgs args)
         {
+            if (!InputEquals(args, "eval"))
+            {
+                return;
+            }
+
             Status = PluginStatus.Processing;
 
             IrcCommandEventArgs command =
-                new IrcCommandEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", string.Empty);
+                new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
-            if (e.Message.SplitArgs.Count < 3)
+            if (args.Message.SplitArgs.Count < 3)
             {
                 command.Arguments = "Not enough parameters.";
             }
@@ -247,9 +231,9 @@ namespace Convex.Base
             if (string.IsNullOrEmpty(command.Arguments))
             {
                 Status = PluginStatus.Running;
-                string evalArgs = e.Message.SplitArgs.Count > 3
-                    ? e.Message.SplitArgs[2] + e.Message.SplitArgs[3]
-                    : e.Message.SplitArgs[2];
+                string evalArgs = args.Message.SplitArgs.Count > 3
+                    ? args.Message.SplitArgs[2] + args.Message.SplitArgs[3]
+                    : args.Message.SplitArgs[2];
 
                 try
                 {
@@ -365,8 +349,15 @@ namespace Convex.Base
         //    Status = PluginStatus.Stopped;
         //}
 
+        [Composition(99, Commands.PRIVMSG)]
+        [CompositionDescription(nameof(Define), "(< word> *<part of speech>) — returns definition for given word.")]
         private async Task Define(ServerMessagedEventArgs args)
         {
+            if (!InputEquals(args, "define"))
+            {
+                return;
+            }
+
             Status = PluginStatus.Processing;
 
             IrcCommandEventArgs command =
@@ -443,8 +434,16 @@ namespace Convex.Base
             Status = PluginStatus.Stopped;
         }
 
+        [Composition(99, Commands.PRIVMSG)]
+        [CompositionDescription(nameof(Lookup),
+            "(<term/phrase>) — returns the wikipedia summary of given term or phrase.")]
         private async Task Lookup(ServerMessagedEventArgs args)
         {
+            if (InputEquals(args, "lookup"))
+            {
+                return;
+            }
+
             Status = PluginStatus.Processing;
 
             if ((args.Message.SplitArgs.Count < 2) || !args.Message.SplitArgs[1].Equals("lookup"))

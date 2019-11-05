@@ -90,21 +90,20 @@ namespace Convex.Example
         /// </summary>
         private void RegisterMethods()
         {
-            _Bot.RegisterMethod(new Composition<ServerMessagedEventArgs>(99, Info,
-                e => e.Message.InputCommand.Equals(nameof(Info).ToLower()),
-                new CompositionDescription(nameof(Info), "returns the basic information about this bot"),
-                Commands.PRIVMSG));
+            _Bot.RegisterMethod(new MethodComposition<ServerMessagedEventArgs>(Info,
+                new Composition(00, Commands.PRIVMSG),
+                new CompositionDescription(nameof(Info), "returns the basic information about this bot")));
         }
 
-        private async Task Info(ServerMessagedEventArgs e)
+        private async Task Info(ServerMessagedEventArgs args)
         {
-            if ((e.Message.SplitArgs.Count < 2) || !e.Message.SplitArgs[1].Equals("info"))
+            if (!args.Message.InputCommand.Equals(nameof(Info).ToLower()))
             {
                 return;
             }
 
             await _Bot.Server.Connection.SendDataAsync(this,
-                new IrcCommandEventArgs(Commands.PRIVMSG, $"{e.Message.Origin} {BotInfo}"));
+                new IrcCommandEventArgs(Commands.PRIVMSG, $"{args.Message.Origin} {BotInfo}"));
         }
 
         #endregion

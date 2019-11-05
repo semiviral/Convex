@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
@@ -11,6 +10,7 @@ using Convex.Core.Events;
 using Convex.Core.Plugins.Composition;
 using Serilog;
 using SharpConfig;
+using Enumerable = System.Linq.Enumerable;
 
 #endregion
 
@@ -92,9 +92,9 @@ namespace Convex.Core.Plugins
                 Log.Error($"Failed to load composition {composition.UniqueId}: {ex}");
             }
 
-            if (DescriptionRegistry.Keys.Contains(composition.UniqueId))
+            if (DescriptionRegistry.ContainsKey(composition.UniqueId))
             {
-                Log.Information($"'{composition.UniqueId}' description already exists, skipping entry.");
+                Log.Warning($"'{composition.UniqueId}' description already exists, skipping entry.");
             }
             else
             {
@@ -131,6 +131,34 @@ namespace Convex.Core.Plugins
                     foreach (IPlugin plugin in GetPluginInstances(filePath))
                     {
                         currentPluginIterated = plugin;
+
+                        Type pluginType = plugin.GetType();
+
+                        foreach (MethodInfo methodInfo in pluginType.GetMethods())
+                        {
+                            Composition.Composition composition =
+                                methodInfo.GetCustomAttribute<Composition.Composition>();
+
+                            if (composition == null)
+                            {
+                                continue;
+                            }
+
+                            // local wrapper function
+                            async Task Method(T args)
+                            {
+                                await (Task)methodInfo.Invoke(pluginType, new object[]
+                                {
+                                    args
+                                });
+                            }
+
+                            MethodComposition<T> methodComposition = new MethodComposition<T>(Method, composition,
+                                methodInfo.GetCustomAttribute<CompositionDescription>());
+
+                            RegisterComposition(methodComposition);
+                        }
+
                         plugin.Callback += OnPluginCallback;
                         AddPlugin(plugin, false);
                     }
@@ -138,7 +166,7 @@ namespace Convex.Core.Plugins
             }
             catch (ReflectionTypeLoadException ex)
             {
-                Log.Error($"LoaderException(s) occured loading a plugin:");
+                Log.Error("LoaderException(s) occured loading a plugin:");
 
                 foreach (Exception loaderException in ex.LoaderExceptions)
                 {
@@ -147,14 +175,14 @@ namespace Convex.Core.Plugins
             }
             catch (Exception ex)
             {
-                Log.Information(
+                Log.Error(
                     $"Error occurred loading a plugin ({currentPluginIterated?.Name}, {currentPluginIterated?.Version}): {ex}");
             }
 
             if (Plugins.Count > 0)
             {
                 Log.Information(
-                    $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => (plugin.Instance.Name, plugin.Instance.Version)))}");
+                    $"Loaded plugins: {string.Join(", ", Enumerable.Select(Plugins, plugin => (plugin.Instance.Name, plugin.Instance.Version)))}");
             }
 
             return Task.CompletedTask;
@@ -168,7 +196,8 @@ namespace Convex.Core.Plugins
         /// <returns></returns>
         private static IEnumerable<IPlugin> GetPluginInstances(string assemblyName)
         {
-            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin)Activator.CreateInstance(type));
+            return Enumerable.Select(GetTypeInstances(GetAssembly(assemblyName)),
+                type => (IPlugin)Activator.CreateInstance(type));
         }
 
         /// <summary>
@@ -178,7 +207,8 @@ namespace Convex.Core.Plugins
         /// <returns></returns>
         private static IEnumerable<Type> GetTypeInstances(Assembly assembly)
         {
-            return assembly.GetTypes().Where(type => type.GetTypeInfo().GetInterfaces().Contains(typeof(IPlugin)));
+            return Enumerable.Where(assembly.GetTypes(),
+                type => Enumerable.Contains(type.GetTypeInfo().GetInterfaces(), typeof(IPlugin)));
         }
 
         private static Assembly GetAssembly(string assemblyName) =>

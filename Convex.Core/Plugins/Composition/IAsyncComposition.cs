@@ -9,11 +9,10 @@ namespace Convex.Core.Plugins.Composition
 {
     public interface IAsyncComposition<in T>
     {
+        string UniqueId { get; }
         int Priority { get; }
-        Predicate<T> CanExecute { get; }
         Func<T, Task> Method { get; }
         CompositionDescription Description { get; }
-        string UniqueId { get; }
         string[] Commands { get; }
 
         Task InvokeAsync(T args);
