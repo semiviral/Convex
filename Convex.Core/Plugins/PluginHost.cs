@@ -133,8 +133,8 @@ namespace Convex.Core.Plugins
                         foreach (MethodInfo methodInfo in pluginType.GetMethods(
                             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                         {
-                            Compositions.Composition composition =
-                                methodInfo.GetCustomAttribute<Compositions.Composition>();
+                            Composition composition =
+                                methodInfo.GetCustomAttribute<Composition>();
 
                             if (composition == null)
                             {
