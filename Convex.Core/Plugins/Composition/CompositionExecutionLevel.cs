@@ -1,4 +1,4 @@
-﻿namespace Convex.Plugin.Composition
+﻿namespace Convex.Core.Plugins.Composition
 {
     /// <summary>
     ///     A registrar's execution step defines where in the chain of execution it falls.

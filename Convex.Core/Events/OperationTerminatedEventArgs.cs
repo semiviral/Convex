@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Convex.Event
+namespace Convex.Core.Events
 {
     public class OperationTerminatedEventArgs : EventArgs
     {

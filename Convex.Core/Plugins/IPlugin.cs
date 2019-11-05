@@ -2,13 +2,12 @@
 
 using System;
 using System.Threading.Tasks;
-using Convex.Event;
-using Convex.Plugin.Event;
+using Convex.Core.Events;
 using SharpConfig;
 
 #endregion
 
-namespace Convex.Plugin
+namespace Convex.Core.Plugins
 {
     /// <summary>
     ///     Interface for hooking a new plugin into Eve

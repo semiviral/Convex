@@ -4,11 +4,11 @@ using System;
 
 #endregion
 
-namespace Convex.Event
+namespace Convex.Core.Net
 {
-    public class ConnectedEventArgs : EventArgs
+    public class DisconnectedEventArgs : EventArgs
     {
-        public ConnectedEventArgs(object connection, string information)
+        public DisconnectedEventArgs(object connection, string information)
         {
             Connection = connection;
             Information = information;

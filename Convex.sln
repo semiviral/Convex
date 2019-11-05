@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Example", "Convex.Ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Base", "Convex.Base\Convex.Base.csproj", "{C419C111-5A03-4738-90A5-FB5318F6DB67}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Plugin", "Convex.Plugin\Convex.Plugin.csproj", "{26E6E4F0-B510-46E7-A739-96BCB192BC00}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FCB73E7-25B9-4C79-BE52-BFA6601FEDAE}"
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
@@ -20,8 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convex.Core", "Convex.Core\Convex.Core.csproj", "{73F68194-E859-494F-91BB-536715DF21B8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convex.Event", "Convex.Event\Convex.Event.csproj", "{F119C942-0A34-4152-9D59-32E79BC105AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,18 +33,10 @@ Global
 		{C419C111-5A03-4738-90A5-FB5318F6DB67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C419C111-5A03-4738-90A5-FB5318F6DB67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C419C111-5A03-4738-90A5-FB5318F6DB67}.Release|Any CPU.Build.0 = Release|Any CPU
-		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26E6E4F0-B510-46E7-A739-96BCB192BC00}.Release|Any CPU.Build.0 = Release|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73F68194-E859-494F-91BB-536715DF21B8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F119C942-0A34-4152-9D59-32E79BC105AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F119C942-0A34-4152-9D59-32E79BC105AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F119C942-0A34-4152-9D59-32E79BC105AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F119C942-0A34-4152-9D59-32E79BC105AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

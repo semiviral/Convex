@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 #endregion
 
-namespace Convex.Plugin.Composition
+namespace Convex.Core.Plugins.Composition
 {
     public class Composition<TEventArgs> : IAsyncComposition<TEventArgs> where TEventArgs : EventArgs
     {

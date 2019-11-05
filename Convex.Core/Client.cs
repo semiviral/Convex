@@ -7,11 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Convex.Core.Events;
 using Convex.Core.Net;
-using Convex.Event;
-using Convex.Plugin;
-using Convex.Plugin.Composition;
-using Convex.Plugin.Event;
+using Convex.Core.Plugins;
+using Convex.Core.Plugins.Composition;
 using Serilog;
 using SharpConfig;
 

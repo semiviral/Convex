@@ -1,7 +1,7 @@
 ﻿#region
 
 using System.Threading.Tasks;
-using Convex.Event;
+using Convex.Core.Events;
 using Microsoft.Data.Sqlite;
 
 #endregion

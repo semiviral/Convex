@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Convex.Plugin.Event
+namespace Convex.Core.Plugins
 {
     public class PluginActionEventArgs : EventArgs
     {

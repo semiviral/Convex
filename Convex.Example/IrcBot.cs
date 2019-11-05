@@ -4,8 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Convex.Core;
 using Convex.Core.Net;
-using Convex.Event;
-using Convex.Plugin.Composition;
+using Convex.Core.Plugins.Composition;
 using Serilog;
 
 #endregion

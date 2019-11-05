@@ -10,11 +10,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Convex.Base.Calculator;
 using Convex.Core;
+using Convex.Core.Events;
 using Convex.Core.Net;
-using Convex.Event;
-using Convex.Plugin;
-using Convex.Plugin.Composition;
-using Convex.Plugin.Event;
+using Convex.Core.Plugins;
+using Convex.Core.Plugins.Composition;
 using SharpConfig;
 
 #endregion

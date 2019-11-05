@@ -2,15 +2,15 @@
 
 using System;
 using System.Threading.Tasks;
-using Convex.Event;
-using Convex.Plugin.Composition;
-using Convex.Plugin.Event;
+using Convex.Core.Events;
+using Convex.Core.Net;
+using Convex.Core.Plugins.Composition;
 using Serilog;
 using SharpConfig;
 
 #endregion
 
-namespace Convex.Plugin
+namespace Convex.Core.Plugins
 {
     public class PluginHostWrapper<T> where T : EventArgs
     {

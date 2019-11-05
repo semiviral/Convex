@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 #endregion
 
-namespace Convex.Event
+namespace Convex.Core.Events
 {
     public delegate Task AsyncEventHandler<in TEventArgs>(object source, TEventArgs args) where TEventArgs : EventArgs;
 }

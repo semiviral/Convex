@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 #endregion
 
-namespace Convex.Event
+namespace Convex.Core.Events
 {
     /// <inheritdoc />
     /// <summary>

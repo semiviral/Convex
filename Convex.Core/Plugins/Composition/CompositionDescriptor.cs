@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Convex.Plugin.Composition
+namespace Convex.Core.Plugins.Composition
 {
     public class CompositionDescription
     {
