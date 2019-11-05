@@ -29,11 +29,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Convex.Event\Convex.Event.csproj" />
-    <ProjectReference Include="..\Convex.Plugin\Convex.Plugin.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

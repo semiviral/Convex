@@ -125,24 +125,24 @@ namespace Convex.Core.Plugins
 
             try
             {
-                // array of all filepaths that are found to match the PLUGIN_MASK
-                IEnumerable<IPlugin> pluginInstances = Directory
-                    .GetFiles(PluginHost.PluginsDirectory, PluginMask, SearchOption.AllDirectories)
-                    .SelectMany(GetPluginInstances);
-
-                foreach (IPlugin plugin in pluginInstances)
+                foreach (string filePath in Directory.GetFiles(PluginHost.PluginsDirectory, PluginMask,
+                    SearchOption.AllDirectories))
                 {
-                    currentPluginIterated = plugin;
-
-                    plugin.Callback += OnPluginCallback;
-                    AddPlugin(plugin, false);
+                    foreach (IPlugin plugin in GetPluginInstances(filePath))
+                    {
+                        currentPluginIterated = plugin;
+                        plugin.Callback += OnPluginCallback;
+                        AddPlugin(plugin, false);
+                    }
                 }
             }
             catch (ReflectionTypeLoadException ex)
             {
+                Log.Error($"LoaderException(s) occured loading a plugin:");
+
                 foreach (Exception loaderException in ex.LoaderExceptions)
                 {
-                    Log.Information($"LoaderException occured loading a plugin: {loaderException}");
+                    Log.Error(loaderException.Message);
                 }
             }
             catch (Exception ex)
