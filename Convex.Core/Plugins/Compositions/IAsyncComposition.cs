@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 #endregion
 
-namespace Convex.Core.Plugins.Composition
+namespace Convex.Core.Plugins.Compositions
 {
     public interface IAsyncComposition<in T>
     {

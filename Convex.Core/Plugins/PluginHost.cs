@@ -3,20 +3,20 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Convex.Core.Events;
-using Convex.Core.Plugins.Composition;
+using Convex.Core.Plugins.Compositions;
 using Serilog;
 using SharpConfig;
-using Enumerable = System.Linq.Enumerable;
 
 #endregion
 
 namespace Convex.Core.Plugins
 {
-    public class PluginHost
+    public static class PluginHost
     {
         public static readonly string PluginsDirectory = $@"{AppContext.BaseDirectory}/plugins/";
     }
@@ -121,8 +121,6 @@ namespace Convex.Core.Plugins
         /// </summary>
         public Task LoadPlugins()
         {
-            IPlugin currentPluginIterated = null;
-
             try
             {
                 foreach (string filePath in Directory.GetFiles(PluginHost.PluginsDirectory, PluginMask,
@@ -130,14 +128,13 @@ namespace Convex.Core.Plugins
                 {
                     foreach (IPlugin plugin in GetPluginInstances(filePath))
                     {
-                        currentPluginIterated = plugin;
-
                         Type pluginType = plugin.GetType();
 
-                        foreach (MethodInfo methodInfo in pluginType.GetMethods())
+                        foreach (MethodInfo methodInfo in pluginType.GetMethods(
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                         {
-                            Composition.Composition composition =
-                                methodInfo.GetCustomAttribute<Composition.Composition>();
+                            Compositions.Composition composition =
+                                methodInfo.GetCustomAttribute<Compositions.Composition>();
 
                             if (composition == null)
                             {
@@ -164,6 +161,10 @@ namespace Convex.Core.Plugins
                     }
                 }
             }
+            catch (TypeLoadException)
+            {
+                // loading methodinfo failed, so just ignore error
+            }
             catch (ReflectionTypeLoadException ex)
             {
                 Log.Error("LoaderException(s) occured loading a plugin:");
@@ -176,13 +177,13 @@ namespace Convex.Core.Plugins
             catch (Exception ex)
             {
                 Log.Error(
-                    $"Error occurred loading a plugin ({currentPluginIterated?.Name}, {currentPluginIterated?.Version}): {ex}");
+                    $"Error occurred loading a plugin: {ex}");
             }
 
             if (Plugins.Count > 0)
             {
                 Log.Information(
-                    $"Loaded plugins: {string.Join(", ", Enumerable.Select(Plugins, plugin => (plugin.Instance.Name, plugin.Instance.Version)))}");
+                    $"Loaded plugins: {string.Join(", ", Plugins.Select(plugin => (plugin.Instance.Name, plugin.Instance.Version)))}");
             }
 
             return Task.CompletedTask;
@@ -196,8 +197,7 @@ namespace Convex.Core.Plugins
         /// <returns></returns>
         private static IEnumerable<IPlugin> GetPluginInstances(string assemblyName)
         {
-            return Enumerable.Select(GetTypeInstances(GetAssembly(assemblyName)),
-                type => (IPlugin)Activator.CreateInstance(type));
+            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin)Activator.CreateInstance(type));
         }
 
         /// <summary>
@@ -207,8 +207,7 @@ namespace Convex.Core.Plugins
         /// <returns></returns>
         private static IEnumerable<Type> GetTypeInstances(Assembly assembly)
         {
-            return Enumerable.Where(assembly.GetTypes(),
-                type => Enumerable.Contains(type.GetTypeInfo().GetInterfaces(), typeof(IPlugin)));
+            return assembly.GetTypes().Where(type => type.GetTypeInfo().GetInterfaces().Contains(typeof(IPlugin)));
         }
 
         private static Assembly GetAssembly(string assemblyName) =>

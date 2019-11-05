@@ -13,7 +13,7 @@ using Convex.Core;
 using Convex.Core.Events;
 using Convex.Core.Net;
 using Convex.Core.Plugins;
-using Convex.Core.Plugins.Composition;
+using Convex.Core.Plugins.Compositions;
 using SharpConfig;
 
 #endregion

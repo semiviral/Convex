@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Convex.Core.Plugins.Composition
+namespace Convex.Core.Plugins.Compositions
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class Composition : Attribute

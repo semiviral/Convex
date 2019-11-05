@@ -1,12 +1,11 @@
 ﻿#region
 
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
 
 #endregion
 
-namespace Convex.Core.Plugins.Composition
+namespace Convex.Core.Plugins.Compositions
 {
     public class MethodComposition<TEventArgs> : IAsyncComposition<TEventArgs> where TEventArgs : EventArgs
     {
@@ -16,7 +15,8 @@ namespace Convex.Core.Plugins.Composition
         /// <param name="method"></param>
         /// <param name="composition">registrable composition to be executed</param>
         /// <param name="description">describes composition</param>
-        public MethodComposition(Func<TEventArgs, Task> method, Composition composition, CompositionDescription description = null)
+        public MethodComposition(Func<TEventArgs, Task> method, Composition composition,
+            CompositionDescription description = null)
         {
             UniqueId = composition.UniqueId;
             Priority = composition.Priority;
@@ -26,7 +26,7 @@ namespace Convex.Core.Plugins.Composition
         }
 
         #region MEMBERS
-        
+
         public string UniqueId { get; }
         public int Priority { get; }
         public string[] Commands { get; }

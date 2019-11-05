@@ -1,13 +1,11 @@
 ﻿#region
 
 using System;
-using System.Runtime.CompilerServices;
 
 #endregion
 
-namespace Convex.Core.Plugins.Composition
+namespace Convex.Core.Plugins.Compositions
 {
-    [RequiredAttribute(typeof(Composition))]
     [AttributeUsage(AttributeTargets.Method)]
     public class CompositionDescription : Attribute
     {
