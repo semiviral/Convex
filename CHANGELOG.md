@@ -95,7 +95,7 @@
 
 #### General 
 
- - The namespace structure has been changed to more accurate reflect the naming conventions set by MSDN.
+ - The namespace structure has been changed to more accurately reflect the naming conventions set by MSDN.
 
  - Events now use `AsyncEventHandler`, offering vastly simplified implementation.
 
@@ -112,7 +112,7 @@
 #### General
 
  - Logging is temporarily no longer handled by the Convex library.
-  - this is likely to change. I need to work out how to handle it internally so it has the smallest impact on the overall package.
+ - This is likely to change. I need to work out how to handle it internally so it has the smallest impact on the overall package.
 
 ## 1.3.9.3
 

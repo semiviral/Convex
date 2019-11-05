@@ -45,13 +45,7 @@ namespace Convex.Base
 
         public event AsyncEventHandler<PluginActionEventArgs> Callback;
 
-        public async Task Start(Configuration configuration)
-        {
-            //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Join, args => InputEquals(args, "join"), new CompositionDescription(nameof(Join), "(< channel> *<message>) — joins specified channel."), Commands.PRIVMSG), Name));
-            //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Part, args => InputEquals(args, "part"), new CompositionDescription(nameof(Part), "(< channel> *<message>) — parts from specified channel."), Commands.PRIVMSG), Name));
-            //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, Channels, args => InputEquals(args, "channels"), new CompositionDescription(nameof(Channels), "returns a list of connected channels."), Commands.PRIVMSG), Name));
-            //await DoCallback(this, new PluginActionEventArgs(PluginActionType.RegisterMethod, new Composition<ServerMessagedEventArgs>(99, YouTubeLinkResponse, args => _youtubeRegex.IsMatch(args.Message.Args), null, Commands.PRIVMSG), Name));
-        }
+        public Task Start(Configuration configuration) => Task.CompletedTask;
 
         public async Task Stop()
         {
