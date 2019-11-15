@@ -21,16 +21,6 @@ namespace Convex.Example
         public IrcBot()
         {
             _Bot = new Client();
-            _Bot.Server.MessageReceived += (source, args) =>
-            {
-                Log.Information(string.Format(_SERVER_MESSAGE_OUTPUT_FORMAT, args.Message.Nickname, args.Message.Args));
-                return Task.CompletedTask;
-            };
-            _Bot.Server.Connection.Flushed += (sender, args) =>
-            {
-                Log.Information($"   >> {args.Information}");
-                return Task.CompletedTask;
-            };
         }
 
         #region INIT
@@ -39,10 +29,19 @@ namespace Convex.Example
         {
             try
             {
-                if (!await _Bot.Initialize(new Address("irc.rizon.net", 6667)))
+                _BotInitialized = await _Bot.Initialize();
+
+                _BotInitialized.Server.MessageReceived += (source, args) =>
                 {
-                    return;
-                }
+                    Log.Information(string.Format(_SERVER_MESSAGE_OUTPUT_FORMAT, args.Message.Nickname, args.Message.Args));
+                    return Task.CompletedTask;
+                };
+
+                _BotInitialized.Server.Connection.Flushed += (sender, args) =>
+                {
+                    Log.Information($"   >> {args.Information}");
+                    return Task.CompletedTask;
+                };
 
                 RegisterMethods();
             }
@@ -60,9 +59,10 @@ namespace Convex.Example
 
         #region RUNTIME
 
-        public async Task Execute()
+        public async Task Execute(IAddress address)
         {
-            await _Bot.BeginListenAsync();
+            await _BotInitialized.Connect(address);
+            await _BotInitialized.BeginListenAsync();
         }
 
         #endregion
@@ -73,8 +73,9 @@ namespace Convex.Example
             $"[Version {_Bot.AssemblyVersion}] Evealyn is an IRC bot for C#.";
 
         public bool IsInitialised { get; private set; }
-        public bool Executing => _Bot.Server.Executing;
+        public bool Executing => _BotInitialized.Server.Connection.Connected;
         private readonly IClient _Bot;
+        private  IInitializedClient _BotInitialized;
 
         private readonly string[] _DefaultChannels =
         {
@@ -102,7 +103,7 @@ namespace Convex.Example
                 return;
             }
 
-            await _Bot.Server.Connection.SendCommandAsync(new CommandEventArgs(Commands.PRIVMSG, $"{args.Message.Origin} {BotInfo}"));
+            await _BotInitialized.Server.Connection.SendCommandAsync(new CommandEventArgs(Commands.PRIVMSG, $"{args.Message.Origin} {BotInfo}"));
         }
 
         #endregion

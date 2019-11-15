@@ -27,7 +27,6 @@ namespace Convex.Core.Net
 
         public IAddress Address { get; }
         public bool Connected { get; private set; }
-        public bool Executing { get; private set; }
 
         private TcpClient _Client;
         private NetworkStream _NetworkStream;
@@ -88,7 +87,6 @@ namespace Convex.Core.Net
         public async Task<string> ListenAsync()
         {
             string data = string.Empty;
-            Executing = true;
 
             try
             {
@@ -104,8 +102,6 @@ namespace Convex.Core.Net
             {
                 Log.Error($"Exception occured while listening on stream: {ex.Message}");
             }
-
-            Executing = false;
 
             return data;
         }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Convex.Core.Net;
 
 #endregion
 
@@ -19,7 +20,7 @@ namespace Convex.Example
         {
             do
             {
-                await Bot.Execute();
+                await Bot.Execute(new Address("irc.rizon.net", 6667));
             } while (Bot.Executing);
 
             Bot.Dispose();

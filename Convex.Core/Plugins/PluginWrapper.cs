@@ -64,7 +64,7 @@ namespace Convex.Core.Plugins
 
         #region INIT
 
-        public async Task Initialize()
+        public async Task Load()
         {
             if (Host == null)
             {

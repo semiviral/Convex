@@ -33,7 +33,7 @@ namespace Convex.Core.Net
         /// <remarks>
         ///     Use this method to begin listening cycle.
         /// </remarks>
-        public async Task ListenAsync(IClient caller)
+        public async Task ListenAsync(IInitializedClient caller)
         {
             string rawData = await Connection.ListenAsync();
 

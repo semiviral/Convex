@@ -39,7 +39,7 @@ namespace Convex.Core
                 .CreateLogger();
 
             Log.Information("Default logger created.");
-
+            
             _UniqueId = Guid.NewGuid().ToString();
 
             Log.Information($"Client UniqueID is: {_UniqueId}");

@@ -124,20 +124,19 @@ namespace Convex.Base
                 if (args.Message.SplitArgs.Count.Equals(2))
                 {
                     // in this case, 'help' is the only text in the string.
-                    List<CompositionDescription> entries = args.Caller.PluginCommands.Values.ToList();
                     string commandsReadable = string.Join(", ",
-                        entries.Where(entry => entry != null).Select(entry => entry.Command));
+                        args.Caller.CompositionDescriptions.Select(entry => entry.Value.Command));
 
                     await DoCallback(this,
                         new PluginActionEventArgs(PluginActionType.SendMessage,
                             new CommandEventArgs(Commands.PRIVMSG,
-                                entries.Count == 0
+                                string.IsNullOrEmpty(commandsReadable)
                                     ? $"{args.Message.Origin} No commands currently active."
                                     : $"{args.Message.Origin} Active commands: {commandsReadable}"), Name));
                     return;
                 }
 
-                CompositionDescription queriedCommand = args.Caller.GetDescription(args.Message.SplitArgs[2]);
+                CompositionDescription queriedCommand = args.Caller.CompositionDescriptions[args.Message.SplitArgs[2]];
 
                 string valueToSend = queriedCommand.Equals(null)
                     ? "Command not found."
@@ -150,7 +149,7 @@ namespace Convex.Base
                 return;
             }
 
-            if (args.Caller.CommandExists(args.Message.SplitArgs[1].ToLower()))
+            if (args.Caller.CompositionDescriptions.ContainsKey(args.Message.SplitArgs[1].ToLower()))
             {
                 return;
             }

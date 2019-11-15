@@ -8,7 +8,7 @@ namespace Convex.Core.Net
 {
     public class ServerMessagedEventArgs : EventArgs
     {
-        public ServerMessagedEventArgs(IClient bot, ServerMessage message)
+        public ServerMessagedEventArgs(IInitializedClient bot, ServerMessage message)
         {
             Execute = true;
             Display = true;
@@ -23,7 +23,7 @@ namespace Convex.Core.Net
         public bool Display { get; set; }
 
         // todo: I don't like this solution
-        public IClient Caller { get; }
+        public IInitializedClient Caller { get; }
         public ServerMessage Message { get; }
 
         #endregion
