@@ -10,7 +10,7 @@ namespace Convex.Core.Net
 {
     public class Server : IDisposable
     {
-        public Server() => Connection = new Connection();
+        public Server(IAddress address) => Connection = new Connection(address);
 
         #region INTERFACE IMPLEMENTATION
 
@@ -19,7 +19,6 @@ namespace Convex.Core.Net
             Connection?.Dispose();
 
             Identified = false;
-            IsInitialized = false;
         }
 
         #endregion
@@ -52,8 +51,6 @@ namespace Convex.Core.Net
 
         public Connection Connection { get; }
         public bool Identified { get; set; }
-        public bool IsInitialized { get; private set; }
-        public bool Executing => Connection.Executing;
 
         #endregion
 
@@ -75,11 +72,9 @@ namespace Convex.Core.Net
 
         #region INIT
 
-        public async Task Initialize(IAddress address)
+        public async Task Connect()
         {
-            await Connection.Initialize(address);
-
-            IsInitialized = Connection.IsInitialized;
+            await Connection.Connect();
         }
 
         /// <summary>
@@ -87,8 +82,8 @@ namespace Convex.Core.Net
         /// </summary>
         public async Task SendIdentityInfo(string nickname, string realname)
         {
-            await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.USER, $"{nickname} 0 * {realname}"));
-            await Connection.SendDataAsync(this, new IrcCommandEventArgs(Commands.NICK, nickname));
+            await Connection.SendCommandAsync(new CommandEventArgs(Commands.USER, $"{nickname} 0 * {realname}"));
+            await Connection.SendCommandAsync(new CommandEventArgs(Commands.NICK, nickname));
 
             Identified = true;
         }
@@ -109,8 +104,7 @@ namespace Convex.Core.Net
                 return false;
             }
 
-            await Connection.SendDataAsync(this,
-                new IrcCommandEventArgs(Commands.PONG, rawData.Remove(0, 5))); // removes 'PING ' from string
+            await Connection.SendCommandAsync(new CommandEventArgs(Commands.PONG, rawData.Remove(0, 5))); // removes 'PING ' from string
             return true;
         }
 

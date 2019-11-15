@@ -18,49 +18,17 @@ using SharpConfig;
 
 namespace Convex.Core
 {
-    public sealed class Client : IDisposable, IClient
+    public sealed class Client : IClient, IInitializedClient
     {
         public const string GLOBAL_CONFIGURATION_FILE_NAME = "global.conf";
 
         public static readonly string ConfigurationsDirectory = $@"{AppContext.BaseDirectory}/config/";
         public static readonly string LogsDirectory = $@"{AppContext.BaseDirectory}/logs/";
-
-        public static readonly string GlobalConfigurationFilePath =
-            $@"{ConfigurationsDirectory}/{GLOBAL_CONFIGURATION_FILE_NAME}";
-
-        public static readonly string LogFilePath =
-            $@"{LogsDirectory}/runtime-{DateTime.Now}.log";
-
-        public Configuration Configuration { get; private set; }
-
-        #region CONFIGURATION PROPERTIES
-
-        public string Nickname
-        {
-            get => Configuration[nameof(Core)][nameof(Nickname)].StringValue;
-            set
-            {
-                Configuration[nameof(Core)][nameof(Nickname)].SetValue(value);
-                Configuration.SaveToFile(GlobalConfigurationFilePath);
-            }
-        }
-
-        public string Realname
-        {
-            get => Configuration[nameof(Core)][nameof(Nickname)].StringValue;
-            set
-            {
-                Configuration[nameof(Core)][nameof(Nickname)].SetValue(value);
-                Configuration.SaveToFile(GlobalConfigurationFilePath);
-            }
-        }
-
-        public ObservableCollection<string> IgnoreList { get; private set; }
-
-        #endregion
+        public static readonly string GlobalConfigurationFilePath = $@"{ConfigurationsDirectory}/{GLOBAL_CONFIGURATION_FILE_NAME}";
+        public static readonly string LogFilePath =$@"{LogsDirectory}/runtime-{DateTime.Now}.log"; 
 
         /// <summary>
-        ///     Initializes class. No connections are made at initialization, so call `Initialize()` to begin sending and
+        ///     Initializes class. No connections are made at initialization, so call `Load()` to begin sending and
         ///     receiving.
         /// </summary>
         public Client()
@@ -70,116 +38,213 @@ namespace Convex.Core
                 .WriteTo.Async(conf => conf.RollingFile(LogFilePath))
                 .CreateLogger();
 
-            Version = new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
+            Log.Information("Default logger created.");
 
-            _PendingPlugins = new Stack<IAsyncComposition<ServerMessagedEventArgs>>();
+            _UniqueId = Guid.NewGuid().ToString();
 
-            UniqueId = Guid.NewGuid();
-            Server = new Server();
+            Log.Information($"Client UniqueID is: {_UniqueId}");
 
-            TerminateSignaled += Terminate;
-            Server.MessageReceived += OnMessageReceived;
+            _AssemblyVersion = new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
 
-            PluginHostWrapper =
-                new PluginHostWrapper<ServerMessagedEventArgs>(Configuration, OnInvokedMethod, "Convex.*.dll");
-            PluginHostWrapper.TerminateSignaled += OnTerminateSignaled;
-            PluginHostWrapper.CommandReceived += Server.Connection.SendDataAsync;
+            Log.Information($"Client is version {_AssemblyVersion}");
+            TerminateSignaled += async (sender, args) => { await Dispose(true); };
         }
 
-        #region INTERFACE IMPLEMENTATION
 
-        /// <summary>
-        ///     Dispose of all streams and objects
-        /// </summary>
-        public void Dispose()
+        #region IClient
+
+        private readonly string _UniqueId;
+        private readonly Version _AssemblyVersion;
+        private bool _Initialized;
+
+        private PluginHostWrapper<ServerMessagedEventArgs> _PluginHostWrapper;
+
+        string IClient.UniqueId => _UniqueId;
+        Version IClient.AssemblyVersion => _AssemblyVersion;
+        bool IClient.Initialized => _Initialized;
+
+        async Task<IInitializedClient> IClient.Initialize()
         {
-            Dispose(true).Wait();
+            CheckForBasicDirectories();
+
+            LoadGlobalConfiguration();
+
+            _PluginHostWrapper = new PluginHostWrapper<ServerMessagedEventArgs>(_Configuration, OnInvokedMethod, "Convex.*.dll");
+            _PluginHostWrapper.Terminated += OnTerminated;
+            await _PluginHostWrapper.Load();
+
+            _Initialized = _PluginHostWrapper.IsInitialized;
+
+            if (_PluginHostWrapper.IsInitialized)
+            {
+                _Initialized = true;
+                Log.Information("Client initialized.");
+            }
+            else
+            {
+                Log.Error("Client failed to initialize.");
+            }
+
+            await OnInitializationCompleted(this, new ClassInitializedEventArgs(this));
+
+            return this;
         }
 
-        private async Task Dispose(bool dispose)
+        private static void CheckForBasicDirectories()
         {
-            if (!dispose || _Disposed)
+            if (!Directory.Exists(ConfigurationsDirectory))
+            {
+                Log.Information("Configurations directory missing; creating.");
+                Directory.CreateDirectory(ConfigurationsDirectory);
+            }
+
+            if (!Directory.Exists(PluginHost.PluginsDirectory))
+            {
+                Log.Information("Plugins directory missing; creating.");
+                Directory.CreateDirectory(PluginHost.PluginsDirectory);
+            }
+
+            if (!Directory.Exists(LogsDirectory))
+            {
+                Log.Information("Logs directory missing; creating.");
+                Directory.CreateDirectory(LogsDirectory);
+            }
+        }
+
+        private void CreateGlobalConfiguration()
+        {
+            _Configuration = new Configuration
+            {
+                nameof(Core)
+            };
+
+            _Configuration[nameof(Core)]["Nickname"].StringValue = string.Empty;
+            _Configuration[nameof(Core)]["Realname"].StringValue = string.Empty;
+            _Configuration[nameof(Core)]["IgnoreList"].StringValueArray = new string[0];
+
+            _Configuration.SaveToFile(GlobalConfigurationFilePath);
+
+            Log.Information("Default global configuration created. Many values are empty by default, so you will have to edit the /config/global.conf file.");
+        }
+
+        private void LoadGlobalConfiguration()
+        {
+            if (!File.Exists(GlobalConfigurationFilePath))
+            {
+                Log.Information("Configuration file not found. Creating default.");
+
+                CreateGlobalConfiguration();
+            }
+
+            _Configuration = Configuration.LoadFromFile(GlobalConfigurationFilePath);
+            //IgnoreList =
+            //    new ObservableCollection<string>(Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray
+            //                                     ?? new string[0]);
+            //IgnoreList.CollectionChanged += (sender, args) =>
+            //{
+            //    // save ignore list on changes
+            //    Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray = IgnoreList.ToArray();
+            //    Configuration.SaveToFile(GlobalConfigurationFilePath);
+            //};
+        }
+
+        void IClient.RegisterMethod(IAsyncComposition<ServerMessagedEventArgs> methodRegistrar)
+        {
+            _PluginHostWrapper.Host.RegisterComposition(methodRegistrar);
+        }
+
+        public event AsyncEventHandler<DatabaseQueriedEventArgs> DatabaseQueried;
+
+        public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
+
+        public event AsyncEventHandler<ClassInitializedEventArgs> InitializationCompleted;
+
+
+        private async Task OnDatabaseQueried(object source, DatabaseQueriedEventArgs args)
+        {
+            if (DatabaseQueried == null)
             {
                 return;
             }
 
-            await PluginHostWrapper.Host.StopPlugins();
-            Server?.Dispose();
-            Log.CloseAndFlush();
+            await DatabaseQueried.Invoke(source, args);
+        }
 
-            _Disposed = true;
+        private async Task OnTerminated(object source, OperationTerminatedEventArgs args)
+        {
+            if (TerminateSignaled == null)
+            {
+                return;
+            }
+
+            await TerminateSignaled.Invoke(source, args);
+        }
+
+        private async Task OnInitializationCompleted(object source, ClassInitializedEventArgs args)
+        {
+            if (InitializationCompleted == null)
+            {
+                return;
+            }
+
+            await InitializationCompleted.Invoke(source, args);
         }
 
         #endregion
 
-        #region MEMBERS
 
-        public Guid UniqueId { get; }
-        public Server Server { get; }
-        public Version Version { get; }
+        #region IInitializedClient
 
-        public IReadOnlyDictionary<string, CompositionDescription> PluginCommands =>
-            PluginHostWrapper.Host.DescriptionRegistry;
+        private Configuration _Configuration;
+        private Server _Server;
 
-        public string Address => Server.Connection.Address.Hostname;
-        public int Port => Server.Connection.Address.Port;
-        public bool IsInitialized { get; private set; }
-        public bool Initializing { get; private set; }
+        Configuration IInitializedClient.Configuration => _Configuration;
+        Server IInitializedClient.Server => _Server;
 
-        private PluginHostWrapper<ServerMessagedEventArgs> PluginHostWrapper { get; }
+        IReadOnlyDictionary<string, CompositionDescription> IInitializedClient.CompositionDescriptions =>
+            _PluginHostWrapper.Host.DescriptionRegistry;
 
-        private bool _Disposed;
 
-        private readonly Stack<IAsyncComposition<ServerMessagedEventArgs>> _PendingPlugins;
+        async Task IInitializedClient.Connect(IAddress address)
+        {
+            _Server = new Server(address);
+            // todo change logic to not use events internally
+            _Server.MessageReceived += OnMessageReceived;
 
-        #endregion
+            await _Server.Connection.Connect();
 
-        #region RUNTIME
+            await _Server.SendIdentityInfo(_Configuration[nameof(Core)]["Nickname"].StringValue, _Configuration[nameof(Core)]["Realname"].StringValue);
+        }
 
-        public async Task BeginListenAsync()
+        async Task IInitializedClient.BeginListenAsync()
         {
             do
             {
-                await Server.ListenAsync(this);
-            } while (Server.Connection.IsConnected);
+                await _Server.ListenAsync(this);
+            } while (_Server.Connection.Connected);
         }
 
         private async Task OnMessageReceived(object source, ServerMessagedEventArgs args)
         {
-            if (string.IsNullOrEmpty(args.Message.Command))
+            if (string.IsNullOrEmpty(args.Message.Command)
+                || args.Message.Command.Equals(Commands.ERROR)
+                || args.Message.Nickname.Equals(_Configuration[nameof(Core)]["Nickname"].StringValue)
+                || _Configuration[nameof(Core)]["IgnoreList"].StringValueArray.Contains(args.Message.RealName))
             {
                 return;
             }
 
-            if (args.Message.Command.Equals(Commands.ERROR))
-            {
-                return;
-            }
-
-            if (args.Message.Nickname.Equals(Nickname)
-                || IgnoreList.Contains(args.Message.RealName))
-            {
-                return;
-            }
-
-            if ((args.Message.SplitArgs.Count >= 2) && args.Message.SplitArgs[0].Equals(Nickname.ToLower()))
+            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(_Configuration[nameof(Core)]["Nickname"].StringValue.ToLower()))
             {
                 args.Message.InputCommand = args.Message.SplitArgs[1].ToLower();
             }
 
-            try
-            {
-                await PluginHostWrapper.Host.InvokeAsync(this, args);
-            }
-            catch (Exception ex)
-            {
-                await OnError(this, new ErrorEventArgs(ex));
-            }
+            await _PluginHostWrapper.Host.InvokeAsync(this, args);
         }
 
         private static async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args)
         {
-            if (!args.Args.Message.Command.Equals(Commands.ALL))
+            if (args.Args.Message.Command.Equals(Commands.ALL))
             {
                 await InvokeSteps(args, Commands.ALL);
             }
@@ -215,212 +280,32 @@ namespace Convex.Core
 
         #endregion
 
-        #region INIT
 
-        public async Task<bool> Initialize(IAddress address)
-        {
-            if (IsInitialized || Initializing)
-            {
-                return true;
-            }
+        #region IDisposable
 
-            Initializing = true;
-
-            CheckForBasicDirectories();
-
-            InitializeGlobalConfiguration();
-
-            await PluginHostWrapper.Initialize();
-
-            RegisterMethods();
-
-            await Server.Initialize(address);
-
-            if (!Server.IsInitialized)
-            {
-                Log.Error("Client failed to initialize.");
-                return false;
-            }
-
-            await OnInitialized(this, new ClassInitializedEventArgs(this));
-
-            await Server.SendIdentityInfo(Nickname, Realname);
-
-            Initializing = false;
-
-            if (!PluginHostWrapper.IsInitialized)
-            {
-                Log.Error("Client failed to initialize.");
-                return false;
-            }
-
-            IsInitialized = Server.IsInitialized && PluginHostWrapper.IsInitialized;
-            Log.Information("Client initialized.");
-            return true;
-        }
-
-        private static void CheckForBasicDirectories()
-        {
-            if (!Directory.Exists(ConfigurationsDirectory))
-            {
-                Log.Information("Configurations directory missing; creating.");
-                Directory.CreateDirectory(ConfigurationsDirectory);
-            }
-
-            if (!Directory.Exists(PluginHost.PluginsDirectory))
-            {
-                Log.Information("Plugins directory missing; creating.");
-                Directory.CreateDirectory(PluginHost.PluginsDirectory);
-            }
-
-            if (!Directory.Exists(LogsDirectory))
-            {
-                Log.Information("Logs directory missing; creating.");
-                Directory.CreateDirectory(LogsDirectory);
-            }
-        }
-
-        private void InitializeGlobalConfiguration()
-        {
-            if (!File.Exists(GlobalConfigurationFilePath))
-            {
-                Log.Information("Configuration file not found. Creating default.");
-
-                CreateDefaultGlobalConfiguration();
-            }
-
-            Configuration = Configuration.LoadFromFile(GlobalConfigurationFilePath);
-            IgnoreList =
-                new ObservableCollection<string>(Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray
-                                                 ?? new string[0]);
-            IgnoreList.CollectionChanged += (sender, args) =>
-            {
-                // save ignore list on changes
-                Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray = IgnoreList.ToArray();
-                Configuration.SaveToFile(GlobalConfigurationFilePath);
-            };
-        }
-
-        private void CreateDefaultGlobalConfiguration()
-        {
-            Configuration = new Configuration
-            {
-                nameof(Core)
-            };
-
-            Configuration[nameof(Core)][nameof(Nickname)].StringValue = string.Empty;
-            Configuration[nameof(Core)][nameof(Realname)].StringValue = string.Empty;
-            Configuration[nameof(Core)][nameof(IgnoreList)].StringValueArray = new string[0];
-
-            Configuration.SaveToFile(GlobalConfigurationFilePath);
-
-            Log.Information(
-                "Default global configuration created. Many values are empty by default, so you will have to edit the /config/global.conf file.");
-        }
-
-        #endregion
-
-        #region EVENTS
-
-        public event AsyncEventHandler<DatabaseQueriedEventArgs> Queried;
-        public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
-        public event AsyncEventHandler<ClassInitializedEventArgs> Initialized;
-        public event AsyncEventHandler<ErrorEventArgs> Error;
-
-        private async Task OnQuery(object source, DatabaseQueriedEventArgs args)
-        {
-            if (Queried == null)
-            {
-                return;
-            }
-
-            await Queried.Invoke(source, args);
-        }
-
-        private async Task OnTerminateSignaled(object source, OperationTerminatedEventArgs args)
-        {
-            if (TerminateSignaled == null)
-            {
-                return;
-            }
-
-            await TerminateSignaled.Invoke(source, args);
-        }
-
-        private async Task OnInitialized(object source, ClassInitializedEventArgs args)
-        {
-            if (Initialized == null)
-            {
-                return;
-            }
-
-            await Initialized.Invoke(source, args);
-        }
-
-        private async Task OnError(object source, ErrorEventArgs args)
-        {
-            if (Error == null)
-            {
-                return;
-            }
-
-            await Error.Invoke(source, args);
-        }
-
-        private async Task Terminate(object source, OperationTerminatedEventArgs args)
-        {
-            await Dispose(true);
-        }
-
-        #endregion
-
-        #region METHODS
-
-        public void RegisterMethod(IAsyncComposition<ServerMessagedEventArgs> methodRegistrar)
-        {
-            if (!IsInitialized && !Initializing)
-            {
-                _PendingPlugins.Push(methodRegistrar);
-
-                return;
-            }
-
-            PluginHostWrapper.Host.RegisterComposition(methodRegistrar);
-        }
-
-        private void RegisterMethods()
-        {
-            while (_PendingPlugins.Count > 0)
-            {
-                RegisterMethod(_PendingPlugins.Pop());
-            }
-        }
+        private bool _Disposed;
 
         /// <summary>
-        ///     Returns a specified command from commands list
+        ///     Dispose of all streams and objects
         /// </summary>
-        /// <param name="command">Command to be returned</param>
-        /// <returns></returns>
-        public CompositionDescription GetDescription(string command)
+        public void Dispose()
         {
-            return PluginCommands.Single(kvp =>
-                kvp.Value.Command.Equals(command, StringComparison.CurrentCultureIgnoreCase)).Value;
+            Dispose(true).Wait();
         }
 
-        public bool TryGetDescription(string command, out CompositionDescription compositionDescription)
+        private async Task Dispose(bool dispose)
         {
-            compositionDescription = PluginCommands.SingleOrDefault(kvp =>
-                kvp.Value.Command.Equals(command, StringComparison.CurrentCultureIgnoreCase)).Value;
+            if (!dispose || _Disposed)
+            {
+                return;
+            }
 
-            return compositionDescription == default;
+            await _PluginHostWrapper.Host.StopPlugins();
+            _Server?.Dispose();
+            Log.CloseAndFlush();
+
+            _Disposed = true;
         }
-
-        /// <summary>
-        ///     Checks whether specified comamnd exists
-        /// </summary>
-        /// <param name="command">comamnd name to be checked</param>
-        /// <returns>True: exists; false: does not exist</returns>
-        public bool CommandExists(string command) => TryGetDescription(command, out CompositionDescription _);
 
         #endregion
     }

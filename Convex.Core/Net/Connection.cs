@@ -20,15 +20,13 @@ namespace Convex.Core.Net
             _Reader?.Dispose();
             _Writer?.Dispose();
 
-            IsInitialized = false;
-            IsConnected = false;
+            Connected = false;
         }
 
         #region MEMBERS
 
-        public IAddress Address { get; private set; }
-        public bool IsConnected { get; private set; }
-        public bool IsInitialized { get; private set; }
+        public IAddress Address { get; }
+        public bool Connected { get; private set; }
         public bool Executing { get; private set; }
 
         private TcpClient _Client;
@@ -38,37 +36,24 @@ namespace Convex.Core.Net
 
         #endregion
 
-        #region INIT
-
-        public async Task<bool> Initialize(IAddress address)
+        public Connection(IAddress address)
         {
             Address = address;
 
-            Connected += (source, args) =>
+            Established += (source, args) =>
             {
-                IsConnected = true;
+                Connected = true;
                 return Task.CompletedTask;
             };
 
             Disconnected += (source, args) =>
             {
-                IsConnected = false;
+                Connected = false;
                 return Task.CompletedTask;
             };
-
-            await AttemptConnect();
-
-            IsInitialized = IsConnected;
-
-            if (IsInitialized)
-            {
-                await OnInitialized(this, new ClassInitializedEventArgs(this));
-            }
-
-            return IsInitialized;
         }
 
-        private async Task AttemptConnect()
+        public async Task Connect()
         {
             try
             {
@@ -92,14 +77,7 @@ namespace Convex.Core.Net
             }
         }
 
-        #endregion
-
         #region METHODS
-
-        public async Task SendDataAsync(object source, IrcCommandEventArgs args)
-        {
-            await WriteAsync(args.ToString());
-        }
 
         /// <summary>
         ///     Receives input from open stream
@@ -120,7 +98,7 @@ namespace Convex.Core.Net
             {
                 Log.Information("Stream disconnected. Attempting to reconnect...");
 
-                await AttemptConnect();
+                await Connect();
             }
             catch (Exception ex)
             {
@@ -162,36 +140,30 @@ namespace Convex.Core.Net
                 throw new NullReferenceException(nameof(_Reader.BaseStream));
             }
 
-            return await _Reader.ReadLineAsync();
+            return await _Reader.ReadLineAsync() ?? string.Empty;
+        }
+
+        public async Task SendCommandAsync(CommandEventArgs args)
+        {
+            await WriteAsync(args.ToString());
         }
 
         #endregion
 
         #region EVENTS
 
-        public event AsyncEventHandler<ClassInitializedEventArgs> Initialized;
-        public event AsyncEventHandler<ConnectedEventArgs> Connected;
+        public event AsyncEventHandler<ConnectedEventArgs> Established;
         public event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
         public event AsyncEventHandler<StreamFlushedEventArgs> Flushed;
 
-        private async Task OnInitialized(object source, ClassInitializedEventArgs args)
-        {
-            if (Initialized == null)
-            {
-                return;
-            }
-
-            await Initialized.Invoke(source, args);
-        }
-
         private async Task OnConnected(object source, ConnectedEventArgs args)
         {
-            if (Connected == null)
+            if (Established == null)
             {
                 return;
             }
 
-            await Connected.Invoke(source, args);
+            await Established.Invoke(source, args);
         }
 
         private async Task OnDisconnected(object source, DisconnectedEventArgs args)

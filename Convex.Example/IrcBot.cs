@@ -1,11 +1,11 @@
 ﻿#region
 
-using System;
-using System.Threading.Tasks;
 using Convex.Core;
 using Convex.Core.Net;
 using Convex.Core.Plugins.Compositions;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 #endregion
 
@@ -52,7 +52,7 @@ namespace Convex.Example
             }
             finally
             {
-                IsInitialised = _Bot?.IsInitialized ?? false;
+                IsInitialised = _Bot?.Initialized ?? false;
             }
         }
 
@@ -70,7 +70,7 @@ namespace Convex.Example
         #region MEMBERS
 
         private string BotInfo =>
-            $"[Version {_Bot.Version}] Evealyn is an IRC bot for C#.";
+            $"[Version {_Bot.AssemblyVersion}] Evealyn is an IRC bot for C#.";
 
         public bool IsInitialised { get; private set; }
         public bool Executing => _Bot.Server.Executing;
@@ -102,8 +102,7 @@ namespace Convex.Example
                 return;
             }
 
-            await _Bot.Server.Connection.SendDataAsync(this,
-                new IrcCommandEventArgs(Commands.PRIVMSG, $"{args.Message.Origin} {BotInfo}"));
+            await _Bot.Server.Connection.SendCommandAsync(new CommandEventArgs(Commands.PRIVMSG, $"{args.Message.Origin} {BotInfo}"));
         }
 
         #endregion

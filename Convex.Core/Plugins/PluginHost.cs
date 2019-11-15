@@ -126,15 +126,13 @@ namespace Convex.Core.Plugins
                 foreach (string filePath in Directory.GetFiles(PluginHost.PluginsDirectory, PluginMask,
                     SearchOption.AllDirectories))
                 {
-                    foreach (IPlugin plugin in GetPluginInstances(filePath))
+                    foreach (IPlugin plugin in GetIPluginInstances(filePath))
                     {
                         Type pluginType = plugin.GetType();
 
-                        foreach (MethodInfo methodInfo in pluginType.GetMethods(
-                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                        foreach (MethodInfo methodInfo in pluginType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                         {
-                            Composition composition =
-                                methodInfo.GetCustomAttribute<Composition>();
+                            Composition composition = methodInfo.GetCustomAttribute<Composition>();
 
                             if (composition == null)
                             {
@@ -144,14 +142,12 @@ namespace Convex.Core.Plugins
                             // local wrapper function
                             async Task Method(T args)
                             {
-                                await (Task)methodInfo.Invoke(pluginType, new object[]
-                                {
-                                    args
-                                });
+                                await (Task)methodInfo.Invoke(pluginType, new object[] { args });
                             }
 
-                            MethodComposition<T> methodComposition = new MethodComposition<T>(Method, composition,
-                                methodInfo.GetCustomAttribute<CompositionDescription>());
+                            CompositionDescription description = methodInfo.GetCustomAttribute<CompositionDescription>() ?? MethodComposition.UndefinedDescription;
+
+                            MethodComposition<T> methodComposition = new MethodComposition<T>(Method, composition, description);
 
                             RegisterComposition(methodComposition);
                         }
@@ -195,19 +191,17 @@ namespace Convex.Core.Plugins
         /// </summary>
         /// <param name="assemblyName">full name of assembly</param>
         /// <returns></returns>
-        private static IEnumerable<IPlugin> GetPluginInstances(string assemblyName)
+        private static IEnumerable<IPlugin> GetIPluginInstances(string assemblyName)
         {
-            return GetTypeInstances(GetAssembly(assemblyName)).Select(type => (IPlugin)Activator.CreateInstance(type));
-        }
+            foreach (Type type in  GetAssembly(assemblyName).GetTypes())
+            {
+                if (!type.IsAssignableFrom(typeof(IPlugin)))
+                {
+                    continue;
+                }
 
-        /// <summary>
-        ///     Gets the IPlugin type instance from an assembly name
-        /// </summary>
-        /// <param name="assembly">assembly instance</param>
-        /// <returns></returns>
-        private static IEnumerable<Type> GetTypeInstances(Assembly assembly)
-        {
-            return assembly.GetTypes().Where(type => type.GetTypeInfo().GetInterfaces().Contains(typeof(IPlugin)));
+                yield return (IPlugin)Activator.CreateInstance(type);
+            }
         }
 
         private static Assembly GetAssembly(string assemblyName) =>

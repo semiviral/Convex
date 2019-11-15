@@ -104,6 +104,7 @@ namespace Convex.Base.Calculator
                             TryInsertMultiply();
                             TryRightSideOperator();
                             break;
+
                         case Token.SEPERATOR:
                             NextToken();
                             continue;
@@ -180,6 +181,7 @@ namespace Convex.Base.Calculator
                     NextToken();
                     TryInsertMultiply();
                     break;
+
                 case Token.SEPERATOR:
                     ParsePrimary();
                     break;
@@ -268,11 +270,17 @@ namespace Convex.Base.Calculator
         public CalculateException(string message, int position) : base($"Error at position: {position}, {message}") =>
             TokenPosition = position;
 
-        public CalculateException() { }
+        public CalculateException()
+        {
+        }
 
-        public CalculateException(string message) : base(message) { }
+        public CalculateException(string message) : base(message)
+        {
+        }
 
-        public CalculateException(string message, Exception innerException) : base(message, innerException) { }
+        public CalculateException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
 
         public int TokenPosition { get; }
     }

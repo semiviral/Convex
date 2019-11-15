@@ -12,37 +12,18 @@ namespace Convex.Base.Calculator
         {
             try
             {
-                double res;
-
-                switch (op)
+                double res = op switch
                 {
-                    case Token.ADD:
-                        res = op1 + op2;
-                        break;
-                    case Token.SUBTRACT:
-                        res = op1 - op2;
-                        break;
-                    case Token.MULTIPLY:
-                        res = op1 * op2;
-                        break;
-                    case Token.DIVIDE:
-                        res = op1 / op2;
-                        break;
-                    case Token.MOD:
-                        res = op1 % op2;
-                        break;
-                    case Token.POWER:
-                        res = Math.Pow(op1, op2);
-                        break;
-                    case Token.LOG:
-                        res = Math.Log(op2, op1);
-                        break;
-                    case Token.ROOT:
-                        res = Math.Pow(op2, 1 / op1);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                    Token.ADD => (op1 + op2),
+                    Token.SUBTRACT => (op1 - op2),
+                    Token.MULTIPLY => (op1 * op2),
+                    Token.DIVIDE => (op1 / op2),
+                    Token.MOD => (op1 % op2),
+                    Token.POWER => Math.Pow(op1, op2),
+                    Token.LOG => Math.Log(op2, op1),
+                    Token.ROOT => Math.Pow(op2, 1 / op1),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
 
                 _Operands.Push(PostProcess(res));
             }
@@ -63,42 +44,55 @@ namespace Convex.Base.Calculator
                     case Token.UNARY_MINUS:
                         res = -operand;
                         break;
+
                     case Token.ABS:
                         res = Math.Abs(operand);
                         break;
+
                     case Token.A_COSINE:
                         res = Math.Acos(operand);
                         break;
+
                     case Token.A_SINE:
                         res = Math.Asin(operand);
                         break;
+
                     case Token.A_TANGENT:
                         res = Math.Atan(operand);
                         break;
+
                     case Token.COSINE:
                         res = Math.Cos(operand);
                         break;
+
                     case Token.SINE:
                         res = Math.Sin(operand);
                         break;
+
                     case Token.TANGENT:
                         res = Math.Tan(operand);
                         break;
+
                     case Token.LN:
                         res = Math.Log(operand);
                         break;
+
                     case Token.LOG10:
                         res = Math.Log10(operand);
                         break;
+
                     case Token.SQRT:
                         res = Math.Sqrt(operand);
                         break;
+
                     case Token.EXP:
                         res = Math.Exp(operand);
                         break;
+
                     case Token.FACTORIAL:
                         //for (int i = 2; i <= (int) operand; res *= i++)
                         break;
+
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

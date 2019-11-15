@@ -22,6 +22,7 @@
     <SignAssembly>false</SignAssembly>
     <Title>Convex IRC Library</Title>
     <PackageVersion>1.4.0</PackageVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

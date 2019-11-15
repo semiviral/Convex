@@ -28,8 +28,8 @@ namespace Convex.Core.Plugins
 
             switch (args.ActionType)
             {
-                case PluginActionType.SignalTerminate:
-                    await OnTerminated(source, new OperationTerminatedEventArgs(source, "Terminate signaled."));
+                case PluginActionType.Terminate:
+                    await OnTerminated(source, new OperationTerminatedEventArgs(source, "Terminated."));
                     break;
                 case PluginActionType.RegisterMethod:
                     if (!(args.Result is IAsyncComposition<T>))
@@ -40,12 +40,12 @@ namespace Convex.Core.Plugins
                     Host.RegisterComposition((IAsyncComposition<T>)args.Result);
                     break;
                 case PluginActionType.SendMessage:
-                    if (!(args.Result is IrcCommandEventArgs))
+                    if (!(args.Result is CommandEventArgs))
                     {
                         break;
                     }
 
-                    await OnCommandReceived(source, (IrcCommandEventArgs)args.Result);
+                    await OnCommandReceived(source, (CommandEventArgs)args.Result);
                     break;
                 case PluginActionType.Log:
                     if (!(args.Result is string))
@@ -89,10 +89,10 @@ namespace Convex.Core.Plugins
 
         #region EVENTS
 
-        public event AsyncEventHandler<IrcCommandEventArgs> CommandReceived;
-        public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
+        public event AsyncEventHandler<CommandEventArgs> CommandReceived;
+        public event AsyncEventHandler<OperationTerminatedEventArgs> Terminated;
 
-        private async Task OnCommandReceived(object source, IrcCommandEventArgs args)
+        private async Task OnCommandReceived(object source, CommandEventArgs args)
         {
             if (CommandReceived == null)
             {
@@ -104,12 +104,12 @@ namespace Convex.Core.Plugins
 
         private async Task OnTerminated(object source, OperationTerminatedEventArgs args)
         {
-            if (TerminateSignaled == null)
+            if (Terminated == null)
             {
                 return;
             }
 
-            await TerminateSignaled.Invoke(source, args);
+            await Terminated.Invoke(source, args);
         }
 
         #endregion

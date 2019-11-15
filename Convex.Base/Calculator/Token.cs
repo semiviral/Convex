@@ -120,32 +120,20 @@ namespace Convex.Base.Calculator
                     return 64;
                 }
 
-                switch (op)
+                return op switch
                 {
-                    case SUBTRACT:
-                        return 4;
-                    case ADD:
-                        return 4;
-                    case UNARY_MINUS:
-                        return 8;
-                    case MULTIPLY:
-                        return 16;
-                    case DIVIDE:
-                        return 16;
-                    case POWER:
-                        return 24;
-                    case MOD:
-                        return 32;
-                    case FACTORIAL:
-                        return 48;
-                    case P_LEFT:
-                        return 64;
-                    case P_RIGHT:
-                        return 64;
-
-                    default:
-                        return 0; // operators:  END, Sentinel, Store
-                }
+                    SUBTRACT => 4,
+                    ADD => 4,
+                    UNARY_MINUS => 8,
+                    MULTIPLY => 16,
+                    DIVIDE => 16,
+                    POWER => 24,
+                    MOD => 32,
+                    FACTORIAL => 48,
+                    P_LEFT => 64,
+                    P_RIGHT => 64,
+                    _ => 0
+                };
             }
 
             public static int Compare(string op1, string op2)
@@ -162,24 +150,20 @@ namespace Convex.Base.Calculator
 
             public static string ConvertOperator(string op)
             {
-                switch (op)
+                return op switch
                 {
-                    case "-":
-                        return "_";
-                    default:
-                        return op;
-                }
+                    "-" => "_",
+                    _ => op
+                };
             }
 
             public static string ToString(string op)
             {
-                switch (op)
+                return op switch
                 {
-                    case END:
-                        return "END";
-                    default:
-                        return op;
-                }
+                    END => "END",
+                    _ => op
+                };
             }
 
             private static bool Contains(string token, IEnumerable<string> array)

@@ -95,49 +95,49 @@ namespace Convex.Base
         #region REGISTRARS
 
         [Composition(1, Commands.PRIVMSG)]
-        private async Task Default(ServerMessagedEventArgs e)
+        private async Task Default(ServerMessagedEventArgs args)
         {
-            if (Configuration[nameof(Core)]["IgnoreList"].StringValueArray.Contains(e.Message.RealName))
+            if (Configuration[nameof(Core)]["IgnoreList"].StringValueArray.Contains(args.Message.RealName))
             {
                 return;
             }
 
-            if (!e.Message.SplitArgs[0].Replace(",", string.Empty)
+            if (!args.Message.SplitArgs[0].Replace(",", string.Empty)
                 .Equals(Configuration[nameof(Core)]["Nickname"].StringValue.ToLower()))
             {
                 return;
             }
 
-            if (e.Message.SplitArgs.Count < 2)
+            if (args.Message.SplitArgs.Count < 2)
             {
                 // typed only 'eve'
                 await DoCallback(this,
                     new PluginActionEventArgs(PluginActionType.SendMessage,
-                        new IrcCommandEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}",
+                        new CommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}",
                             "Type 'eve help' to view my command list."), Name));
                 return;
             }
 
             // built-in 'help' command
-            if (e.Message.SplitArgs[1].Equals("help", StringComparison.OrdinalIgnoreCase))
+            if (args.Message.SplitArgs[1].Equals("help", StringComparison.OrdinalIgnoreCase))
             {
-                if (e.Message.SplitArgs.Count.Equals(2))
+                if (args.Message.SplitArgs.Count.Equals(2))
                 {
                     // in this case, 'help' is the only text in the string.
-                    List<CompositionDescription> entries = e.Caller.PluginCommands.Values.ToList();
+                    List<CompositionDescription> entries = args.Caller.PluginCommands.Values.ToList();
                     string commandsReadable = string.Join(", ",
                         entries.Where(entry => entry != null).Select(entry => entry.Command));
 
                     await DoCallback(this,
                         new PluginActionEventArgs(PluginActionType.SendMessage,
-                            new IrcCommandEventArgs(Commands.PRIVMSG,
+                            new CommandEventArgs(Commands.PRIVMSG,
                                 entries.Count == 0
-                                    ? $"{e.Message.Origin} No commands currently active."
-                                    : $"{e.Message.Origin} Active commands: {commandsReadable}"), Name));
+                                    ? $"{args.Message.Origin} No commands currently active."
+                                    : $"{args.Message.Origin} Active commands: {commandsReadable}"), Name));
                     return;
                 }
 
-                CompositionDescription queriedCommand = e.Caller.GetDescription(e.Message.SplitArgs[2]);
+                CompositionDescription queriedCommand = args.Caller.GetDescription(args.Message.SplitArgs[2]);
 
                 string valueToSend = queriedCommand.Equals(null)
                     ? "Command not found."
@@ -145,19 +145,19 @@ namespace Convex.Base
 
                 await DoCallback(this,
                     new PluginActionEventArgs(PluginActionType.SendMessage,
-                        new IrcCommandEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}", valueToSend), Name));
+                        new CommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", valueToSend), Name));
 
                 return;
             }
 
-            if (e.Caller.CommandExists(e.Message.SplitArgs[1].ToLower()))
+            if (args.Caller.CommandExists(args.Message.SplitArgs[1].ToLower()))
             {
                 return;
             }
 
             await DoCallback(this,
                 new PluginActionEventArgs(PluginActionType.SendMessage,
-                    new IrcCommandEventArgs($"{Commands.PRIVMSG} {e.Message.Origin}",
+                    new CommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}",
                         "Invalid command. Type 'eve help' to view my command list."), Name));
         }
 
@@ -171,12 +171,12 @@ namespace Convex.Base
 
             await DoCallback(this,
                 new PluginActionEventArgs(PluginActionType.SendMessage,
-                    new IrcCommandEventArgs(Commands.PRIVMSG,
+                    new CommandEventArgs(Commands.PRIVMSG,
                         $"NICKSERV IDENTIFY {Configuration[nameof(Core)]["Password"].StringValue}"),
                     Name));
             await DoCallback(this,
                 new PluginActionEventArgs(PluginActionType.SendMessage,
-                    new IrcCommandEventArgs(Commands.MODE, $"{Configuration[nameof(Core)]["Nickname"].StringValue} +B"),
+                    new CommandEventArgs(Commands.MODE, $"{Configuration[nameof(Core)]["Nickname"].StringValue} +B"),
                     Name));
 
             //args.Caller.Server.Channels.Add(new Channel("#testgrounds"));
@@ -197,8 +197,8 @@ namespace Convex.Base
 
             await DoCallback(this,
                 new PluginActionEventArgs(PluginActionType.SendMessage,
-                    new IrcCommandEventArgs(Commands.QUIT, "Shutting down."), Name));
-            await DoCallback(this, new PluginActionEventArgs(PluginActionType.SignalTerminate, null, Name));
+                    new CommandEventArgs(Commands.QUIT, "Shutting down."), Name));
+            await DoCallback(this, new PluginActionEventArgs(PluginActionType.Terminate, null, Name));
         }
 
         [Composition(99, Commands.PRIVMSG)]
@@ -212,8 +212,8 @@ namespace Convex.Base
 
             Status = PluginStatus.Processing;
 
-            IrcCommandEventArgs command =
-                new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
+            CommandEventArgs command =
+                new CommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
             if (args.Message.SplitArgs.Count < 3)
             {
@@ -354,8 +354,8 @@ namespace Convex.Base
 
             Status = PluginStatus.Processing;
 
-            IrcCommandEventArgs command =
-                new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
+            CommandEventArgs command =
+                new CommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
             if (args.Message.SplitArgs.Count < 3)
             {
@@ -445,8 +445,8 @@ namespace Convex.Base
                 return;
             }
 
-            IrcCommandEventArgs command =
-                new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
+            CommandEventArgs command =
+                new CommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
             if (args.Message.SplitArgs.Count < 3)
             {
@@ -490,15 +490,15 @@ namespace Convex.Base
 
         private async Task Set(ServerMessagedEventArgs args)
         {
-            if ((args.Message.SplitArgs.Count < 2) || !args.Message.SplitArgs[1].Equals("set"))
+            if (args.Message.SplitArgs.Count < 2 || !args.Message.SplitArgs[1].Equals("set"))
             {
                 return;
             }
 
             Status = PluginStatus.Processing;
 
-            IrcCommandEventArgs command =
-                new IrcCommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
+            CommandEventArgs command =
+                new CommandEventArgs($"{Commands.PRIVMSG} {args.Message.Origin}", string.Empty);
 
             if (args.Message.SplitArgs.Count < 5)
             {

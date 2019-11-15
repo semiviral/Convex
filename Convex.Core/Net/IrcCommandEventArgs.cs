@@ -6,9 +6,9 @@ using System;
 
 namespace Convex.Core.Net
 {
-    public class IrcCommandEventArgs : EventArgs
+    public class CommandEventArgs : EventArgs
     {
-        public IrcCommandEventArgs(string command, string arguments)
+        public CommandEventArgs(string command, string arguments)
         {
             Command = command;
             Arguments = arguments;

@@ -56,7 +56,7 @@ namespace Convex.Core.Plugins
         Log,
         RegisterMethod,
         SendMessage,
-        SignalTerminate
+        Terminate
     }
 
     public enum PluginStatus

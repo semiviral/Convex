@@ -12,27 +12,17 @@ using Convex.Core.Plugins.Compositions;
 
 namespace Convex.Core
 {
-    public interface IClient
+    public interface IClient : IDisposable
     {
-        string Address { get; }
-        bool Initializing { get; }
-        bool IsInitialized { get; }
-        IReadOnlyDictionary<string, CompositionDescription> PluginCommands { get; }
-        int Port { get; }
-        Server Server { get; }
-        Guid UniqueId { get; }
-        Version Version { get; }
+        string UniqueId { get; }
+        Version AssemblyVersion { get; }
+        bool Initialized { get; }
 
-        event AsyncEventHandler<ErrorEventArgs> Error;
-        event AsyncEventHandler<ClassInitializedEventArgs> Initialized;
-        event AsyncEventHandler<DatabaseQueriedEventArgs> Queried;
-        event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
-
-        Task BeginListenAsync();
-        bool CommandExists(string command);
-        void Dispose();
-        CompositionDescription GetDescription(string command);
-        Task<bool> Initialize(IAddress address);
+        Task<IInitializedClient> Initialize();
         void RegisterMethod(IAsyncComposition<ServerMessagedEventArgs> methodRegistrar);
+
+        event AsyncEventHandler<ClassInitializedEventArgs> InitializationCompleted;
+        event AsyncEventHandler<DatabaseQueriedEventArgs> DatabaseQueried;
+        event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
     }
 }
