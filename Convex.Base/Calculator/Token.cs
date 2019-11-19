@@ -173,19 +173,40 @@ namespace Convex.Base.Calculator
 
             #region Is... Functions
 
-            public static bool IsBinary(string op) => Contains(op, _BinaryOperators);
+            public static bool IsBinary(string op)
+            {
+                return Contains(op, _BinaryOperators);
+            }
 
-            public static bool IsUnary(string op) => Contains(op, _UnaryOperators);
+            public static bool IsUnary(string op)
+            {
+                return Contains(op, _UnaryOperators);
+            }
 
-            public static bool IsRightSide(string op) => Contains(op, _RightSideOperators);
+            public static bool IsRightSide(string op)
+            {
+                return Contains(op, _RightSideOperators);
+            }
 
-            public static bool IsSpecial(string op) => Contains(op, _SpecialOperators);
+            public static bool IsSpecial(string op)
+            {
+                return Contains(op, _SpecialOperators);
+            }
 
-            public static bool IsFunction(string op) => Contains(op, _FunctionList);
+            public static bool IsFunction(string op)
+            {
+                return Contains(op, _FunctionList);
+            }
 
-            public static bool IsName(string token) => Regex.IsMatch(token, @"[a-zA-Z0-9]");
+            public static bool IsName(string token)
+            {
+                return Regex.IsMatch(token, @"[a-zA-Z0-9]");
+            }
 
-            public static bool IsDigit(string token) => Regex.IsMatch(token, @"\d|\.");
+            public static bool IsDigit(string token)
+            {
+                return Regex.IsMatch(token, @"\d|\.");
+            }
 
             #endregion
         }

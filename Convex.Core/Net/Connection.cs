@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -11,125 +12,34 @@ using Serilog;
 
 namespace Convex.Core.Net
 {
-    public sealed class Connection
+    public sealed class Connection : IConnection, IEstablishedConnection
     {
-        public void Dispose()
-        {
-            _Client?.Dispose();
-            _NetworkStream?.Dispose();
-            _Reader?.Dispose();
-            _Writer?.Dispose();
-
-            Connected = false;
-        }
-
-        #region MEMBERS
-
-        public IAddress Address { get; }
-        public bool Connected { get; private set; }
-
         private TcpClient _Client;
         private NetworkStream _NetworkStream;
         private StreamReader _Reader;
         private StreamWriter _Writer;
 
-        #endregion
+        public event AsyncEventHandler<ConnectedEventArgs> Established;
+        public event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
+        public event AsyncEventHandler<StreamDataEventArgs> DataWritten;
+        public event AsyncEventHandler<StreamDataEventArgs> DataReceived;
 
-        public Connection(IAddress address)
+        public Connection()
         {
-            Address = address;
-
             Established += (source, args) =>
             {
-                Connected = true;
+                _Connected = true;
                 return Task.CompletedTask;
             };
 
             Disconnected += (source, args) =>
             {
-                Connected = false;
+                _Connected = false;
                 return Task.CompletedTask;
             };
         }
 
-        public async Task Connect()
-        {
-            try
-            {
-                await ConnectAsync();
-
-                Log.Information($"Connection established to endpoint: {Address}");
-                await OnConnected(this,
-                    new ConnectedEventArgs(this, $"Connection established to endpoint: {Address} "));
-            }
-            catch (SocketException ex)
-            {
-                Log.Fatal($"Unable to connect to endpoint {Address}: {ex.Message}");
-                await OnDisconnected(this,
-                    new DisconnectedEventArgs(this, $"Unable to connect to endpoint {Address}."));
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal($"Unable to connect to endpoint {Address}: {ex.Message}");
-                await OnDisconnected(this,
-                    new DisconnectedEventArgs(this, $"Unable to connect to endpoint {Address}."));
-            }
-        }
-
-        #region METHODS
-
-        /// <summary>
-        ///     Receives input from open stream
-        /// </summary>
-        /// <remarks>
-        ///     Do not use this method to start listening cycle.
-        /// </remarks>
-        public async Task<string> ListenAsync()
-        {
-            string data = string.Empty;
-
-            try
-            {
-                data = await ReadAsync();
-            }
-            catch (NullReferenceException)
-            {
-                Log.Information("Stream disconnected. Attempting to reconnect...");
-
-                await Connect();
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Exception occured while listening on stream: {ex.Message}");
-            }
-
-            return data;
-        }
-
-        private async Task ConnectAsync()
-        {
-            _Client = new TcpClient();
-            await _Client.ConnectAsync(Address.Hostname, Address.Port);
-
-            _NetworkStream = _Client.GetStream();
-            _Reader = new StreamReader(_NetworkStream);
-            _Writer = new StreamWriter(_NetworkStream);
-        }
-
-        private async Task WriteAsync(string writable)
-        {
-            if (_Writer.BaseStream == null)
-            {
-                throw new NullReferenceException(nameof(_Writer.BaseStream));
-            }
-
-            await _Writer.WriteLineAsync(writable);
-            await _Writer.FlushAsync();
-
-            await OnFlushed(this, new StreamFlushedEventArgs(writable));
-        }
-
-        private async Task<string> ReadAsync()
+        private async Task<string> ReadLineAsync()
         {
             if (_Reader.BaseStream == null)
             {
@@ -139,47 +49,195 @@ namespace Convex.Core.Net
             return await _Reader.ReadLineAsync() ?? string.Empty;
         }
 
-        public async Task SendCommandAsync(CommandEventArgs args)
+        /// <summary>
+        ///     Receives input from open stream
+        /// </summary>
+        /// <remarks>
+        ///     Do not use this method to start listening cycle.
+        /// </remarks>
+        private async Task LongRunningListenAsync()
         {
-            await WriteAsync(args.ToString());
+            try
+            {
+                while (_Client.Connected)
+                {
+                    string data = await ReadLineAsync();
+
+                    await OnDataReceived(this, new StreamDataEventArgs(data));
+                }
+            }
+            catch (NullReferenceException)
+            {
+                Log.Information("Stream disconnected.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Exception occured while listening on stream: {ex.Message}");
+            }
+        }
+
+        #region IConnection
+
+        private bool _Connected;
+
+        bool IConnection.Connected => _Connected;
+
+        IEstablishedConnection IConnection.EstablishedConnection
+        {
+            get
+            {
+                if (!_Connected)
+                {
+                    throw new Exception("Connection is not yet established.");
+                }
+
+                return this;
+            }
+        }
+
+        async Task<IEstablishedConnection> IConnection.Connect(IAddress address)
+        {
+            // todo logging here should be more informative
+
+            IEstablishedConnection establishedConnection = null;
+
+            try
+            {
+                _Address = address;
+
+                _Client = new TcpClient();
+                await _Client.ConnectAsync(_Address.Hostname, _Address.Port);
+
+                _NetworkStream = _Client.GetStream();
+                _Reader = new StreamReader(_NetworkStream);
+                _Writer = new StreamWriter(_NetworkStream);
+                _Connected = true;
+
+                Log.Information($"Connection established to endpoint: {_Address}");
+                await OnConnected(this,
+                    new ConnectedEventArgs(this, $"Connection established to endpoint: {_Address} "));
+
+                Log.Information("Starting long running connection listener task.");
+                await Task.Factory.StartNew(LongRunningListenAsync, TaskCreationOptions.LongRunning);
+
+                establishedConnection = this;
+            }
+            catch (SocketException ex)
+            {
+                Log.Fatal($"Unable to connect to endpoint {_Address}: {ex.Message}");
+                await OnDisconnected(this,
+                    new DisconnectedEventArgs(this, $"Unable to connect to endpoint {_Address}."));
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal($"Unable to connect to endpoint {_Address}: {ex.Message}");
+                await OnDisconnected(this,
+                    new DisconnectedEventArgs(this, $"Unable to connect to endpoint {_Address}."));
+            }
+
+            if (establishedConnection == null)
+            {
+                throw new Exception("Unable to establish connection.");
+            }
+
+            return establishedConnection;
         }
 
         #endregion
 
-        #region EVENTS
 
-        public event AsyncEventHandler<ConnectedEventArgs> Established;
-        public event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
-        public event AsyncEventHandler<StreamFlushedEventArgs> Flushed;
+        #region IEstablishedConnection
 
-        private async Task OnConnected(object source, ConnectedEventArgs args)
+        private IAddress _Address;
+
+        IAddress IEstablishedConnection.Address => _Address;
+        
+        async Task IEstablishedConnection.WriteAsync(string writable)
+        {
+            if (_Writer.BaseStream == null)
+            {
+                throw new NullReferenceException(nameof(_Writer.BaseStream));
+            }
+
+            await _Writer.WriteLineAsync(writable);
+            await _Writer.FlushAsync();
+
+            await OnDataWritten(this, new StreamDataEventArgs(writable));
+        }
+
+        async Task IEstablishedConnection.SendCommandAsync(CommandEventArgs args)
+        {
+            await ((IEstablishedConnection)this).WriteAsync(args.ToString());
+        }
+
+
+        private async Task OnConnected(object sender, ConnectedEventArgs args)
         {
             if (Established == null)
             {
                 return;
             }
 
-            await Established.Invoke(source, args);
+            await Established.Invoke(sender, args);
         }
 
-        private async Task OnDisconnected(object source, DisconnectedEventArgs args)
+        private async Task OnDisconnected(object sender, DisconnectedEventArgs args)
         {
             if (Disconnected == null)
             {
                 return;
             }
 
-            await Disconnected.Invoke(source, args);
+            await Disconnected.Invoke(sender, args);
         }
 
-        private async Task OnFlushed(object source, StreamFlushedEventArgs args)
+        private async Task OnDataWritten(object sender, StreamDataEventArgs args)
         {
-            if (Flushed == null)
+            if (DataWritten == null)
             {
                 return;
             }
 
-            await Flushed.Invoke(source, args);
+            await DataWritten.Invoke(sender, args);
+        }
+
+        private async Task OnDataReceived(object sender, StreamDataEventArgs args)
+        {
+            if (DataReceived == null)
+            {
+                return;
+            }
+
+            await DataReceived.Invoke(sender, args);
+        }
+
+        #endregion
+
+
+        #region IDisposable
+
+        private bool _Disposed;
+
+        private void Dispose(bool dispose)
+        {
+            if (_Disposed || !dispose)
+            {
+                return;
+            }
+
+            _Disposed = true;
+            _Connected = false;
+
+            _Client?.Dispose();
+            _NetworkStream?.Dispose();
+            _Reader?.Dispose();
+            _Writer?.Dispose();
+
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         #endregion

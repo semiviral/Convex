@@ -9,7 +9,8 @@ namespace Convex.Core.Plugins.Compositions
 {
     public class MethodComposition
     {
-        public static readonly CompositionDescription UndefinedDescription = new CompositionDescription("", "undefined");
+        public static readonly CompositionDescription
+            UndefinedDescription = new CompositionDescription("", "undefined");
     }
 
     public class MethodComposition<TEventArgs> : IAsyncComposition<TEventArgs> where TEventArgs : EventArgs
@@ -20,7 +21,8 @@ namespace Convex.Core.Plugins.Compositions
         /// <param name="method"></param>
         /// <param name="composition">registrable composition to be executed</param>
         /// <param name="description">describes composition</param>
-        public MethodComposition(Func<TEventArgs, Task> method, Composition composition, CompositionDescription description)
+        public MethodComposition(Func<TEventArgs, Task> method, Composition composition,
+            CompositionDescription description)
         {
             UniqueId = composition.UniqueId;
             Priority = composition.Priority;
@@ -30,6 +32,16 @@ namespace Convex.Core.Plugins.Compositions
         }
 
 
+        #region METHODS
+
+        public async Task InvokeAsync(TEventArgs args)
+        {
+            await Method.Invoke(args);
+        }
+
+        #endregion
+
+
         #region MEMBERS
 
         public string UniqueId { get; }
@@ -37,16 +49,6 @@ namespace Convex.Core.Plugins.Compositions
         public string[] Commands { get; }
         public Func<TEventArgs, Task> Method { get; }
         public CompositionDescription Description { get; }
-
-        #endregion
-
-
-        #region METHODS
-
-        public async Task InvokeAsync(TEventArgs args)
-        {
-            await Method.Invoke(args);
-        }
 
         #endregion
     }

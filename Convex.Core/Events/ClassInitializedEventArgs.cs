@@ -8,12 +8,15 @@ namespace Convex.Core.Events
 {
     public class ClassInitializedEventArgs : EventArgs
     {
-        public ClassInitializedEventArgs(object classObject) => ClassObject = classObject;
-
         #region MEMBERS
 
         public object ClassObject { get; }
 
         #endregion
+
+        public ClassInitializedEventArgs(object classObject)
+        {
+            ClassObject = classObject;
+        }
     }
 }

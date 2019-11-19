@@ -91,7 +91,10 @@ namespace Convex.Core.Net
             Hostname = sMatch.Groups["Hostname"].Value;
         }
 
-        public override string ToString() => RawMessage;
+        public override string ToString()
+        {
+            return RawMessage;
+        }
 
         #endregion
 

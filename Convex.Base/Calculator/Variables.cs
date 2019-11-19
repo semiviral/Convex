@@ -43,9 +43,11 @@ namespace Convex.Base.Calculator
             OnVariableStore?.Invoke(this, new EventArgs());
         }
 
-        public double GetVariable(string name) =>
-            Variables.ContainsKey(name)
+        public double GetVariable(string name)
+        {
+            return Variables.ContainsKey(name)
                 ? Variables[name]
                 : 0;
+        }
     }
 }

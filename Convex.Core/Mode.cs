@@ -5,6 +5,12 @@ namespace Convex.Core
 {
     public class Mode
     {
+        public Mode(char identifier, string syntax = "")
+        {
+            Identifier = identifier;
+            Syntax = syntax;
+        }
+
         #region MEMBERS
 
         // Several modes mean different things on
@@ -76,12 +82,6 @@ namespace Convex.Core
         public static Mode NoInvites = new Mode('V', "MODE %c +VarManagement");
 
         #endregion
-
-        public Mode(char identifier, string syntax = "")
-        {
-            Identifier = identifier;
-            Syntax = syntax;
-        }
 
         #region MEMBERS
 

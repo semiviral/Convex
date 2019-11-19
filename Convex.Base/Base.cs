@@ -45,11 +45,14 @@ namespace Convex.Base
 
         public event AsyncEventHandler<PluginActionEventArgs> Callback;
 
-        public Task Start(Configuration configuration) => Task.CompletedTask;
+        public Task Start(Configuration configuration)
+        {
+            return Task.CompletedTask;
+        }
 
         public async Task Stop()
         {
-            if ((Status == PluginStatus.Running) || (Status == PluginStatus.Processing))
+            if (Status == PluginStatus.Running || Status == PluginStatus.Processing)
             {
                 await Log($"Stop called but process is running from: {Name}");
             }
@@ -75,7 +78,7 @@ namespace Convex.Base
             await DoCallback(this, new PluginActionEventArgs(PluginActionType.Log, string.Join(" ", args), Name));
         }
 
-        private async Task DoCallback(object source, PluginActionEventArgs args)
+        private async Task DoCallback(object sender, PluginActionEventArgs args)
         {
             if (Callback == null)
             {
@@ -84,11 +87,13 @@ namespace Convex.Base
 
             args.PluginName = Name;
 
-            await Callback.Invoke(source, args);
+            await Callback.Invoke(sender, args);
         }
 
-        private static bool InputEquals(ServerMessagedEventArgs args, string comparison) =>
-            args.Message.SplitArgs[0].Equals(comparison, StringComparison.OrdinalIgnoreCase);
+        private static bool InputEquals(ServerMessagedEventArgs args, string comparison)
+        {
+            return args.Message.SplitArgs[0].Equals(comparison, StringComparison.OrdinalIgnoreCase);
+        }
 
         #endregion
 
@@ -188,7 +193,7 @@ namespace Convex.Base
         private async Task Quit(ServerMessagedEventArgs args)
         {
             if (!InputEquals(args, "quit")
-                || (args.Message.SplitArgs.Count < 2)
+                || args.Message.SplitArgs.Count < 2
                 || !args.Message.SplitArgs[1].Equals("quit"))
             {
                 return;
@@ -376,7 +381,7 @@ namespace Convex.Base
                             .HttpGet());
 
             if (entry.RootElement.TryGetProperty("count", out JsonElement element)
-                && (element.GetInt32() < 1))
+                && element.GetInt32() < 1)
             {
                 command.Arguments = "Query returned no results.";
                 await DoCallback(this, new PluginActionEventArgs(PluginActionType.SendMessage, command, Name));
@@ -439,7 +444,7 @@ namespace Convex.Base
 
             Status = PluginStatus.Processing;
 
-            if ((args.Message.SplitArgs.Count < 2) || !args.Message.SplitArgs[1].Equals("lookup"))
+            if (args.Message.SplitArgs.Count < 2 || !args.Message.SplitArgs[1].Equals("lookup"))
             {
                 return;
             }

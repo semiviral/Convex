@@ -2,10 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Convex.Core.Events;
 using Convex.Core.Net;
@@ -24,8 +22,13 @@ namespace Convex.Core
 
         public static readonly string ConfigurationsDirectory = $@"{AppContext.BaseDirectory}/config/";
         public static readonly string LogsDirectory = $@"{AppContext.BaseDirectory}/logs/";
-        public static readonly string GlobalConfigurationFilePath = $@"{ConfigurationsDirectory}/{GLOBAL_CONFIGURATION_FILE_NAME}";
-        public static readonly string LogFilePath =$@"{LogsDirectory}/runtime-{DateTime.Now}.log"; 
+
+        public static readonly string GlobalConfigurationFilePath =
+            $@"{ConfigurationsDirectory}/{GLOBAL_CONFIGURATION_FILE_NAME}";
+
+        public static readonly string LogFilePath = $@"{LogsDirectory}/runtime-{DateTime.Now}.log";
+
+        public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged; 
 
         /// <summary>
         ///     Initializes class. No connections are made at initialization, so call `Load()` to begin sending and
@@ -39,15 +42,25 @@ namespace Convex.Core
                 .CreateLogger();
 
             Log.Information("Default logger created.");
-            
+
             _UniqueId = Guid.NewGuid().ToString();
 
             Log.Information($"Client UniqueID is: {_UniqueId}");
 
-            _AssemblyVersion = new AssemblyName(GetType().GetTypeInfo().Assembly.FullName).Version;
+            _AssemblyVersion = GetType().Assembly.GetName().Version ?? new Version(string.Empty);
 
             Log.Information($"Client is version {_AssemblyVersion}");
             TerminateSignaled += async (sender, args) => { await Dispose(true); };
+        }
+
+        private async Task OnServerMessaged(object sender, ServerMessagedEventArgs args)
+        {
+            if (ServerMessaged == null)
+            {
+                return;
+            }
+
+            await ServerMessaged.Invoke(sender, args);
         }
 
 
@@ -57,11 +70,25 @@ namespace Convex.Core
         private readonly Version _AssemblyVersion;
         private bool _Initialized;
 
-        private PluginHostWrapper<ServerMessagedEventArgs> _PluginHostWrapper;
+        private PluginHostWrapper _PluginHostWrapper;
 
         string IClient.UniqueId => _UniqueId;
         Version IClient.AssemblyVersion => _AssemblyVersion;
         bool IClient.Initialized => _Initialized;
+
+        IInitializedClient IClient.InitializedClient
+        {
+            get
+            {
+                if (!_Initialized)
+                {
+                    throw new Exception(
+                        "Client is not yet initialized. Please initialize client before trying to access.");
+                }
+
+                return this;
+            }
+        }
 
         async Task<IInitializedClient> IClient.Initialize()
         {
@@ -69,23 +96,14 @@ namespace Convex.Core
 
             LoadGlobalConfiguration();
 
-            _PluginHostWrapper = new PluginHostWrapper<ServerMessagedEventArgs>(_Configuration, OnInvokedMethod, "Convex.*.dll");
+            _PluginHostWrapper = new PluginHostWrapper(_Configuration, "Convex.*.dll");
             _PluginHostWrapper.Terminated += OnTerminated;
             await _PluginHostWrapper.Load();
 
-            _Initialized = _PluginHostWrapper.IsInitialized;
+            _Server = new Server();
 
-            if (_PluginHostWrapper.IsInitialized)
-            {
-                _Initialized = true;
-                Log.Information("Client initialized.");
-            }
-            else
-            {
-                Log.Error("Client failed to initialize.");
-            }
-
-            await OnInitializationCompleted(this, new ClassInitializedEventArgs(this));
+            Log.Information("Client successfully initialized.");
+            _Initialized = true;
 
             return this;
         }
@@ -124,7 +142,8 @@ namespace Convex.Core
 
             _Configuration.SaveToFile(GlobalConfigurationFilePath);
 
-            Log.Information("Default global configuration created. Many values are empty by default, so you will have to edit the /config/global.conf file.");
+            Log.Information(
+                "Default global configuration created. Many values are empty by default, so you will have to edit the /config/global.conf file.");
         }
 
         private void LoadGlobalConfiguration()
@@ -157,37 +176,25 @@ namespace Convex.Core
 
         public event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
 
-        public event AsyncEventHandler<ClassInitializedEventArgs> InitializationCompleted;
 
-
-        private async Task OnDatabaseQueried(object source, DatabaseQueriedEventArgs args)
+        private async Task OnDatabaseQueried(object sender, DatabaseQueriedEventArgs args)
         {
             if (DatabaseQueried == null)
             {
                 return;
             }
 
-            await DatabaseQueried.Invoke(source, args);
+            await DatabaseQueried.Invoke(sender, args);
         }
 
-        private async Task OnTerminated(object source, OperationTerminatedEventArgs args)
+        private async Task OnTerminated(object sender, OperationTerminatedEventArgs args)
         {
             if (TerminateSignaled == null)
             {
                 return;
             }
 
-            await TerminateSignaled.Invoke(source, args);
-        }
-
-        private async Task OnInitializationCompleted(object source, ClassInitializedEventArgs args)
-        {
-            if (InitializationCompleted == null)
-            {
-                return;
-            }
-
-            await InitializationCompleted.Invoke(source, args);
+            await TerminateSignaled.Invoke(sender, args);
         }
 
         #endregion
@@ -207,75 +214,71 @@ namespace Convex.Core
 
         async Task IInitializedClient.Connect(IAddress address)
         {
-            _Server = new Server(address);
-            // todo change logic to not use events internally
-            _Server.MessageReceived += OnMessageReceived;
+            // todo implement server messaged event for consuming applications / non-plugin assemblies
+            _Server.Connection.DataReceived += OnDataReceived;
 
-            await _Server.Connection.Connect();
-
-            await _Server.SendIdentityInfo(_Configuration[nameof(Core)]["Nickname"].StringValue, _Configuration[nameof(Core)]["Realname"].StringValue);
-        }
-
-        async Task IInitializedClient.BeginListenAsync()
-        {
-            do
-            {
-                await _Server.ListenAsync(this);
-            } while (_Server.Connection.Connected);
-        }
-
-        private async Task OnMessageReceived(object source, ServerMessagedEventArgs args)
-        {
-            if (string.IsNullOrEmpty(args.Message.Command)
-                || args.Message.Command.Equals(Commands.ERROR)
-                || args.Message.Nickname.Equals(_Configuration[nameof(Core)]["Nickname"].StringValue)
-                || _Configuration[nameof(Core)]["IgnoreList"].StringValueArray.Contains(args.Message.RealName))
-            {
-                return;
-            }
-
-            if (args.Message.SplitArgs.Count >= 2 && args.Message.SplitArgs[0].Equals(_Configuration[nameof(Core)]["Nickname"].StringValue.ToLower()))
-            {
-                args.Message.InputCommand = args.Message.SplitArgs[1].ToLower();
-            }
-
-            await _PluginHostWrapper.Host.InvokeAsync(this, args);
-        }
-
-        private static async Task OnInvokedMethod(InvokedAsyncEventArgs<ServerMessagedEventArgs> args)
-        {
-            if (args.Args.Message.Command.Equals(Commands.ALL))
-            {
-                await InvokeSteps(args, Commands.ALL);
-            }
-
-            if (!args.Host.CompositionHandlers.ContainsKey(args.Args.Message.Command) || !args.Args.Execute)
-            {
-                return;
-            }
-
-            await InvokeSteps(args, args.Args.Message.Command);
+            await _Server.Connection.Connect(address);
+            await _Server.SendIdentityInfo(_Configuration[nameof(Core)]["Nickname"].StringValue,
+                _Configuration[nameof(Core)]["Realname"].StringValue);
         }
 
         /// <summary>
-        ///     Step-invokes an InvokedAsyncEventArgs
+        ///     Processes received raw stream data into a ServerMessage and invoked the current plugin host.
         /// </summary>
-        /// <param name="args">InvokedAsyncEventArgs object</param>
-        /// <param name="contextCommand">Command to execute from</param>
-        /// <returns></returns>
-        private static async Task InvokeSteps(InvokedAsyncEventArgs<ServerMessagedEventArgs> args,
-            string contextCommand)
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private async Task OnDataReceived(object sender, StreamDataEventArgs args)
         {
-            foreach (IAsyncComposition<ServerMessagedEventArgs> composition in args.Host
-                .CompositionHandlers[contextCommand].OrderBy(comp => comp.Priority))
+            if (string.IsNullOrEmpty(args.Data))
             {
-                if (!args.Args.Execute)
-                {
-                    return;
-                }
-
-                await composition.InvokeAsync(args.Args);
+                return;
             }
+
+            if (CheckIsPing(args.Data))
+            {
+                await ReturnPing(args.Data);
+                return;
+            }
+
+            ServerMessage serverMessage = new ServerMessage(args.Data);
+
+            if (string.IsNullOrEmpty(serverMessage.Command)
+                || serverMessage.Command.Equals(Commands.ERROR)
+                || serverMessage.Nickname.Equals(_Configuration[nameof(Core)]["Nickname"].StringValue)
+                || _Configuration[nameof(Core)]["IgnoreList"].StringValueArray.Contains(serverMessage.RealName))
+            {
+                return;
+            }
+
+            if (serverMessage.SplitArgs.Count >= 2 && serverMessage.SplitArgs[0]
+                    .Equals(_Configuration[nameof(Core)]["Nickname"].StringValue.ToLower()))
+            {
+                serverMessage.InputCommand = serverMessage.SplitArgs[1].ToLower();
+            }
+            
+            ServerMessagedEventArgs serverMessagedEventArgs = new ServerMessagedEventArgs(this, serverMessage);
+
+            // Invoke ServerMessaged event
+            await OnServerMessaged(this, serverMessagedEventArgs);
+
+            // Invoke PluginHost
+            await _PluginHostWrapper.Host.InvokeAsync(serverMessagedEventArgs);
+        }
+
+        /// <summary>
+        ///     Check whether the data received is a ping message and reply
+        /// </summary>
+        /// <param name="rawData"></param>
+        /// <returns></returns>
+        private static bool CheckIsPing(string rawData)
+        {
+            return rawData.StartsWith(Commands.PING);
+        }
+
+        private async Task ReturnPing(string rawData)
+        {
+            string pingData = rawData.Remove(0, 5); // removes 'PING ' from string
+            await _Server.Connection.EstablishedConnection.SendCommandAsync(new CommandEventArgs(Commands.PONG, pingData));
         }
 
         #endregion

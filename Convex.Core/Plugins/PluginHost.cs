@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Convex.Core.Events;
+using Convex.Core.Net;
 using Convex.Core.Plugins.Compositions;
 using Serilog;
 using SharpConfig;
@@ -16,20 +17,21 @@ using SharpConfig;
 
 namespace Convex.Core.Plugins
 {
-    public static class PluginHost
+    public class PluginHost
     {
         public static readonly string PluginsDirectory = $@"{AppContext.BaseDirectory}/plugins/";
-    }
 
-    public class PluginHost<T> where T : EventArgs
-    {
-        public PluginHost(Configuration configuration, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod,
-            string pluginMask)
+        public PluginHost(Configuration configuration, string pluginMask)
         {
             Configuration = configuration;
-            InvokedAsync += async (source, args) => await invokeAsyncMethod(new InvokedAsyncEventArgs<T>(this, args));
             PluginMask = pluginMask;
         }
+
+        #region EVENTS
+
+        public event AsyncEventHandler<PluginActionEventArgs> PluginCallback;
+
+        #endregion
 
         #region MEMBERS
 
@@ -38,20 +40,13 @@ namespace Convex.Core.Plugins
 
         private List<PluginInstance> Plugins { get; } = new List<PluginInstance>();
 
-        public Dictionary<string, List<IAsyncComposition<T>>> CompositionHandlers { get; } =
-            new Dictionary<string, List<IAsyncComposition<T>>>();
+        public Dictionary<string, List<IAsyncComposition<ServerMessagedEventArgs>>> CompositionHandlers { get; } =
+            new Dictionary<string, List<IAsyncComposition<ServerMessagedEventArgs>>>();
 
         public Dictionary<string, CompositionDescription> DescriptionRegistry { get; } =
             new Dictionary<string, CompositionDescription>();
 
         public bool ShuttingDown { get; private set; }
-
-        #endregion
-
-        #region EVENTS
-
-        public event AsyncEventHandler<T> InvokedAsync;
-        public event AsyncEventHandler<PluginActionEventArgs> PluginCallback;
 
         #endregion
 
@@ -81,7 +76,7 @@ namespace Convex.Core.Plugins
             }
         }
 
-        public void RegisterComposition(IAsyncComposition<T> composition)
+        public void RegisterComposition(IAsyncComposition<ServerMessagedEventArgs> composition)
         {
             try
             {
@@ -102,13 +97,13 @@ namespace Convex.Core.Plugins
             }
         }
 
-        private void AddComposition(IAsyncComposition<T> composition)
+        private void AddComposition(IAsyncComposition<ServerMessagedEventArgs> composition)
         {
             foreach (string command in composition.Commands)
             {
                 if (!CompositionHandlers.ContainsKey(command))
                 {
-                    CompositionHandlers.Add(command, new List<IAsyncComposition<T>>());
+                    CompositionHandlers.Add(command, new List<IAsyncComposition<ServerMessagedEventArgs>>());
                 }
 
                 CompositionHandlers[command].Add(composition);
@@ -123,14 +118,15 @@ namespace Convex.Core.Plugins
         {
             try
             {
-                foreach (string filePath in Directory.GetFiles(PluginHost.PluginsDirectory, PluginMask,
+                foreach (string filePath in Directory.GetFiles(PluginsDirectory, PluginMask,
                     SearchOption.AllDirectories))
                 {
                     foreach (IPlugin plugin in GetIPluginInstances(filePath))
                     {
                         Type pluginType = plugin.GetType();
 
-                        foreach (MethodInfo methodInfo in pluginType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                        foreach (MethodInfo methodInfo in pluginType.GetMethods(
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                         {
                             Composition composition = methodInfo.GetCustomAttribute<Composition>();
 
@@ -140,14 +136,17 @@ namespace Convex.Core.Plugins
                             }
 
                             // local wrapper function
-                            async Task Method(T args)
+                            async Task Method(ServerMessagedEventArgs args)
                             {
                                 await (Task)methodInfo.Invoke(pluginType, new object[] { args });
                             }
 
-                            CompositionDescription description = methodInfo.GetCustomAttribute<CompositionDescription>() ?? MethodComposition.UndefinedDescription;
+                            CompositionDescription description =
+                                methodInfo.GetCustomAttribute<CompositionDescription>() ??
+                                MethodComposition.UndefinedDescription;
 
-                            MethodComposition<T> methodComposition = new MethodComposition<T>(Method, composition, description);
+                            MethodComposition<ServerMessagedEventArgs> methodComposition =
+                                new MethodComposition<ServerMessagedEventArgs>(Method, composition, description);
 
                             RegisterComposition(methodComposition);
                         }
@@ -193,7 +192,7 @@ namespace Convex.Core.Plugins
         /// <returns></returns>
         private static IEnumerable<IPlugin> GetIPluginInstances(string assemblyName)
         {
-            foreach (Type type in  GetAssembly(assemblyName).GetTypes())
+            foreach (Type type in GetAssembly(assemblyName).GetTypes())
             {
                 if (!type.IsAssignableFrom(typeof(IPlugin)))
                 {
@@ -204,8 +203,10 @@ namespace Convex.Core.Plugins
             }
         }
 
-        private static Assembly GetAssembly(string assemblyName) =>
-            AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyName);
+        private static Assembly GetAssembly(string assemblyName)
+        {
+            return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyName);
+        }
 
         /// <summary>
         ///     Adds IPlugin instance to internal list
@@ -229,24 +230,39 @@ namespace Convex.Core.Plugins
             }
         }
 
-        public async Task InvokeAsync(object source, T args)
+        public async Task InvokeAsync(ServerMessagedEventArgs args)
         {
-            if (InvokedAsync == null)
+            if (!CompositionHandlers.ContainsKey(args.Message.Command) || !args.Execute)
             {
                 return;
             }
 
-            await InvokedAsync.Invoke(source, args);
+            await InvokeSteps(args);
         }
 
-        private async Task OnPluginCallback(object source, PluginActionEventArgs e)
+        /// <summary>
+        ///     Step-invokes an InvokedAsyncEventArgs
+        /// </summary>
+        /// <param name="args">InvokedAsyncEventArgs object</param>
+        /// <param name="contextCommand">Command to execute from</param>
+        /// <returns></returns>
+        private async Task InvokeSteps(ServerMessagedEventArgs args)
+        {
+            foreach (IAsyncComposition<ServerMessagedEventArgs> composition in CompositionHandlers[args.Message.Command]
+                .OrderBy(comp => comp.Priority))
+            {
+                await composition.InvokeAsync(args);
+            }
+        }
+
+        private async Task OnPluginCallback(object sender, PluginActionEventArgs args)
         {
             if (PluginCallback == null)
             {
                 return;
             }
 
-            await PluginCallback.Invoke(source, e);
+            await PluginCallback.Invoke(sender, args);
         }
     }
 

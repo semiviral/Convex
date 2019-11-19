@@ -1,11 +1,11 @@
 ﻿#region
 
+using System;
+using System.Threading.Tasks;
 using Convex.Core;
 using Convex.Core.Net;
 using Convex.Core.Plugins.Compositions;
 using Serilog;
-using System;
-using System.Threading.Tasks;
 
 #endregion
 
@@ -29,17 +29,18 @@ namespace Convex.Example
         {
             try
             {
-                _BotInitialized = await _Bot.Initialize();
-
-                _BotInitialized.Server.MessageReceived += (source, args) =>
+                _Bot.ServerMessaged += (source, args) =>
                 {
-                    Log.Information(string.Format(_SERVER_MESSAGE_OUTPUT_FORMAT, args.Message.Nickname, args.Message.Args));
+                    Log.Information(string.Format(_SERVER_MESSAGE_OUTPUT_FORMAT, args.Message.Nickname,
+                        args.Message.Args));
                     return Task.CompletedTask;
                 };
 
-                _BotInitialized.Server.Connection.Flushed += (sender, args) =>
+                _BotInitialized = await _Bot.Initialize();
+
+                _BotInitialized.Server.Connection.DataWritten += (sender, args) =>
                 {
-                    Log.Information($"   >> {args.Information}");
+                    Log.Information($"   >> {args.Data}");
                     return Task.CompletedTask;
                 };
 
@@ -51,7 +52,7 @@ namespace Convex.Example
             }
             finally
             {
-                IsInitialised = _Bot?.Initialized ?? false;
+                IsInitialized = _Bot?.Initialized ?? false;
             }
         }
 
@@ -62,7 +63,15 @@ namespace Convex.Example
         public async Task Execute(IAddress address)
         {
             await _BotInitialized.Connect(address);
-            await _BotInitialized.BeginListenAsync();
+        }
+
+        #endregion
+
+        #region METHODS
+
+        private static string FormatServerMessage(ServerMessage message)
+        {
+            return $"<{message.Nickname}> {message.Args}";
         }
 
         #endregion
@@ -72,10 +81,10 @@ namespace Convex.Example
         private string BotInfo =>
             $"[Version {_Bot.AssemblyVersion}] Evealyn is an IRC bot for C#.";
 
-        public bool IsInitialised { get; private set; }
+        public bool IsInitialized { get; private set; }
         public bool Executing => _BotInitialized.Server.Connection.Connected;
         private readonly IClient _Bot;
-        private  IInitializedClient _BotInitialized;
+        private IInitializedClient _BotInitialized;
 
         private readonly string[] _DefaultChannels =
         {
@@ -103,7 +112,8 @@ namespace Convex.Example
                 return;
             }
 
-            await _BotInitialized.Server.Connection.SendCommandAsync(new CommandEventArgs(Commands.PRIVMSG, $"{args.Message.Origin} {BotInfo}"));
+            await _BotInitialized.Server.Connection.EstablishedConnection.SendCommandAsync(
+                new CommandEventArgs(Commands.PRIVMSG, $"{args.Message.Origin} {BotInfo}"));
         }
 
         #endregion
@@ -128,12 +138,6 @@ namespace Convex.Example
         {
             Dispose(false);
         }
-
-        #endregion
-
-        #region METHODS
-
-        private static string FormatServerMessage(ServerMessage message) => $"<{message.Nickname}> {message.Args}";
 
         #endregion
     }

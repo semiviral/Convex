@@ -12,14 +12,16 @@ using SharpConfig;
 
 namespace Convex.Core.Plugins
 {
-    public class PluginHostWrapper<T> where T : EventArgs
+    public class PluginHostWrapper
     {
-        public PluginHostWrapper(Configuration configuration, Func<InvokedAsyncEventArgs<T>, Task> invokeAsyncMethod,
-            string pluginMask) => Host = new PluginHost<T>(configuration, invokeAsyncMethod, pluginMask);
+        public PluginHostWrapper(Configuration configuration, string pluginMask)
+        {
+            Host = new PluginHost(configuration, pluginMask);
+        }
 
         #region METHODS
 
-        private async Task Callback(object source, PluginActionEventArgs args)
+        private async Task Callback(object sender, PluginActionEventArgs args)
         {
             if (Host.ShuttingDown)
             {
@@ -29,15 +31,15 @@ namespace Convex.Core.Plugins
             switch (args.ActionType)
             {
                 case PluginActionType.Terminate:
-                    await OnTerminated(source, new OperationTerminatedEventArgs(source, "Terminated."));
+                    await OnTerminated(sender, new OperationTerminatedEventArgs(sender, "Terminated."));
                     break;
                 case PluginActionType.RegisterMethod:
-                    if (!(args.Result is IAsyncComposition<T>))
+                    if (!(args.Result is IAsyncComposition<ServerMessagedEventArgs>))
                     {
                         break;
                     }
 
-                    Host.RegisterComposition((IAsyncComposition<T>)args.Result);
+                    Host.RegisterComposition((IAsyncComposition<ServerMessagedEventArgs>)args.Result);
                     break;
                 case PluginActionType.SendMessage:
                     if (!(args.Result is CommandEventArgs))
@@ -45,7 +47,7 @@ namespace Convex.Core.Plugins
                         break;
                     }
 
-                    await OnCommandReceived(source, (CommandEventArgs)args.Result);
+                    await OnCommandReceived(sender, (CommandEventArgs)args.Result);
                     break;
                 case PluginActionType.Log:
                     if (!(args.Result is string))
@@ -82,7 +84,7 @@ namespace Convex.Core.Plugins
 
         #region MEMBERS
 
-        public PluginHost<T> Host { get; }
+        public PluginHost Host { get; }
         public bool IsInitialized { get; private set; }
 
         #endregion
@@ -92,24 +94,24 @@ namespace Convex.Core.Plugins
         public event AsyncEventHandler<CommandEventArgs> CommandReceived;
         public event AsyncEventHandler<OperationTerminatedEventArgs> Terminated;
 
-        private async Task OnCommandReceived(object source, CommandEventArgs args)
+        private async Task OnCommandReceived(object sender, CommandEventArgs args)
         {
             if (CommandReceived == null)
             {
                 return;
             }
 
-            await CommandReceived.Invoke(source, args);
+            await CommandReceived.Invoke(sender, args);
         }
 
-        private async Task OnTerminated(object source, OperationTerminatedEventArgs args)
+        private async Task OnTerminated(object sender, OperationTerminatedEventArgs args)
         {
             if (Terminated == null)
             {
                 return;
             }
 
-            await Terminated.Invoke(source, args);
+            await Terminated.Invoke(sender, args);
         }
 
         #endregion

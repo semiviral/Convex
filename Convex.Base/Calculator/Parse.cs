@@ -267,21 +267,17 @@ namespace Convex.Base.Calculator
 
     public class CalculateException : Exception
     {
-        public CalculateException(string message, int position) : base($"Error at position: {position}, {message}") =>
-            TokenPosition = position;
-
-        public CalculateException()
-        {
-        }
-
-        public CalculateException(string message) : base(message)
-        {
-        }
-
-        public CalculateException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
         public int TokenPosition { get; }
+
+        public CalculateException(string message, int position) : base($"Error at position: {position}, {message}")
+        {
+            TokenPosition = position;
+        }
+
+        public CalculateException() { }
+
+        public CalculateException(string message) : base(message) { }
+
+        public CalculateException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

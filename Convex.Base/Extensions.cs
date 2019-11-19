@@ -69,10 +69,8 @@ namespace Convex.Base
                     {
                         continue;
                     }
-                    else
-                    {
-                        isSpace = true;
-                    }
+
+                    isSpace = true;
                 }
                 else
                 {

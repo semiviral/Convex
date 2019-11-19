@@ -12,6 +12,13 @@ namespace Convex.Core
 {
     public static class Commands
     {
+        #region METHODS
+
+        public static List<string> CommandsList { get; } =
+            new List<string>(typeof(Commands).GetFields().Select(field => field.Name));
+
+        #endregion
+
         #region MEMBERS
 
         public const string ALL = "";
@@ -664,13 +671,6 @@ namespace Convex.Core
         ///     :Cannot change mode for other user
         /// </summary>
         public const string ERR_USERSDONTMATCH = "502";
-
-        #endregion
-
-        #region METHODS
-
-        public static List<string> CommandsList { get; } =
-            new List<string>(typeof(Commands).GetFields().Select(field => field.Name));
 
         #endregion
     }

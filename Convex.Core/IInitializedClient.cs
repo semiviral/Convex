@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convex.Core.Net;
 using Convex.Core.Plugins.Compositions;
@@ -15,6 +13,5 @@ namespace Convex.Core
         IReadOnlyDictionary<string, CompositionDescription> CompositionDescriptions { get; }
 
         Task Connect(IAddress address);
-        Task BeginListenAsync();
     }
 }

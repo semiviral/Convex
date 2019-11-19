@@ -32,7 +32,7 @@ namespace Convex.Example
             {
                 await Bot.Initialize();
 
-                if (!Bot.IsInitialised)
+                if (!Bot.IsInitialized)
                 {
                     return;
                 }

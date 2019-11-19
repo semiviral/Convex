@@ -17,12 +17,13 @@ namespace Convex.Core
         string UniqueId { get; }
         Version AssemblyVersion { get; }
         bool Initialized { get; }
+        IInitializedClient InitializedClient { get; }
+
+        event AsyncEventHandler<DatabaseQueriedEventArgs> DatabaseQueried;
+        event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
+        event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
 
         Task<IInitializedClient> Initialize();
         void RegisterMethod(IAsyncComposition<ServerMessagedEventArgs> methodRegistrar);
-
-        event AsyncEventHandler<ClassInitializedEventArgs> InitializationCompleted;
-        event AsyncEventHandler<DatabaseQueriedEventArgs> DatabaseQueried;
-        event AsyncEventHandler<OperationTerminatedEventArgs> TerminateSignaled;
     }
 }
