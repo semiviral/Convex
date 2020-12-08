@@ -9,7 +9,6 @@
     <Company />
     <Product>Convex IRC Library</Product>
     <Description>An IRC library offering simple implementation and versatile capability.</Description>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/avirule/Convex</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/avirule/Convex/blob/master/LICENSE</PackageLicenseUrl>
     <Copyright>Copyright 2019 SemiViral</Copyright>
@@ -23,6 +22,7 @@
     <Title>Convex IRC Library</Title>
     <PackageVersion>1.4.0</PackageVersion>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

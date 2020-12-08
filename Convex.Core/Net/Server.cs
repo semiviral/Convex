@@ -18,7 +18,6 @@ namespace Convex.Core.Net
         }
 
 
-
         /// <summary>
         ///     sends client info to the server
         /// </summary>

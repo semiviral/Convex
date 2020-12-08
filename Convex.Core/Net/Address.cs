@@ -8,13 +8,16 @@
             Port = port;
         }
 
+        public override string ToString()
+        {
+            return $"{Hostname}:{Port}";
+        }
+
         #region MEMBERS
 
         public string Hostname { get; }
         public int Port { get; }
 
         #endregion
-
-        public override string ToString() => $"{Hostname}:{Port}";
     }
 }

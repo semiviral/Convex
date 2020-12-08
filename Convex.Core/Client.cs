@@ -28,8 +28,6 @@ namespace Convex.Core
 
         public static readonly string LogFilePath = $@"{LogsDirectory}/runtime-{DateTime.Now}.log";
 
-        public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged; 
-
         /// <summary>
         ///     Initializes class. No connections are made at initialization, so call `Load()` to begin sending and
         ///     receiving.
@@ -52,6 +50,8 @@ namespace Convex.Core
             Log.Information($"Client is version {_AssemblyVersion}");
             TerminateSignaled += async (sender, args) => { await Dispose(true); };
         }
+
+        public event AsyncEventHandler<ServerMessagedEventArgs> ServerMessaged;
 
         private async Task OnServerMessaged(object sender, ServerMessagedEventArgs args)
         {
@@ -255,7 +255,7 @@ namespace Convex.Core
             {
                 serverMessage.InputCommand = serverMessage.SplitArgs[1].ToLower();
             }
-            
+
             ServerMessagedEventArgs serverMessagedEventArgs = new ServerMessagedEventArgs(this, serverMessage);
 
             // Invoke ServerMessaged event
@@ -278,7 +278,8 @@ namespace Convex.Core
         private async Task ReturnPing(string rawData)
         {
             string pingData = rawData.Remove(0, 5); // removes 'PING ' from string
-            await _Server.Connection.EstablishedConnection.SendCommandAsync(new CommandEventArgs(Commands.PONG, pingData));
+            await _Server.Connection.EstablishedConnection.SendCommandAsync(new CommandEventArgs(Commands.PONG,
+                pingData));
         }
 
         #endregion

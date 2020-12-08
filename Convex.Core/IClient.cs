@@ -1,8 +1,6 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Convex.Core.Events;
 using Convex.Core.Net;

@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -19,11 +18,6 @@ namespace Convex.Core.Net
         private StreamReader _Reader;
         private StreamWriter _Writer;
 
-        public event AsyncEventHandler<ConnectedEventArgs> Established;
-        public event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
-        public event AsyncEventHandler<StreamDataEventArgs> DataWritten;
-        public event AsyncEventHandler<StreamDataEventArgs> DataReceived;
-
         public Connection()
         {
             Established += (source, args) =>
@@ -38,6 +32,11 @@ namespace Convex.Core.Net
                 return Task.CompletedTask;
             };
         }
+
+        public event AsyncEventHandler<ConnectedEventArgs> Established;
+        public event AsyncEventHandler<DisconnectedEventArgs> Disconnected;
+        public event AsyncEventHandler<StreamDataEventArgs> DataWritten;
+        public event AsyncEventHandler<StreamDataEventArgs> DataReceived;
 
         private async Task<string> ReadLineAsync()
         {
@@ -151,7 +150,7 @@ namespace Convex.Core.Net
         private IAddress _Address;
 
         IAddress IEstablishedConnection.Address => _Address;
-        
+
         async Task IEstablishedConnection.WriteAsync(string writable)
         {
             if (_Writer.BaseStream == null)
@@ -232,7 +231,6 @@ namespace Convex.Core.Net
             _NetworkStream?.Dispose();
             _Reader?.Dispose();
             _Writer?.Dispose();
-
         }
 
         public void Dispose()
